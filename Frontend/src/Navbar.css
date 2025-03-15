@@ -1,0 +1,16 @@
+a{
+    color: black;
+}
+
+a:hover {
+    color: #FF8B13;       
+    text-decoration: underline; 
+}
+
+button{
+    background-color: #1D2126;
+    padding: 5px;
+    border-radius: 15px;
+    width: 150px;
+}
+  
