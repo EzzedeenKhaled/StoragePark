@@ -1,6 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import Partner from './Partner';
-
+import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import Login from "./Pages/Login";
+import Register from "./Pages/CustomerRegister";
+import RegisterPartner from "./Pages/PartnerRegister1";
+import RegisterPartner2 from "./Pages/PartnerRegister2";
 function HomePage() {
   const navigate = useNavigate();
 
@@ -85,6 +87,11 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/partner" element={<PartnerPage />} />
         <Route path="/products" element={<ProductsPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register-partner-1" element={<RegisterPartner />} />
+        <Route path="/register-partner-2" element={<RegisterPartner2 />} />
+        <Route path="/register-customer" element={<Register />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
