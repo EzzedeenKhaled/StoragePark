@@ -1,25 +1,25 @@
 import '../Styles/RegisterC.css';
 import { Link } from "react-router-dom";
-import React, { useState } from "react";
+import { useState } from "react";
 import { UserPlus, Loader } from "lucide-react";
-import logo from "../assets/logo.png"; 
+import logo from "../assets/logo.png";
 import { useUserStore } from "../stores/useUserStore";
 
 const Register = () => {
     const [errorMessage] = useState("");
-	const [formData, setFormData] = useState({
-		firstName: "",
+    const [formData, setFormData] = useState({
+        firstName: "",
         lastName: "",
         phone: "",
-		email: "",
-		password: "",
+        email: "",
+        password: "",
         role: "customer",
-	});
+    });
     const { signup, loading } = useUserStore();
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		signup(formData);
-	};
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        signup(formData);
+    };
 
     return (
         <div className='RegisterPage'>
@@ -37,8 +37,8 @@ const Register = () => {
                             <div className="name_fields">
                                 <div className="text_field">
                                     <label>First Name</label>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         required
                                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                                         value={formData.firstName}
@@ -46,8 +46,8 @@ const Register = () => {
                                 </div>
                                 <div className="text_field">
                                     <label>Last Name</label>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         required
                                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                                         value={formData.lastName}
@@ -56,8 +56,8 @@ const Register = () => {
                             </div>
                             <div className="text_field">
                                 <label>Email</label>
-                                <input 
-                                    type="email" 
+                                <input
+                                    type="email"
                                     required
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     value={formData.email}
@@ -65,8 +65,8 @@ const Register = () => {
                             </div>
                             <div className="text_field">
                                 <label>Phone Number</label>
-                                <input 
-                                    type="tel" 
+                                <input
+                                    type="tel"
                                     required
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     value={formData.phone}
@@ -74,7 +74,7 @@ const Register = () => {
                             </div>
                             <div className="text_field">
                                 <label>Password</label>
-                                <input 
+                                <input
                                     type="password"
                                     required
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
