@@ -3,9 +3,13 @@ import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
 	{
-		name: {
+		firstName: {
 			type: String,
-			required: [true, "Name is required"],
+			required: [true, "First name is required"],
+		},
+		lastName: {
+			type: String,
+			required: [true, "Last name is required"],
 		},
 		email: {
 			type: String,
@@ -21,7 +25,7 @@ const userSchema = new mongoose.Schema(
 		},
 		role: {
 			type: String,
-			enum: ["customer", "admin","partner","worker"],
+			enum: ["customer", "admin", "partner", "worker"],
 			default: "customer",
 		},
 	},
@@ -30,7 +34,7 @@ const userSchema = new mongoose.Schema(
 	}
 );
 
-// Pre-save hook to hash password before saving to database
+// Pre-save hook to hash password before saving to the database
 userSchema.pre("save", async function (next) {
 	if (!this.isModified("password")) return next();
 
@@ -43,6 +47,7 @@ userSchema.pre("save", async function (next) {
 	}
 });
 
+// Method to compare password
 userSchema.methods.comparePassword = async function (password) {
 	return bcrypt.compare(password, this.password);
 };

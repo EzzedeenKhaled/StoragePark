@@ -1,6 +1,7 @@
 import express from "express";
 import { connectDB } from "./lib/db.js";
 import cors from "cors"; 
+import authRoutes from "./routes/auth.route.js";
 const app = express();
 const PORT = process.env.PORT || 5000;  // Set default port in case it's not in .env
 
@@ -13,10 +14,7 @@ app.use(
 	  methods: "GET,POST,PUT,DELETE",
 	})
   );
-app.post("/api/signup", (req, res) => {
-	const { firstName } = req.body;
-	console.log("firstName backend", firstName);
-});
+app.use("/api/auth", authRoutes)
 
 app.listen(PORT, () => {
 	console.log("Server is running on http://localhost:" + PORT);
