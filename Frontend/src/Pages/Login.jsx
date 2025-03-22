@@ -1,5 +1,7 @@
 import '../Styles/Login.css';
 import { Link } from 'react-router-dom'
+import { LogIn, Loader } from "lucide-react";
+import { useUserStore } from "../stores/useUserStore";
 import { useState } from "react";
 // import axios from "axios"; // Commented out since we're not using backend
 import logo from "../assets/logo.png";
@@ -7,10 +9,16 @@ import logo from "../assets/logo.png";
 // import { setUser } from '../../../redux/user/userSlice';
 
 const Login = () => {
-    const [formData, setFormData] = useState({
-		email: "",
-		password: "",
-	});
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+
+	const { login, loading } = useUserStore();
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		console.log(email, password);
+		login(email, password);
+	};
     const [errorMessage] = useState("");
 
     // const navigate = useNavigate();
@@ -100,14 +108,14 @@ const Login = () => {
                         <div className='formSubTitle'>We can’t wait for you to see what’s new. Happy shipping</div>
                     </div>
                     <div className="form_body">
-                        <form className='loginForm'>
+                        <form onSubmit={handleSubmit} className='loginForm'>
                             <div className="text_feild">
                                 <label>Email</label>
                                 <input 
                                     type="email" 
                                     required
-                                    onChange={(e) => setFormData.email(e.target.value)}
-                                    value={formData.email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    value={email}
                                 />
                             </div>
                             <div className="text_feild">
@@ -115,12 +123,31 @@ const Login = () => {
                                 <input 
                                     type="password"
                                     required
-                                    onChange={(e) => setFormData.password(e.target.value)}
-                                    value={formData.password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    value={password}
                                 />
                             </div>
                             <div className='error'>{errorMessage}</div>
-                            <input type="submit" className="loginBtn" value="Login" onClick={submitForm} />
+                            <button
+							type='submit'
+							className='w-full flex justify-center py-2 px-4 border border-transparent 
+							rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600
+							 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2
+							  focus:ring-emerald-500 transition duration-150 ease-in-out disabled:opacity-50'
+							disabled={loading}
+						>
+							{loading ? (
+								<>
+									<Loader className='mr-2 h-5 w-5 animate-spin' aria-hidden='true' />
+									Loading...
+								</>
+							) : (
+								<>
+									<LogIn className='mr-2 h-5 w-5' aria-hidden='true' />
+									Login
+								</>
+							)}
+						</button>
                             <div className="form_bottom">
                                 Don&apos;t have an account?<Link className='linkBtn' to="/Register">Get Started</Link>
                             </div>
