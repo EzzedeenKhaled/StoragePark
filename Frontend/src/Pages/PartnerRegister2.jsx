@@ -1,42 +1,48 @@
 // RegisterPartner2.js
 import '../Styles/RegisterP2.css';
 import { Link } from 'react-router-dom';
-import React, { useState } from "react";
+import { useState } from "react";
 import logo from '../assets/logo.png';
 
 const RegisterPartner2 = () => {
-    const [certificateFile, setCertificateFile] = useState(null);
-    const [businessLicenseFile, setBusinessLicenseFile] = useState(null);
-    const [taxComplianceFile, setTaxComplianceFile] = useState(null);
-    const [termsAccepted, setTermsAccepted] = useState(false);
-    const [showMessage, setShowMessage] = useState(false);
-
+    // const [certificateFile, setCertificateFile] = useState(null);
+    // const [businessLicenseFile, setBusinessLicenseFile] = useState(null);
+    // const [taxComplianceFile, setTaxComplianceFile] = useState(null);
+    // const [termsAccepted, setTermsAccepted] = useState(false);
+    // const [showMessage, setShowMessage] = useState(false);
+    const [formData, setFormData] = useState({
+		certificateFile: null,
+        businessLicenseFile: null,
+        taxComplianceFile: null,
+        termsAccepted: false,
+        showMessage: false,
+	});
     const handleCertificateChange = (e) => {
-        setCertificateFile(e.target.files[0]);
+        setFormData.certificateFile(e.target.files[0]);
     };
 
     const handleBusinessLicenseChange = (e) => {
-        setBusinessLicenseFile(e.target.files[0]);
+        setFormData.businessLicenseFile(e.target.files[0]);
     };
 
     const handleTaxComplianceChange = (e) => {
-        setTaxComplianceFile(e.target.files[0]);
+        setFormData.taxComplianceFile(e.target.files[0]);
     };
     const handleCloseMessage = () => {
-        setShowMessage(false);
+        setFormData.showMessage(false);
     };
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!termsAccepted) {
+        if (!setFormData.termsAccepted) {
             alert("Please accept the terms and conditions.");
             return;
         }
         // Handle form submission with the uploaded files
-        console.log('Certificate:', certificateFile);
-        console.log('Business License:', businessLicenseFile);
-        console.log('Tax Compliance Certificate:', taxComplianceFile);
+        // console.log('Certificate:', certificateFile);
+        // console.log('Business License:', businessLicenseFile);
+        // console.log('Tax Compliance Certificate:', taxComplianceFile);
 
-        setShowMessage(true);
+        setFormData.showMessage(true);
     };
 
     return (
@@ -91,8 +97,8 @@ const RegisterPartner2 = () => {
                     <div className="termsSection">
                         <input 
                             type="checkbox"
-                            checked={termsAccepted}
-                            onChange={() => setTermsAccepted(!termsAccepted)}
+                            checked={setFormData.termsAccepted}
+                            onChange={() => setFormData.termsAccepted(!formData.termsAccepted)}
                         />
                         <label>I agree to the <Link to="/terms">terms and conditions</Link> and the <Link to="/privacy">privacy policy</Link>.</label>
                     </div>
@@ -105,7 +111,7 @@ const RegisterPartner2 = () => {
                     </button>
                 </form>
             </div>
-            {showMessage && (
+            {formData.showMessage && (
                 <div className="submission-message-overlay">
                     <div className="submission-message">
                         <p>

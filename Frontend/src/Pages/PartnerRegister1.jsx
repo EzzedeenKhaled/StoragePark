@@ -1,32 +1,33 @@
 // src/Pages/Auth/RegisterPartner/index.jsx
 import '../Styles/RegisterP1.css';
 import { Link } from "react-router-dom";
-import React, { useState } from "react";
+import { useState } from "react";
 import logo from "../assets/logo.png";
 
 const RegisterPartner = () => {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [companyName, setCompanyName] = useState("");
-    const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-    const [address, setAddress] = useState("");
-    const [website, setWebsite] = useState("");
-    const [googleProfile, setGoogleProfile] = useState("");
+    // const [firstName, setFirstName] = useState("");
+    // const [lastName, setLastName] = useState("");
+    // const [companyName, setCompanyName] = useState("");
+    // const [email, setEmail] = useState("");
+    // const [phone, setPhone] = useState("");
+    // const [address, setAddress] = useState("");
+    // const [website, setWebsite] = useState("");
+    // const [googleProfile, setGoogleProfile] = useState("");
     const [errorMessage] = useState("");
+    const [formData, setFormData] = useState({
+		firstName: "",
+        lastName: "",
+        companyName:"",
+        email:"",
+        phone: "",
+		address:"",
+        website: "",
+        googleProfile: "",
+	});
 
     const submitForm = (e) => {
         e.preventDefault();
-        console.log("Register form submitted:", { 
-            firstName, 
-            lastName, 
-            companyName, 
-            email, 
-            phone, 
-            address, 
-            website, 
-            googleProfile 
-        });
+        console.log(formData);
     };
 
     return (
@@ -48,8 +49,8 @@ const RegisterPartner = () => {
                                     <input 
                                         type="text" 
                                         required
-                                        onChange={(e) => setFirstName(e.target.value)}
-                                        value={firstName}
+                                        onChange={(e) => setFormData.firstName(e.target.value)}
+                                        value={formData.firstName}
                                     />
                                 </div>
                                 <div className="text_field">
@@ -57,8 +58,8 @@ const RegisterPartner = () => {
                                     <input 
                                         type="text" 
                                         required
-                                        onChange={(e) => setLastName(e.target.value)}
-                                        value={lastName}
+                                        onChange={(e) => setFormData.lastName(e.target.value)}
+                                        value={formData.lastName}
                                     />
                                 </div>
                             </div>
@@ -67,8 +68,8 @@ const RegisterPartner = () => {
                                 <input 
                                     type="text" 
                                     required
-                                    onChange={(e) => setCompanyName(e.target.value)}
-                                    value={companyName}
+                                    onChange={(e) => setFormData.companyName(e.target.value)}
+                                    value={formData.companyName}
                                 />
                             </div>
                             <div className="text_field">
@@ -76,8 +77,8 @@ const RegisterPartner = () => {
                                 <input 
                                     type="email" 
                                     required
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    value={email}
+                                    onChange={(e) => setFormData.email(e.target.value)}
+                                    value={formData.email}
                                 />
                             </div>
                             <div className="text_field">
@@ -85,8 +86,8 @@ const RegisterPartner = () => {
                                 <input 
                                     type="tel" 
                                     required
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    value={phone}
+                                    onChange={(e) => setFormData.phone(e.target.value)}
+                                    value={formData.phone}
                                 />
                             </div>
                             <div className="text_field">
@@ -94,16 +95,16 @@ const RegisterPartner = () => {
                                 <input 
                                     type="text" 
                                     required
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    value={address}
+                                    onChange={(e) => setFormData.address(e.target.value)}
+                                    value={formData.address}
                                 />
                             </div>
                             <div className="text_field">
                                 <label>Website URL (If You Have):</label>
                                 <input 
                                     type="url"
-                                    onChange={(e) => setWebsite(e.target.value)}
-                                    value={website}
+                                    onChange={(e) => setFormData.website(e.target.value)}
+                                    value={formData.website}
                                 />
                             </div>
                             <div className="text_field">
@@ -111,8 +112,8 @@ const RegisterPartner = () => {
                                 <input 
                                     type="text"
                                     required
-                                    onChange={(e) => setGoogleProfile(e.target.value)}
-                                    value={googleProfile}
+                                    onChange={(e) => setFormData.googleProfile(e.target.value)}
+                                    value={formData.googleProfile}
                                 />
                             </div>
                             <div className='error'>{errorMessage}</div>
