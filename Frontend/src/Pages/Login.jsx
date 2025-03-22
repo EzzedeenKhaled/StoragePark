@@ -1,14 +1,16 @@
 import '../Styles/Login.css';
 import { Link } from 'react-router-dom'
-import React, { useState } from "react";
+import { useState } from "react";
 // import axios from "axios"; // Commented out since we're not using backend
 import logo from "../assets/logo.png";
 // import { useDispatch } from 'react-redux';
 // import { setUser } from '../../../redux/user/userSlice';
 
 const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [formData, setFormData] = useState({
+		email: "",
+		password: "",
+	});
     const [errorMessage] = useState("");
 
     // const navigate = useNavigate();
@@ -18,12 +20,12 @@ const Login = () => {
         e.preventDefault();
 
         // Mock user data (replace this with real API response)
-        const mockUser = {
-            first_name: "John",
-            last_name: "Doe",
-            user_type_id: 2,  // Change this to 1 for Admin, 3 for Partner, etc.
-            token: "mock_token_123456"
-        };
+        // const mockUser = {
+        //     first_name: "John",
+        //     last_name: "Doe",
+        //     user_type_id: 2,  // Change this to 1 for Admin, 3 for Partner, etc.
+        //     token: "mock_token_123456"
+        // };
 
         // Dispatch to Redux store
         // dispatch(setUser({
@@ -33,9 +35,9 @@ const Login = () => {
         // }));
 
         // Store in localStorage
-        localStorage.setItem("token", mockUser.token);
-        localStorage.setItem("user_name", `${mockUser.first_name} ${mockUser.last_name}`);
-        localStorage.setItem("user_type", mockUser.user_type_id);
+        // localStorage.setItem("token", mockUser.token);
+        // localStorage.setItem("user_name", `${mockUser.first_name} ${mockUser.last_name}`);
+        // localStorage.setItem("user_type", mockUser.user_type_id);
 
         // Redirect based on user type
         // let user_type = mockUser.user_type_id;
@@ -104,8 +106,8 @@ const Login = () => {
                                 <input 
                                     type="email" 
                                     required
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    value={email}
+                                    onChange={(e) => setFormData.email(e.target.value)}
+                                    value={formData.email}
                                 />
                             </div>
                             <div className="text_feild">
@@ -113,14 +115,14 @@ const Login = () => {
                                 <input 
                                     type="password"
                                     required
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    value={password}
+                                    onChange={(e) => setFormData.password(e.target.value)}
+                                    value={formData.password}
                                 />
                             </div>
                             <div className='error'>{errorMessage}</div>
                             <input type="submit" className="loginBtn" value="Login" onClick={submitForm} />
                             <div className="form_bottom">
-                                Don't have an account? <Link className='linkBtn' to="/Register">Get Started</Link>
+                                Don&apos;t have an account?<Link className='linkBtn' to="/Register">Get Started</Link>
                             </div>
                         </form>
                     </div>
