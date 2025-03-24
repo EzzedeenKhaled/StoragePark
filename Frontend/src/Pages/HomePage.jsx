@@ -61,7 +61,7 @@ function HomePage() {
             </button>
           </div>
           <div style={{ position: 'absolute', bottom: '130px', left: '312px' }}>
-            <img width="100px" height="45.93px" src='/logo.png' alt="Logo" />
+            <img width="100px" height="45.93px" src='/logow.png' alt="Logo" />
           </div>
         </div>
       </div>

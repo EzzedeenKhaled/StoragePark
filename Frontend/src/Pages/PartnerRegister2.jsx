@@ -1,8 +1,7 @@
 // RegisterPartner2.js
-import '../Styles/RegisterP2.css';
+import '../assets/Styles/RegisterP2.css';
 import { Link } from 'react-router-dom';
 import { useState } from "react";
-import logo from '../assets/logo.png';
 
 const RegisterPartner2 = () => {
     // const [certificateFile, setCertificateFile] = useState(null);
@@ -48,7 +47,7 @@ const RegisterPartner2 = () => {
     return (
         <div className='RegisterPage'>
             <div className='container'>
-                <img src={logo} alt="Logo" className="top-left-logo" />
+                <img src='/logo.png' alt="Logo" className="top-left-logo" />
                 <form className='RegisterForm' onSubmit={handleSubmit}>
                     <h2>Legal Documentation</h2>
 

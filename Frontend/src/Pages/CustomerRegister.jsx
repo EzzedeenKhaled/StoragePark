@@ -1,8 +1,7 @@
-import '../Styles/RegisterC.css';
+import '../assets/Styles/RegisterC.css';
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { UserPlus, Loader } from "lucide-react";
-import logo from "../assets/logo.png";
 import { useUserStore } from "../stores/useUserStore";
 
 const Register = () => {
@@ -25,7 +24,7 @@ const Register = () => {
         <div className='RegisterPage'>
             <div className='registerComponent'>
                 <div className='leftSide'>
-                    <Link to='/'><img src={logo} alt="Logo" /></Link>
+                    <Link to='/'><img src='/logo.png' alt="Logo" /></Link>
                 </div>
                 <div className='rightSide'>
                     <div className="form_header">

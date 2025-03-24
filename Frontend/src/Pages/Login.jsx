@@ -1,10 +1,9 @@
-import '../Styles/Login.css';
+import '../assets/Styles/Login.css';
 import { Link } from 'react-router-dom'
 import { LogIn, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 import { useState } from "react";
 // import axios from "axios"; // Commented out since we're not using backend
-import logo from "../assets/logo.png";
 // import { useDispatch } from 'react-redux';
 // import { setUser } from '../../../redux/user/userSlice';
 
@@ -100,7 +99,7 @@ const Login = () => {
         <div className='LoginPage'>
             <div className='loginComponent'>
                 <div className='leftSide'>
-                    <Link to='/'><img src={logo} alt="Logo" /></Link>
+                    <Link to='/'><img src='/logo.png' alt="Logo" /></Link>
                 </div>
                 <div className='rightSide'>
                     <div className="form_header">

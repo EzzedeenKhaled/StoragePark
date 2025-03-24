@@ -1,8 +1,7 @@
 // src/Pages/Auth/RegisterPartner/index.jsx
-import '../Styles/RegisterP1.css';
+import '../assets/Styles/RegisterP1.css';
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import logo from "../assets/logo.png";
 
 const RegisterPartner = () => {
     // const [firstName, setFirstName] = useState("");
@@ -34,7 +33,7 @@ const RegisterPartner = () => {
         <div className='RegisterPage'>
             <div className='registerComponent'>
                 <div className='leftSide'>
-                    <Link to='/'><img src={logo} alt="Logo" /></Link>
+                    <Link to='/'><img src='/logo.png' alt="Logo" /></Link>
                 </div>
                 <div className='rightSide'>
                     <div className="form_header">

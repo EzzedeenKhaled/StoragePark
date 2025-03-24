@@ -1,0 +1,123 @@
+.Landing_page{
+    display: flex;
+    flex-direction: column;
+}
+
+.Landing_page .body{
+    display: flex;
+    flex-direction: column;
+    padding: 20px 100px;
+    gap: 50px;
+}
+
+.Landing_page .body .section{
+    display: flex;
+    justify-content: space-between;
+    gap: 150px;
+    align-items: center;
+    color: #1D2126;
+}
+
+.Landing_page .hero .right{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.Landing_page .hero h1{
+    font-size: 54px;
+    font-weight: 700;
+}
+
+.Landing_page .hero img{
+    width: 600px;
+    border-radius: 5px;
+    box-shadow:  5px 5px 10px rgba(0, 0, 0, 0.4);
+    transform: translate(0, 0);
+    transition: transform 0.3s, box-shadow 0.3s;
+    
+}
+
+.Landing_page .hero2{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #1D2126;
+}
+
+.Landing_page .hero2 h1{
+    display: flex;
+    width: 100%;
+    font-size: 45px;
+}
+
+.Landing_page .hero2 img{
+    background-color: #1D2126;
+    border-radius: 50%;
+    padding: 5px;
+    width: 100px;
+}
+
+.Landing_page .solutions{
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+}
+
+.Landing_page .one{
+    justify-content: space-between;
+}
+
+.Landing_page .two{
+    justify-content: center;
+    gap: 100px;
+}
+
+.Landing_page .solution{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.Landing_page .solution p{
+    text-align: center;
+}
+
+.Landing_page .hero3 img{
+    width: 100%;
+    border-radius: 5px;
+    box-shadow:  5px 5px 10px rgba(0, 0, 0, 0.4);
+    transform: translate(0, 0);
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 60px;
+}
+
+.Landing_page button{
+    background-color: #FF8B13;
+    color: #F0F0F0;
+    padding: 8px 15px;
+    outline: none;
+    border: none;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.Landing_page button:hover{
+    background-color: #1D2126;
+    transition: 0.5s;
+}
