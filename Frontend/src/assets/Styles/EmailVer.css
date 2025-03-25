@@ -1,0 +1,106 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Container Styles */
+/* Centering the container */
+html, body {
+    height: 100%; /* Ensure the body takes up the full viewport height */
+    margin: 0; /* Remove default margin */
+    background-color: #f4f4f4;
+  }
+  
+  .email-verification-container {
+    display: flex;
+    justify-content: center; /* Horizontally center */
+    align-items: center; /* Vertically center */
+    height: 100vh; /* Full viewport height */
+    background-color: #f4f4f4; /* Optional: Background color for the page */
+  }
+  
+  .container {
+    max-width: 480px;
+    width: 100%;
+    margin: 50px auto; /* Adjust margin if needed */
+    background-color: #f4f4f4; /* Light gray background */
+    border-radius: 16px; /* Rounded corners */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    overflow: hidden;
+    padding: 32px; /* Inner padding */
+  }
+  
+  /* Header Styles */
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  
+  .header h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    background: linear-gradient(to right, #ff9800, #ff5722); /* Orange gradient */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .header p {
+    color: #555; /* Dark gray text */
+    font-size: 1rem;
+    margin-top: 8px;
+  }
+  
+  /* Form Styles */
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px; /* Space between elements */
+  }
+  
+  .input-group {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .input-field {
+    width: 48px; /* Fixed width for each input */
+    height: 48px; /* Fixed height */
+    text-align: center;
+    font-size: 1.5rem; /* Large font size */
+    font-weight: bold;
+    background-color: #fff; /* White background */
+    border: 2px solid #ddd; /* Light gray border */
+    border-radius: 8px; /* Rounded corners */
+    outline: none; /* Remove default focus outline */
+    color: #ff9800;
+  }
+  
+  .input-field:focus {
+    border-color: #ff9800; /* Orange border on focus */
+    color: #ff9800;
+  }
+  
+  /* Button Styles */
+  .submit-button {
+    width: 100%;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff; /* White text */
+    background: linear-gradient(to right, #ff9800, #ff5722); /* Orange gradient */
+    border: none;
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .submit-button:hover {
+    transform: scale(1.05); /* Slightly enlarge on hover */
+  }
+  
+  .submit-button:disabled {
+    opacity: 0.6; /* Dimmed when disabled */
+    cursor: not-allowed;
+  }
