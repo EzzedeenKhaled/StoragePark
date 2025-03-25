@@ -35,6 +35,7 @@ const setCookies = (res, accessToken, refreshToken) => {
 };
 
 export const signup = async (req, res) => {
+	console.log("backend")
 	const { email, password, firstName, lastName, role } = req.body;
 	try {
 		const userExists = await User.findOne({ email });
@@ -129,9 +130,20 @@ export const uploadDocument = async (req, res) => {
   
 		// Save the updated partner document to the database
 		await partner.save();
-  
-		return res.status(200).json({ message: 'Files uploaded and partner updated successfully' });
-	  });
+		
+		return res.status(200).json({
+			message: 'Files uploaded and partner updated successfully',
+			partner: {
+				...partner.toObject(),
+				partner: {
+					...partner.partner,
+					certificateFile: certificateFile ? certificateFile[0].path : null,
+					businessLicenseFile: businessLicenseFile ? businessLicenseFile[0].path : null,
+					taxComplianceFile: taxComplianceFile ? taxComplianceFile[0].path : null,
+				}
+			}
+		});
+	});
 	} catch (error) {
 	  console.error('Error in uploadDocument controller:', error.message);
 	  res.status(500).json({ message: 'Internal server error', error: error.message });

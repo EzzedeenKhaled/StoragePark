@@ -51,7 +51,7 @@ export const useUserStore = create((set, get) => ({
 		}
 	},
 	signup: async (formData) => {
-		const { firstName, lastName, email, password, role } = formData;
+		const { firstName, lastName, email, phone, password, role } = formData;
 		set({ loading: true });
 
 		try {
@@ -60,7 +60,8 @@ export const useUserStore = create((set, get) => ({
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });
-			toast.error(error.response.data.message || "An error occurred");
+			// toast.error(error.response.data.message || "An error occurred");
+			console.log(error)
 		}
 	},
 	login: async (email, password) => {
