@@ -18,15 +18,6 @@ app.use(
   })
 );
 
-// Create 'uploads' directory if it doesn't exist
-const uploadDir = path.join(path.resolve(), 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-  console.log('Uploads directory created.');
-}
-
-// Serve static files (like images)
-app.use("/uploads", express.static(uploadDir));
 
 app.use("/api/auth", authRoutes);
 

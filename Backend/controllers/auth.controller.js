@@ -1,7 +1,9 @@
 import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import upload from "../lib/multer.js"; 
+import multer from "multer";
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -101,54 +103,48 @@ export const signup_Partner = async (req, res) => {
 
 export const uploadDocument = async (req, res) => {
 	try {
-	  // Handle file upload with multer
 	  upload.fields([
-		{ name: 'certificateFile', maxCount: 1 },
-		{ name: 'businessLicenseFile', maxCount: 1 },
-		{ name: 'taxComplianceFile', maxCount: 1 }
+		{ name: "certificateFile", maxCount: 1 },
+		{ name: "businessLicenseFile", maxCount: 1 },
+		{ name: "taxComplianceFile", maxCount: 1 }
 	  ])(req, res, async (err) => {
 		if (err) {
-		  return res.status(400).json({ message: 'Error uploading files', error: err.message });
+		  return res.status(400).json({ message: "Error uploading files", error: err.message });
 		}
   
-		// Find the most recently created partner
-		const partner = await User.findOne({ role: 'partner' })
-		  .sort({ createdAt: -1 }) // Sort by creation date in descending order (newest first)
+		// Find the most recent partner
+		const partner = await User.findOne({ role: "partner" })
+		  .sort({ createdAt: -1 })
 		  .exec();
   
 		if (!partner) {
-		  return res.status(404).json({ message: 'No partner found' });
+		  return res.status(404).json({ message: "No partner found" });
 		}
   
-		// Extract the files from the request
 		const { certificateFile, businessLicenseFile, taxComplianceFile } = req.files;
   
-		// Update the partner information in the database with the new file paths
-		if (certificateFile) partner.partner.certificateFile = certificateFile[0].path;
-		if (businessLicenseFile) partner.partner.businessLicenseFile = businessLicenseFile[0].path;
-		if (taxComplianceFile) partner.partner.taxComplianceFile = taxComplianceFile[0].path;
+		// Convert files to Base64
+		if (certificateFile) {
+		  partner.partner.certificateFile = certificateFile[0].buffer.toString("base64");
+		}
+		if (businessLicenseFile) {
+		  partner.partner.businessLicenseFile = businessLicenseFile[0].buffer.toString("base64");
+		}
+		if (taxComplianceFile) {
+		  partner.partner.taxComplianceFile = taxComplianceFile[0].buffer.toString("base64");
+		}
   
-		// Save the updated partner document to the database
 		await partner.save();
-		
+  
 		return res.status(200).json({
-			message: 'Files uploaded and partner updated successfully',
-			partner: {
-				...partner.toObject(),
-				partner: {
-					...partner.partner,
-					certificateFile: certificateFile ? certificateFile[0].path : null,
-					businessLicenseFile: businessLicenseFile ? businessLicenseFile[0].path : null,
-					taxComplianceFile: taxComplianceFile ? taxComplianceFile[0].path : null,
-				}
-			}
+		  message: "Files uploaded and partner updated successfully",
+		  partner
 		});
-	});
+	  });
 	} catch (error) {
-	  console.error('Error in uploadDocument controller:', error.message);
-	  res.status(500).json({ message: 'Internal server error', error: error.message });
+	  return res.status(500).json({ message: "Internal server error", error: error.message });
 	}
-};
+  };
 export const login = async (req, res) => {
 	try {
 		const { email, password } = req.body;
