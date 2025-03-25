@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
+// const itemSchema = new mongoose.Schema({
+// 	name: { type: String, required: true },
+// 	description: { type: String, required: true },
+// 	image: { type: String, required: true },
+// 	price: { type: Number, required: true },
+// 	createdAt: { type: Date, default: Date.now },
+// });
+
 const userSchema = new mongoose.Schema(
 	{
 		firstName: {
@@ -20,13 +28,27 @@ const userSchema = new mongoose.Schema(
 		},
 		password: {
 			type: String,
-			required: [true, "Password is required"],
+			required: function () {
+				// Only require password if the role is not "partner"
+				return this.role !== "partner";
+			},
 			minlength: [6, "Password must be at least 6 characters long"],
 		},
 		role: {
 			type: String,
 			enum: ["customer", "admin", "partner", "worker"],
 			default: "customer",
+		},
+		partner: {
+			companyName: { type: String },
+			companyEmail: { type: String },
+			phoneNumber: { type: String },
+			address: { type: String },
+			websiteURL: { type: String },
+			googleBusinessProfile: { type: String },
+			certificateFile: { type: String, default: null },
+			businessLicenseFile: { type: String, default: null },
+			taxComplianceFile: { type: String, default: null }
 		},
 	},
 	{

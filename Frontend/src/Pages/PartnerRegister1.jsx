@@ -1,32 +1,48 @@
-// src/Pages/Auth/RegisterPartner/index.jsx
 import '../assets/Styles/RegisterP1.css';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { ArrowRight, Loader } from "lucide-react";
+import { useUserStore } from "../stores/useUserStore"; 
 
 const RegisterPartner = () => {
-    // const [firstName, setFirstName] = useState("");
-    // const [lastName, setLastName] = useState("");
-    // const [companyName, setCompanyName] = useState("");
-    // const [email, setEmail] = useState("");
-    // const [phone, setPhone] = useState("");
-    // const [address, setAddress] = useState("");
-    // const [website, setWebsite] = useState("");
-    // const [googleProfile, setGoogleProfile] = useState("");
-    const [errorMessage] = useState("");
+    // const [errorMessage] = useState("");
     const [formData, setFormData] = useState({
-		firstName: "",
+        firstName: "",
         lastName: "",
-        companyName:"",
-        email:"",
+        companyName: "",
+        email: "",
         phone: "",
-		address:"",
+        address: "",
         website: "",
         googleProfile: "",
-	});
-
-    const submitForm = (e) => {
+        role: "partner",
+    }); 
+    const { signup_Next, loading } = useUserStore();
+    const navigate = useNavigate();
+    const nextForm = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        try {
+            const response = await signup_Next(formData);
+            // console.log(response.status)
+            if (response.status === 400) {
+                alert("User already exists");
+                return;
+            }
+
+            navigate("/register-partner-2");
+    
+        } catch (error) {
+            console.error("Error checking signup:", error);
+            alert("Something went wrong. Please try again.");
+        }
+    };
+                                 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
     };
 
     return (
@@ -41,14 +57,15 @@ const RegisterPartner = () => {
                         <div className='formSubTitle'>Join Storage Park and start managing your space today!</div>
                     </div>
                     <div className="form_body">
-                        <form className='registerForm' onSubmit={submitForm}>
+                        <form className='registerForm' onSubmit={nextForm}>
                             <div className="name_fields">
                                 <div className="text_field">
                                     <label>First Name*</label>
                                     <input 
                                         type="text" 
+                                        name="firstName"
                                         required
-                                        onChange={(e) => setFormData.firstName(e.target.value)}
+                                        onChange={handleChange}
                                         value={formData.firstName}
                                     />
                                 </div>
@@ -56,8 +73,9 @@ const RegisterPartner = () => {
                                     <label>Last Name*</label>
                                     <input 
                                         type="text" 
+                                        name="lastName"
                                         required
-                                        onChange={(e) => setFormData.lastName(e.target.value)}
+                                        onChange={handleChange}
                                         value={formData.lastName}
                                     />
                                 </div>
@@ -66,8 +84,9 @@ const RegisterPartner = () => {
                                 <label>Company Name*</label>
                                 <input 
                                     type="text" 
+                                    name="companyName"
                                     required
-                                    onChange={(e) => setFormData.companyName(e.target.value)}
+                                    onChange={handleChange}
                                     value={formData.companyName}
                                 />
                             </div>
@@ -75,8 +94,9 @@ const RegisterPartner = () => {
                                 <label>Company Email*</label>
                                 <input 
                                     type="email" 
+                                    name="email"
                                     required
-                                    onChange={(e) => setFormData.email(e.target.value)}
+                                    onChange={handleChange}
                                     value={formData.email}
                                 />
                             </div>
@@ -84,8 +104,9 @@ const RegisterPartner = () => {
                                 <label>Phone Number*</label>
                                 <input 
                                     type="tel" 
+                                    name="phone"
                                     required
-                                    onChange={(e) => setFormData.phone(e.target.value)}
+                                    onChange={handleChange}
                                     value={formData.phone}
                                 />
                             </div>
@@ -93,8 +114,9 @@ const RegisterPartner = () => {
                                 <label>Address*</label>
                                 <input 
                                     type="text" 
+                                    name="address"
                                     required
-                                    onChange={(e) => setFormData.address(e.target.value)}
+                                    onChange={handleChange}
                                     value={formData.address}
                                 />
                             </div>
@@ -102,7 +124,8 @@ const RegisterPartner = () => {
                                 <label>Website URL (If You Have):</label>
                                 <input 
                                     type="url"
-                                    onChange={(e) => setFormData.website(e.target.value)}
+                                    name="website"
+                                    onChange={handleChange}
                                     value={formData.website}
                                 />
                             </div>
@@ -110,13 +133,30 @@ const RegisterPartner = () => {
                                 <label>Google Business Profile Access:</label>
                                 <input 
                                     type="text"
+                                    name="googleProfile"
                                     required
-                                    onChange={(e) => setFormData.googleProfile(e.target.value)}
+                                    onChange={handleChange}
                                     value={formData.googleProfile}
                                 />
                             </div>
-                            <div className='error'>{errorMessage}</div>
-                            <input type="submit" className="signupBtn" to="/RegisterPartner2" value="Next Step" />
+                            <button
+                                type='submit'
+                                className='w-full flex justify-center py-2 px-4 border border-transparent
+                                    rounded-md shadow-sm text-sm font-medium text-white transition duration-150 ease-in-out disabled:opacity-50'
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader className='mr-2 h-5 w-5 animate-spin' aria-hidden='true' />
+                                        Loading...
+                                    </>
+                                ) : (
+                                    <>
+                                        <ArrowRight className='mr-2 h-5 w-5' aria-hidden='true' />
+                                        Next Step
+                                    </>
+                                )}
+                            </button>
                             <div className="form_bottom">
                                 Already have an account? <Link className='linkBtn' to="/Login">Login</Link>
                             </div>

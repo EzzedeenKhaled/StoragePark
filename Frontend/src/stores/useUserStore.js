@@ -7,7 +7,51 @@ export const useUserStore = create((set, get) => ({
 	loading: false,
 	checkingAuth: true,
 
-	signup: async ({ firstName, lastName, phone, email, password, role }) => {
+	signup_Done: async ({ certificateFile, businessLicenseFile, taxComplianceFile }) => {
+		const formData = new FormData();
+		
+		formData.append("certificateFile", certificateFile);
+		formData.append("businessLicenseFile", businessLicenseFile);
+		formData.append("taxComplianceFile", taxComplianceFile);
+		
+		set({ loading: true });
+	
+		try {
+			const response = await axios.post("/auth/upload-documents", formData, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+	
+			if (response.data.success) {
+				toast.success("Files uploaded successfully!");
+			} else {
+				toast.error(response.data.message);
+			}
+		} catch (error) {
+			console.error("Error uploading files:", error);
+			toast.error("Failed to upload files. Please try again.");
+		} finally {
+			set({ loading: false });
+		}
+	},
+	
+	
+	signup_Next: async (formData) => {
+		const { firstName, lastName, companyName, email, phone, address, website, googleProfile, role } = formData;
+		set({ loading: true });
+
+		try {
+			const res = await axios.post("/auth/signup-partner", { firstName, lastName, companyName, email, phone, address, website, googleProfile, role });
+			set({ loading: false });
+			return res.data
+		} catch (error) {
+			set({ loading: false });
+			toast.error(error.response.data.message || "An error occurred");
+		}
+	},
+	signup: async (formData) => {
+		const { firstName, lastName, email, password, role } = formData;
 		set({ loading: true });
 
 		try {

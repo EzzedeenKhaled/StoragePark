@@ -1,47 +1,51 @@
-// RegisterPartner2.js
 import '../assets/Styles/RegisterP2.css';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { useState } from "react";
+import { Check, Loader } from "lucide-react";
+
+import { useUserStore } from '../stores/useUserStore';
 
 const RegisterPartner2 = () => {
-    // const [certificateFile, setCertificateFile] = useState(null);
-    // const [businessLicenseFile, setBusinessLicenseFile] = useState(null);
-    // const [taxComplianceFile, setTaxComplianceFile] = useState(null);
-    // const [termsAccepted, setTermsAccepted] = useState(false);
-    // const [showMessage, setShowMessage] = useState(false);
     const [formData, setFormData] = useState({
-		certificateFile: null,
+        certificateFile: null,
         businessLicenseFile: null,
         taxComplianceFile: null,
-        termsAccepted: false,
-        showMessage: false,
-	});
-    const handleCertificateChange = (e) => {
-        setFormData.certificateFile(e.target.files[0]);
+    });
+
+    const [fileNames, setFileNames] = useState({
+        certificateFile: "Upload Certificate",
+        businessLicenseFile: "Upload License",
+        taxComplianceFile: "Upload Certificate",
+    });
+
+    const handleFileChange = (e, fileType) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData(prevState => ({
+                ...prevState,
+                [fileType]: file,
+            }));
+
+            setFileNames(prevState => ({
+                ...prevState,
+                [fileType]: file.name,
+            }));
+        }
     };
 
-    const handleBusinessLicenseChange = (e) => {
-        setFormData.businessLicenseFile(e.target.files[0]);
-    };
+    const { signup_Done, loading } = useUserStore();
 
-    const handleTaxComplianceChange = (e) => {
-        setFormData.taxComplianceFile(e.target.files[0]);
-    };
-    const handleCloseMessage = () => {
-        setFormData.showMessage(false);
-    };
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!setFormData.termsAccepted) {
-            alert("Please accept the terms and conditions.");
+
+        if (!formData.certificateFile || !formData.businessLicenseFile || !formData.taxComplianceFile) {
+            alert("Please upload all required documents.");
             return;
         }
-        // Handle form submission with the uploaded files
-        // console.log('Certificate:', certificateFile);
-        // console.log('Business License:', businessLicenseFile);
-        // console.log('Tax Compliance Certificate:', taxComplianceFile);
 
-        setFormData.showMessage(true);
+        console.log("Submitting Form Data:", formData);
+
+        await signup_Done(formData);
     };
 
     return (
@@ -49,82 +53,72 @@ const RegisterPartner2 = () => {
             <div className='container'>
                 <img src='/logo.png' alt="Logo" className="top-left-logo" />
                 <form className='RegisterForm' onSubmit={handleSubmit}>
-                    <h2>Legal Documentation</h2>
+                    <h2>Legal Documents</h2>
 
                     <div className="documentSection">
                         <h3>Certificate of Incorporation</h3>
                         <label htmlFor="certificate" className="fileInput">
-                            <input 
+                            <input
                                 id="certificate"
                                 type="file"
-                                accept=".jpg,.jpeg,.png,.pdf"
-                                onChange={handleCertificateChange}
+                                accept=".jpg,.jpeg,.png"
+                                onChange={(e) => handleFileChange(e, "certificateFile")}
                                 style={{ display: 'none' }}
                             />
-                            <span>Upload Certificate</span>
+                            <span>{fileNames.certificateFile}</span>
                         </label>
                     </div>
 
                     <div className="documentSection">
                         <h3>Business License</h3>
                         <label htmlFor="businessLicense" className="fileInput">
-                            <input 
+                            <input
                                 id="businessLicense"
                                 type="file"
-                                accept=".jpg,.jpeg,.png,.pdf"
-                                onChange={handleBusinessLicenseChange}
+                                accept=".jpg,.jpeg,.png"
+                                onChange={(e) => handleFileChange(e, "businessLicenseFile")}
                                 style={{ display: 'none' }}
                             />
-                            <span>Upload License</span>
+                            <span>{fileNames.businessLicenseFile}</span>
                         </label>
                     </div>
 
                     <div className="documentSection">
                         <h3>Tax Compliance Certificate</h3>
                         <label htmlFor="taxCompliance" className="fileInput">
-                            <input 
+                            <input
                                 id="taxCompliance"
                                 type="file"
-                                accept=".jpg,.jpeg,.png,.pdf"
-                                onChange={handleTaxComplianceChange}
+                                accept=".jpg,.jpeg,.png"
+                                onChange={(e) => handleFileChange(e, "taxComplianceFile")}
                                 style={{ display: 'none' }}
                             />
-                            <span>Upload Certificate</span>
+                            <span>{fileNames.taxComplianceFile}</span>
                         </label>
                     </div>
 
-                    <div className="termsSection">
-                        <input 
-                            type="checkbox"
-                            checked={setFormData.termsAccepted}
-                            onChange={() => setFormData.termsAccepted(!formData.termsAccepted)}
-                        />
-                        <label>I agree to the <Link to="/terms">terms and conditions</Link> and the <Link to="/privacy">privacy policy</Link>.</label>
-                    </div>
-
                     <button
-                        type="submit"
-                        className="SubmitBtn"
-                    >
-                        Submit
-                    </button>
+                                type='submit'
+                                className='w-full flex justify-center py-2 px-4 border border-transparent
+                                    rounded-md shadow-sm text-sm font-medium text-white transition duration-150 ease-in-out disabled:opacity-50'
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader className='mr-2 h-5 w-5 animate-spin' aria-hidden='true' />
+                                        Loading...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Check className='mr-2 h-5 w-5' aria-hidden='true' />
+                                        Submit
+                                    </>
+                                )}
+                            </button>
                 </form>
             </div>
-            {formData.showMessage && (
-                <div className="submission-message-overlay">
-                    <div className="submission-message">
-                        <p>
-                            Thank you for placing your trust in us. 
-                            </p><p>We will review your registration and 
-                            </p><p>send you your acceptance via email.
-                        </p>
-                        <p><p><br /></p></p>
-                        <button onClick={handleCloseMessage}>Close</button>
-                    </div>
-                </div>
-            )}
         </div>
     );
-}
+};
 
 export default RegisterPartner2;

@@ -1,10 +1,11 @@
 import '../assets/Styles/HomeP.css';
+import { useNavigate } from "react-router-dom";
 // import React, { useState} from "react";
 import NavBar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 // import OrderTrackModal from '../../components/Modals/OrderTrackModal';
 const Landing = () => {
-
+    const navigate = useNavigate();
     // const [openModal, setOpenModal] = useState(false);
 
     // const handleCloseModal = () => {
@@ -26,7 +27,9 @@ const Landing = () => {
                         Storage Park couples powerful software with its flexible nationwide fulfillment network, enabling brands to offer consistently efficient, 
                         cost-effective delivery that improves the customer experience, from every channel.
                         </p>
-                        <button> Track Your Order</button>
+                        <button onClick={() => navigate('/register-partner-1')}>
+                            Become a Partner
+                            </button>
                     </div>
                     <div><img src='/p1.png' alt='hero image'></img></div>
                 </div>

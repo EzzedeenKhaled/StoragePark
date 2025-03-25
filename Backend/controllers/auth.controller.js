@@ -1,6 +1,7 @@
 import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
+import upload from "../lib/multer.js"; 
 
 const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -60,7 +61,82 @@ export const signup = async (req, res) => {
 		res.status(500).json({ message: error.message });
 	}
 };
+export const signup_Partner = async (req, res) => {
+    const { firstName, lastName, email, phoneNumber, address, websiteURL, googleBusinessProfile, role, companyName, companyEmail } = req.body;
 
+    try {
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ message: "User already exists", email: userExists.email });
+        }
+
+        const user = await User.create({
+            firstName,
+            lastName,
+            email,
+            role: role || "partner",
+            partner: {
+                companyName,
+                companyEmail,
+                phoneNumber,
+                address,
+                websiteURL,
+                googleBusinessProfile
+            }
+        });
+
+        res.status(201).json({
+            _id: user._id,
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            role: user.role,
+            partner: user.partner
+        });
+    } catch (error) {
+        console.error("Error in signup controller:", error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const uploadDocument = async (req, res) => {
+	try {
+	  // Handle file upload with multer
+	  upload.fields([
+		{ name: 'certificateFile', maxCount: 1 },
+		{ name: 'businessLicenseFile', maxCount: 1 },
+		{ name: 'taxComplianceFile', maxCount: 1 }
+	  ])(req, res, async (err) => {
+		if (err) {
+		  return res.status(400).json({ message: 'Error uploading files', error: err.message });
+		}
+  
+		// Find the most recently created partner
+		const partner = await User.findOne({ role: 'partner' })
+		  .sort({ createdAt: -1 }) // Sort by creation date in descending order (newest first)
+		  .exec();
+  
+		if (!partner) {
+		  return res.status(404).json({ message: 'No partner found' });
+		}
+  
+		// Extract the files from the request
+		const { certificateFile, businessLicenseFile, taxComplianceFile } = req.files;
+  
+		// Update the partner information in the database with the new file paths
+		if (certificateFile) partner.partner.certificateFile = certificateFile[0].path;
+		if (businessLicenseFile) partner.partner.businessLicenseFile = businessLicenseFile[0].path;
+		if (taxComplianceFile) partner.partner.taxComplianceFile = taxComplianceFile[0].path;
+  
+		// Save the updated partner document to the database
+		await partner.save();
+  
+		return res.status(200).json({ message: 'Files uploaded and partner updated successfully' });
+	  });
+	} catch (error) {
+	  console.error('Error in uploadDocument controller:', error.message);
+	  res.status(500).json({ message: 'Internal server error', error: error.message });
+	}
+};
 export const login = async (req, res) => {
 	try {
 		const { email, password } = req.body;
