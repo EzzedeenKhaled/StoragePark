@@ -129,16 +129,6 @@ const RegisterPartner = () => {
                                     value={formData.website}
                                 />
                             </div>
-                            <div className="text_field">
-                                <label>Google Business Profile Access:</label>
-                                <input 
-                                    type="text"
-                                    name="googleProfile"
-                                    required
-                                    onChange={handleChange}
-                                    value={formData.googleProfile}
-                                />
-                            </div>
                             <button
                                 type='submit'
                                 className='w-full flex justify-center py-2 px-4 border border-transparent

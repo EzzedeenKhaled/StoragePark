@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { UserPlus, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
     const [errorMessage] = useState("");
@@ -14,10 +15,13 @@ const Register = () => {
         password: "",
         role: "customer",
     });
+
+    const navigate = useNavigate();
     const { signup, loading } = useUserStore();
     const handleSubmit = (e) => {
         e.preventDefault();
         signup(formData);
+        navigate("/verify-email");
     };
 
     return (

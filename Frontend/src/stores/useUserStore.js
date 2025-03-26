@@ -56,7 +56,6 @@ export const useUserStore = create((set, get) => ({
 
 		try {
 			const res = await axios.post("/auth/signup", { firstName, lastName, phone, email, password, role });
-
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });
