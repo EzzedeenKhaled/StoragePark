@@ -51,12 +51,10 @@ export const useUserStore = create((set, get) => ({
 		}
 	},
 	signup: async (formData) => {
-		const { firstName, lastName, email, password, role } = formData;
-		set({ loading: true });
-
+		const { firstName, lastName, email, phone, password, role } = formData;
+		set({ loading: true })
 		try {
 			const res = await axios.post("/auth/signup", { firstName, lastName, phone, email, password, role });
-
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });

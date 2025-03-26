@@ -1,12 +1,8 @@
 import '../assets/Styles/Login.css';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 import { LogIn, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 import { useState } from "react";
-
-// import axios from "axios"; // Commented out since we're not using backend
-// import { useDispatch } from 'react-redux';
-// import { setUser } from '../../../redux/user/userSlice';
 
 const Login = () => {
 	const [email, setEmail] = useState("");
@@ -20,81 +16,6 @@ const Login = () => {
 		login(email, password);
 	};
     const [errorMessage] = useState("");
-
-    // const navigate = useNavigate();
-    // const dispatch = useDispatch();
-
-    const submitForm = async (e) => {
-        e.preventDefault();
-
-        // Mock user data (replace this with real API response)
-        // const mockUser = {
-        //     first_name: "John",
-        //     last_name: "Doe",
-        //     user_type_id: 2,  // Change this to 1 for Admin, 3 for Partner, etc.
-        //     token: "mock_token_123456"
-        // };
-
-        // Dispatch to Redux store
-        // dispatch(setUser({
-        //     user_name: `${mockUser.first_name} ${mockUser.last_name}`,
-        //     token: mockUser.token,
-        //     user_type: mockUser.user_type_id,
-        // }));
-
-        // Store in localStorage
-        // localStorage.setItem("token", mockUser.token);
-        // localStorage.setItem("user_name", `${mockUser.first_name} ${mockUser.last_name}`);
-        // localStorage.setItem("user_type", mockUser.user_type_id);
-
-        // Redirect based on user type
-        // let user_type = mockUser.user_type_id;
-        // if (user_type === 1) {
-        //     navigate("/admin");
-        //     localStorage.setItem("current_page", "dashboard");
-        // } else if (user_type === 2) {
-        //     navigate("/worker");
-        //     localStorage.setItem("current_page", "dashboard");
-        // } else if (user_type === 3) {
-        //     navigate("/partner");
-        //     localStorage.setItem("current_page", "dashboard");
-        // }
-
-        /* Uncomment this when backend is ready
-        const postData = { email, password };
-        await axios.post("http://127.0.0.1:8000/api/login", postData)
-        .then(response => {
-            dispatch(setUser({
-                user_name: `${response.data.user.first_name} ${response.data.user.last_name}`,
-                token: response.data.authorisation.token,
-                user_type: response.data.user.user_type_id,
-            }));
-            localStorage.setItem("token", response.data.authorisation.token);
-            localStorage.setItem("user_name", `${response.data.user.first_name} ${response.data.user.last_name}`);
-            localStorage.setItem("user_type", response.data.user.user_type_id);
-            let user_type = response.data.user.user_type_id;
-
-            if (user_type === 1) {
-                navigate("/admin");
-                localStorage.setItem("current_page", "dashboard");
-            } else if (user_type === 2) {
-                navigate("/worker");
-                localStorage.setItem("current_page", "dashboard");
-            } else if (user_type === 3) {
-                navigate("/partner");
-                localStorage.setItem("current_page", "dashboard");
-            }
-        })
-        .catch(error => {
-            if (error.response) {
-                const { data } = error.response;
-                setErrorMessage(data.message || "An error occurred during login");
-            } else {
-                setErrorMessage("An error occurred during login");
-            }
-        });
-        */
-    };
 
     return (
         <div className='LoginPage'>

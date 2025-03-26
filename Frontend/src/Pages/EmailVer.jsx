@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import '../assets/Styles/EmailVer.css';
+import axios from "axios";
 
 const EmailVerification = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // State for storing the code
@@ -41,6 +42,15 @@ const EmailVerification = () => {
       inputRefs.current[index - 1]?.focus(); // Move focus to the previous input field
     }
   };
+  const verifyEmail = async (token) => {
+    try {
+      const response = await axios.post("/auth/verify-email", { token });
+      alert(response.data.message); // Show success message
+    } catch (error) {
+      // alert(error);
+      console.error("Error verifying email:", error);
+    }
+  };
 
   return (
 <div className="email-verification-container">
@@ -51,7 +61,7 @@ const EmailVerification = () => {
         <p>Enter the 6-digit code sent to your email address.</p>
       </div>
 
-      <form className="form">
+      <form className="form" onSubmit={verifyEmail}>
         {/* Input Fields for the 6-Digit Code */}
         <div className="input-group">
           {code.map((digit, index) => (

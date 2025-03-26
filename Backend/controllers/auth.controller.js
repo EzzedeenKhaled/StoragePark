@@ -2,7 +2,8 @@ import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import upload from "../lib/multer.js"; 
-
+import sendVerificationEmail  from "../lib/mail.js";
+import crypto from "crypto";
 const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
 		expiresIn: "15m",
@@ -34,28 +35,28 @@ const setCookies = (res, accessToken, refreshToken) => {
 	});
 };
 
+
 export const signup = async (req, res) => {
 	const { email, password, firstName, lastName, role } = req.body;
 	try {
 		const userExists = await User.findOne({ email });
-
+		
 		if (userExists) {
 			return res.status(400).json({ message: "User already exists" });
 		}
-		const user = await User.create({ firstName, lastName, email, password, role });
+		const buffer = crypto.randomBytes(3); // Generate 3 random bytes (24 bits)
+		const numericToken = parseInt(buffer.toString("hex"), 16) % 1000000; // Convert to a number and limit to 6 digits
+		const verificationToken = String(numericToken).padStart(6, "0");
+		const user = await User.create({ firstName, lastName, email, password, role, verificationToken });
 
 		// authenticate
-		const { accessToken, refreshToken } = generateTokens(user._id);
-		await storeRefreshToken(user._id, refreshToken);
+		// const { accessToken, refreshToken } = generateTokens(user._id);
+		// await storeRefreshToken(user._id, refreshToken);
 
-		setCookies(res, accessToken, refreshToken);
+		// setCookies(res, accessToken, refreshToken);
+		await sendVerificationEmail(email, verificationToken);
 
-		res.status(201).json({
-			_id: user._id,
-			name: user.firstName + " " + user.lastName,
-			email: user.email,
-			role: user.role,
-		});
+		res.status(201).json({ message: "User registered. Please verify your email." });
 	} catch (error) {
 		console.log("Error in signup controller", error.message);
 		res.status(500).json({ message: error.message });
@@ -193,3 +194,29 @@ export const refreshToken = async (req, res) => {
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
+
+// Verify email
+export const verifyEmail = async (req, res) => {
+	const { token } = req.body;
+  
+	try {
+	  // Find the user with the given token
+	  const user = await User.findOne({ verificationToken: token });
+  
+	  if (!user) {
+		return res.status(400).json({ message: "Invalid or expired token." });
+	  }
+  
+	  // Mark the user as verified and clear the token
+	  console.log(user+"weeee");
+	  user.isVerified = true;
+	  user.verificationToken = undefined; // Clear the token after verification
+	  await user.save();
+  
+	  res.status(200).json({ message: "Email verified successfully!" });
+	} catch (error) {
+	  console.error(error);
+	  res.status(500).json({ message: "Internal server error" });
+	}
+  };
+
