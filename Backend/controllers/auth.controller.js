@@ -1,7 +1,6 @@
 import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import upload from "../lib/multer.js"; 
 import sendVerificationEmail  from "../lib/mail.js";
 import crypto from "crypto";
 const generateTokens = (userId) => {
@@ -50,11 +49,6 @@ export const signup = async (req, res) => {
 		const verificationToken = String(numericToken).padStart(6, "0");
 		const user = await User.create({ firstName, lastName, email, password, role, verificationToken });
 
-		// authenticate
-		// const { accessToken, refreshToken } = generateTokens(user._id);
-		// await storeRefreshToken(user._id, refreshToken);
-
-		// setCookies(res, accessToken, refreshToken);
 		await sendVerificationEmail(email, verificationToken);
 
 		res.status(201).json({ message: "User registered. Please verify your email." });
@@ -203,9 +197,17 @@ export const refreshToken = async (req, res) => {
 
 // Verify email
 export const verifyEmail = async (req, res) => {
-	const { token } = req.body;
+	const { token } = req.body; // Extract the 'token' property from the request body
   
 	try {
+	  // Log the token for debugging
+	  console.log("Received token:", token);
+  
+	  // Validate the token
+	  if (!token) {
+		return res.status(400).json({ message: "Token is required." });
+	  }
+  
 	  // Find the user with the given token
 	  const user = await User.findOne({ verificationToken: token });
   
@@ -213,15 +215,15 @@ export const verifyEmail = async (req, res) => {
 		return res.status(400).json({ message: "Invalid or expired token." });
 	  }
   
-	  // Mark the user as verified and clear the token
-	  console.log(user+"weeee");
+	  // Mark the user as verified
 	  user.isVerified = true;
 	  user.verificationToken = undefined; // Clear the token after verification
 	  await user.save();
   
+	  // Respond with success
 	  res.status(200).json({ message: "Email verified successfully!" });
 	} catch (error) {
-	  console.error(error);
+	  console.error("Error verifying email:", error.message);
 	  res.status(500).json({ message: "Internal server error" });
 	}
   };

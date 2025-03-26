@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import '../assets/Styles/EmailVer.css';
+import "../assets/Styles/EmailVer.css";
 import axios from "axios";
 
 const EmailVerification = () => {
@@ -42,53 +42,58 @@ const EmailVerification = () => {
       inputRefs.current[index - 1]?.focus(); // Move focus to the previous input field
     }
   };
-  const verifyEmail = async (token) => {
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = code.join(""); // Combine the digits into a single string
+
     try {
-      const response = await axios.post("/auth/verify-email", { token });
+      const response = await axios.post("http://localhost:5000/api/auth/verify-email", { token });
       alert(response.data.message); // Show success message
     } catch (error) {
-      // alert(error);
       console.error("Error verifying email:", error);
+      alert(error.response?.data?.message || "An error occurred.");
     }
   };
 
   return (
-<div className="email-verification-container">
-    <div className="container">
-      {/* Main Content */}
-      <div className="header">
-        <h2>Verify Your Email</h2>
-        <p>Enter the 6-digit code sent to your email address.</p>
-      </div>
-
-      <form className="form" onSubmit={verifyEmail}>
-        {/* Input Fields for the 6-Digit Code */}
-        <div className="input-group">
-          {code.map((digit, index) => (
-            <input
-              key={index}
-              ref={(el) => (inputRefs.current[index] = el)} // Assign refs dynamically
-              type="text"
-              maxLength="1" // Restrict to one character per input
-              value={digit}
-              onChange={(e) => handleChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              className="input-field"
-            />
-          ))}
+    <div className="email-verification-container">
+      <div className="container">
+        {/* Main Content */}
+        <div className="header">
+          <h2>Verify Your Email</h2>
+          <p>Enter the 6-digit code sent to your email address.</p>
         </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={code.some((digit) => !digit)} // Disable button if any field is empty
-          className="submit-button"
-        >
-          Verify Email
-        </button>
-      </form>
+        <form className="form" onSubmit={handleSubmit}>
+          {/* Input Fields for the 6-Digit Code */}
+          <div className="input-group">
+            {code.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => (inputRefs.current[index] = el)} // Assign refs dynamically
+                type="text"
+                maxLength="1" // Restrict to one character per input
+                value={digit}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                className="input-field"
+              />
+            ))}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={code.some((digit) => !digit)} // Disable button if any field is empty
+            className="submit-button"
+          >
+            Verify Email
+          </button>
+        </form>
+      </div>
     </div>
-</div>
   );
 };
 
