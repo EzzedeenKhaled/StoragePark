@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema(
 			googleBusinessProfile: { type: String },
 			certificateFile: { type: String, default: null },
 			businessLicenseFile: { type: String, default: null },
-			taxComplianceFile: { type: String, default: null }
+			taxComplianceFile: { type: String, default: null },
 		},
 		isVerified: { type: Boolean, default: false },
 		verificationToken: { type: String },
@@ -58,6 +58,12 @@ const userSchema = new mongoose.Schema(
 	}
 );
 
+userSchema.pre("save", function (next) {
+	if (this.role === "customer") {
+		this.partner = undefined; // Remove partner field for customers
+	}
+	next();
+});
 // Pre-save hook to hash password before saving to the database
 userSchema.pre("save", async function (next) {
 	if (!this.isModified("password")) return next();

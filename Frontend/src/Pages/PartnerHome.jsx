@@ -6,16 +6,6 @@ import Footer from '../../components/Footer';
 // import OrderTrackModal from '../../components/Modals/OrderTrackModal';
 const Landing = () => {
     const navigate = useNavigate();
-    // const [openModal, setOpenModal] = useState(false);
-
-    // const handleCloseModal = () => {
-    //     setOpenModal(false);
-    // }
-
-    // const handleOpenModal = () => {
-    //     setOpenModal(true);
-    // }
-
     return (
         <div className='Landing_page'> 
             <div className='nav_section'> <NavBar/> </div>
@@ -90,10 +80,6 @@ const Landing = () => {
                 <div className='section hero3'><img src='/hero3.png' alt='image'></img></div>
             </div>
             <div className="footer"><Footer/></div>
-            {/* <OrderTrackModal
-            handleCloseModal={handleCloseModal}
-            openModal={openModal}
-            /> */}
         </div>
     );
 }
