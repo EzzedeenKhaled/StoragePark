@@ -1,6 +1,4 @@
 import express from "express";
-import path from "path";
-import fs from "fs"; // ES module way of importing fs
 import { connectDB } from "./lib/db.js";
 import cors from "cors";
 import authRoutes from "./routes/auth.route.js";
