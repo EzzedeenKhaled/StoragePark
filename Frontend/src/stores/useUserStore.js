@@ -60,8 +60,7 @@ export const useUserStore = create((set, get) => ({
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });
-			// toast.error(error.response.data.message || "An error occurred");
-			console.log(error)
+			toast.error("An error occurred");
 		}
 	},
 	login: async (email, password) => {
@@ -69,11 +68,13 @@ export const useUserStore = create((set, get) => ({
 
 		try {
 			const res = await axios.post("/auth/login", { email, password });
-
+			if(res.status !== 200) {
+				toast.error("Invalid credentials");
+			}
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });
-			toast.error(error.response.data.message || "An error occurred");
+			toast.error("An error occurred");
 		}
 	},
 	checkAuth: async () => {

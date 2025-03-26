@@ -149,7 +149,9 @@ export const login = async (req, res) => {
 	try {
 		const { email, password } = req.body;
 		const user = await User.findOne({ email });
-
+		if(user?.role === "partner" && !user.partner.isVerified){
+			return res.status(401).json({ message: "Partner account is not verified yet" });
+		}
 		if (user && (await user.comparePassword(password))) {
 			const { accessToken, refreshToken } = generateTokens(user._id);
 			await storeRefreshToken(user._id, refreshToken);
