@@ -53,13 +53,14 @@ export const useUserStore = create((set, get) => ({
 	signup: async (formData) => {
 		const { firstName, lastName, email, phone, password, role } = formData;
 		set({ loading: true });
-
+		const res = null;
 		try {
-			const res = await axios.post("/auth/signup", { firstName, lastName, phone, email, password, role });
+			res = await axios.post("/auth/signup", { firstName, lastName, phone, email, password, role });
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });
-			toast.error("An error occurred");
+			console.error("An error occurred");
+			return error.status;
 		}
 	},
 	login: async (email, password) => {

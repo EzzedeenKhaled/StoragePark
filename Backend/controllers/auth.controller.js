@@ -4,7 +4,9 @@ import jwt from "jsonwebtoken";
 import sendVerificationEmail  from "../lib/mail.js";
 import crypto from "crypto";
 import multer from "multer";
-
+import path from "path";
+import fs from "fs";
+import mime from "mime";
 const upload = multer({ storage: multer.memoryStorage() });
 const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -37,7 +39,21 @@ const setCookies = (res, accessToken, refreshToken) => {
 	});
 };
 
+export const getLogo = async (req, res) => { // fix----------------------------------------------------------------------fix
+	const imagePath = path.join(__dirname, '../images/logo_d.png'); // Adjust the path as needed
 
+  // Check if the file exists
+  if (!fs.existsSync(imagePath)) {
+    return res.status(404).send('Image not found');
+  }
+  // Get the MIME type of the image
+  const mimeType = mime.getType(imagePath);
+
+  // Set the appropriate headers and send the file
+  res.setHeader('Content-Type', mimeType);
+  res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+  res.sendFile(imagePath);
+}
 export const signup = async (req, res) => {
 	console.log("backend")
 	const { email, password, firstName, lastName, role } = req.body;

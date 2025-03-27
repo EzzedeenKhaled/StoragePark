@@ -50,7 +50,7 @@ const EmailVerification = () => {
     const token = code.join(""); // Combine the digits into a single string
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/verify-email", { token });
+      const response = await axios.post("/auth/verify-email", { token });
       toast.success(response.data.message); // Show success message
     } catch (error) {
       console.error("Error verifying email:", error);

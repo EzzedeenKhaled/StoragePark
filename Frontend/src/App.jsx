@@ -7,7 +7,6 @@ import HomePage from "./Pages/HomePage";
 import PartnerHome from "./Pages/PartnerHome";
 import { Toaster } from 'react-hot-toast';
 import EmailVer from "./Pages/EmailVer"
-import { Toaster } from 'react-hot-toast';
 function App() {
   return (
     <>
