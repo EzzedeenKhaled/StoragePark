@@ -3,6 +3,8 @@ import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import sendVerificationEmail  from "../lib/mail.js";
 import crypto from "crypto";
+import multer from "multer";
+const upload = multer({ storage: multer.memoryStorage() });
 const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
 		expiresIn: "15m",

@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import "../assets/Styles/EmailVer.css";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const EmailVerification = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // State for storing the code
@@ -50,10 +51,10 @@ const EmailVerification = () => {
 
     try {
       const response = await axios.post("http://localhost:5000/api/auth/verify-email", { token });
-      alert(response.data.message); // Show success message
+      toast.success(response.data.message); // Show success message
     } catch (error) {
       console.error("Error verifying email:", error);
-      alert(error.response?.data?.message || "An error occurred.");
+      toast.error("Failed to verify email. Please try again.");
     }
   };
 

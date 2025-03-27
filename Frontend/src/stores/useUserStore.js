@@ -23,7 +23,7 @@ export const useUserStore = create((set, get) => ({
 				},
 			});
 	
-			if (response.data.success) {
+			if (response.data.message) {
 				toast.success("Files uploaded successfully!");
 			} else {
 				toast.error(response.data.message);
@@ -68,7 +68,7 @@ export const useUserStore = create((set, get) => ({
 
 		try {
 			const res = await axios.post("/auth/login", { email, password });
-
+			toast.success("Login successful");
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });

@@ -5,10 +5,13 @@ import RegisterPartner from "./Pages/PartnerRegister1";
 import RegisterPartner2 from "./Pages/PartnerRegister2";
 import HomePage from "./Pages/HomePage";
 import PartnerHome from "./Pages/PartnerHome";
+import { Toaster } from 'react-hot-toast';
 import EmailVer from "./Pages/EmailVer"
 
 function App() {
   return (
+    <>
+    <Toaster />
     <Router>
       
       <Routes>
@@ -22,6 +25,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
+    </>
   );
 }
 
