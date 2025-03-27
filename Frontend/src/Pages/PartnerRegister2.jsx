@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Loader } from "lucide-react";
 
 import { useUserStore } from '../stores/useUserStore';
+import {toast} from 'react-hot-toast';
 
 const RegisterPartner2 = () => {
     const [formData, setFormData] = useState({
@@ -39,7 +40,7 @@ const RegisterPartner2 = () => {
         e.preventDefault();
 
         if (!formData.certificateFile || !formData.businessLicenseFile || !formData.taxComplianceFile) {
-            alert("Please upload all required documents.");
+            toast.error("Please upload all required documents.");
             return;
         }
 

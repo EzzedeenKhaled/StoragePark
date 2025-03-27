@@ -23,7 +23,7 @@ export const useUserStore = create((set, get) => ({
 				},
 			});
 	
-			if (response.data.success) {
+			if (response.data.message) {
 				toast.success("Files uploaded successfully!");
 			} else {
 				toast.error(response.data.message);

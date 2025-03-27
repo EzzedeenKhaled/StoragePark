@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ArrowRight, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore"; 
+import {toast} from 'react-hot-toast';
 
 const RegisterPartner = () => {
     // const [errorMessage] = useState("");
@@ -25,7 +26,7 @@ const RegisterPartner = () => {
             const response = await signup_Next(formData);
             // console.log(response.status)
             if (response.status === 400) {
-                alert("User already exists");
+                toast.error("User already exists");
                 return;
             }
 
@@ -33,7 +34,7 @@ const RegisterPartner = () => {
     
         } catch (error) {
             console.error("Error checking signup:", error);
-            alert("Something went wrong. Please try again.");
+           toast.error("Something went wrong. Please try again.");
         }
     };
                                  

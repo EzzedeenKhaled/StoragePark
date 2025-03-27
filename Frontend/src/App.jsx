@@ -5,6 +5,7 @@ import RegisterPartner from "./Pages/PartnerRegister1";
 import RegisterPartner2 from "./Pages/PartnerRegister2";
 import HomePage from "./Pages/HomePage";
 import PartnerHome from "./Pages/PartnerHome";
+import { Toaster } from 'react-hot-toast';
 import EmailVer from "./Pages/EmailVer"
 import { Toaster } from 'react-hot-toast';
 function App() {
