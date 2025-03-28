@@ -8,5 +8,5 @@ router.post("/signup-partner", signup_Partner);
 router.post("/upload-documents", uploadDocument);
 router.post("/login", login);
 router.post("/verify-email", verifyEmail);
-router.get("logo", getLogo);//fix
+router.get("/logo", getLogo);
 export default router;

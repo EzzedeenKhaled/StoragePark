@@ -6,7 +6,9 @@ import crypto from "crypto";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 import mime from "mime";
+
 const upload = multer({ storage: multer.memoryStorage() });
 const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -39,15 +41,16 @@ const setCookies = (res, accessToken, refreshToken) => {
 	});
 };
 
-export const getLogo = async (req, res) => { // fix----------------------------------------------------------------------fix
+export const getLogo = async (req, res) => { 
+	const __filename = fileURLToPath(import.meta.url);
+	const __dirname = path.dirname(__filename);
 	const imagePath = path.join(__dirname, '../images/logo_d.png'); // Adjust the path as needed
-
   // Check if the file exists
   if (!fs.existsSync(imagePath)) {
     return res.status(404).send('Image not found');
   }
   // Get the MIME type of the image
-  const mimeType = mime.getType(imagePath);
+  const mimeType = mime.lookup(imagePath);
 
   // Set the appropriate headers and send the file
   res.setHeader('Content-Type', mimeType);
