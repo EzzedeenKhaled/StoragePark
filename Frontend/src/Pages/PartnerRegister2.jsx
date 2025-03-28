@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Check, Loader } from "lucide-react";
 import { useUserStore } from '../stores/useUserStore';
 import { toast } from 'react-hot-toast';
-
+import { useNavigate } from "react-router-dom";
 const RegisterPartner2 = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         certificateFile: null,
         businessLicenseFile: null,
@@ -52,6 +53,7 @@ const RegisterPartner2 = () => {
         console.log("Submitting Form Data:", formData);
 
         await signup_Done(formData);
+        navigate("/verify-email");
     };
 
     return (

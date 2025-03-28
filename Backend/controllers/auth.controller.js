@@ -1,13 +1,14 @@
 import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
+import Admin from "../models/admin.model.js";
 import jwt from "jsonwebtoken";
 import sendVerificationEmail  from "../lib/mail.js";
 import crypto from "crypto";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import mime from "mime";
+// import path from "path";
+// import fs from "fs";
+// import { fileURLToPath } from "url";
+// import mime from "mime";
 
 const upload = multer({ storage: multer.memoryStorage() });
 const generateTokens = (userId) => {
@@ -41,22 +42,52 @@ const setCookies = (res, accessToken, refreshToken) => {
 	});
 };
 
-export const getLogo = async (req, res) => { 
-	const __filename = fileURLToPath(import.meta.url);
-	const __dirname = path.dirname(__filename);
-	const imagePath = path.join(__dirname, '../images/logo_d.png'); // Adjust the path as needed
-  // Check if the file exists
-  if (!fs.existsSync(imagePath)) {
-    return res.status(404).send('Image not found');
-  }
-  // Get the MIME type of the image
-  const mimeType = mime.lookup(imagePath);
+// export const getLogo = async (req, res) => { 
+// 	const __filename = fileURLToPath(import.meta.url);
+// 	const __dirname = path.dirname(__filename);
+// 	const imagePath = path.join(__dirname, '../images/logo_d.png'); // Adjust the path as needed
+//   // Check if the file exists
+//   if (!fs.existsSync(imagePath)) {
+//     return res.status(404).send('Image not found');
+//   }
+//   // Get the MIME type of the image
+//   const mimeType = mime.lookup(imagePath);
 
-  // Set the appropriate headers and send the file
-  res.setHeader('Content-Type', mimeType);
-  res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
-  res.sendFile(imagePath);
-}
+//   // Set the appropriate headers and send the file
+//   res.setHeader('Content-Type', mimeType);
+//   res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+//   res.sendFile(imagePath);
+// }
+export const partnetInfoSignup = async (req, res) => {
+	try {
+	  // Step 1: Query all admin documents
+	  const admins = await Admin.find().select("partners"); // Only retrieve the "partners" field
+  
+	  // Step 2: Extract and flatten the partners array
+	  const allPartnerRequests = admins.flatMap((admin) => admin.partners);
+  
+	  // Step 3: Return the list of partner requests to the frontend
+	  res.status(200).json(allPartnerRequests);
+	} catch (error) {
+	  console.error("Error fetching partner requests:", error);
+	  res.status(500).json({ error: "Internal Server Error" });
+	}
+  };
+export const acceptedPartners = async (req, res) => {
+	try {
+	  // Step 1: Query all admin documents
+	  const admins = await Admin.find().select("partners"); // Only retrieve the "partners" field
+  
+	  // Step 2: Extract and flatten the partners array
+	  const allAcceptedPartners = admins.flatMap((admin) => admin.partners.filter((partner) => partner.status === "approved"));
+  
+	  // Step 3: Return the list of partner requests to the frontend
+	  res.status(200).json(allAcceptedPartners);
+	} catch (error) {
+	  console.error("Error fetching partner requests:", error);
+	  res.status(500).json({ error: "Internal Server Error" });
+	}
+  };
 export const signup = async (req, res) => {
 	console.log("backend")
 	const { email, password, firstName, lastName, role } = req.body;
@@ -80,13 +111,17 @@ export const signup = async (req, res) => {
 	}
 };
 export const signup_Partner = async (req, res) => {
-    const { firstName, lastName, email, phoneNumber, address, websiteURL, googleBusinessProfile, role, companyName, companyEmail } = req.body;
+    const { firstName, lastName, email, phoneNumber, address, websiteURL, role, companyName, companyEmail } = req.body;
 
     try {
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ message: "User already exists", email: userExists.email });
         }
+		const buffer = crypto.randomBytes(3); // Generate 3 random bytes (24 bits)
+		const numericToken = parseInt(buffer.toString("hex"), 16) % 1000000; // Convert to a number and limit to 6 digits
+		const verificationToken = String(numericToken).padStart(6, "0");
+
 
         const user = await User.create({
             firstName,
@@ -99,8 +134,8 @@ export const signup_Partner = async (req, res) => {
                 phoneNumber,
                 address,
                 websiteURL,
-                googleBusinessProfile
-            }
+            },
+			verificationToken
         });
 
         res.status(201).json({
@@ -150,6 +185,9 @@ export const uploadDocument = async (req, res) => {
 		}
   
 		await partner.save();
+		const email = partner.email;
+		const verificationToken = partner.verificationToken;
+		await sendVerificationEmail(email, verificationToken);
   
 		return res.status(200).json({
 		  message: "Files uploaded and partner updated successfully",
@@ -164,8 +202,8 @@ export const login = async (req, res) => {
 	try {
 		const { email, password } = req.body;
 		const user = await User.findOne({ email });
-		if(user?.role === "partner" && !user.partner.isVerified){
-			return res.status(401).json({ message: "Partner account is not verified yet" });
+		if(user?.role === "partner" || user?.role === "customer" && !user.isVerified){
+			return res.status(401).json({ message: "Account is not verified yet" });
 		}
 		if (user && (await user.comparePassword(password))) {
 			const { accessToken, refreshToken } = generateTokens(user._id);
@@ -221,6 +259,7 @@ export const refreshToken = async (req, res) => {
 
 // Verify email
 export const verifyEmail = async (req, res) => {
+	console.log("backend verify email")
 	const { token } = req.body; // Extract the 'token' property from the request body
   
 	try {

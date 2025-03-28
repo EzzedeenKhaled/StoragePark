@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { LogIn, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 const Login = () => {
+    const navigate = useNavigate();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
@@ -70,7 +71,7 @@ const Login = () => {
 							)}
 						</button>
                             <div className="form_bottom">
-                                Don&apos;t have an account?<Link className='linkBtn' to="/Register">Get Started</Link>
+                                Don&apos;t have an account?<Link className='linkBtn' to="/register-customer">Get Started</Link>
                             </div>
                         </form>
                     </div>

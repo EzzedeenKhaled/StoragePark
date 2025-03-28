@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import "../assets/Styles/EmailVer.css";
-import axios from "axios";
+import axios from "../../lib/axios";
 import { toast } from "react-hot-toast";
 
 const EmailVerification = () => {
