@@ -54,7 +54,7 @@ function HomePage() {
               Become a Partner
             </button>
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/ecommerce')}
               style={{ margin: '10px', background: '#FF8B13', color: 'white', borderRadius: '15px' }}
             >
               Browse Products

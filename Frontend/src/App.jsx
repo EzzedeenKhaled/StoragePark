@@ -7,6 +7,7 @@ import HomePage from "./Pages/HomePage";
 import PartnerHome from "./Pages/PartnerHome";
 import { Toaster } from 'react-hot-toast';
 import EmailVer from "./Pages/EmailVer"
+import Ecommerce from "./Pages/Ecommerce";
 function App() {
   return (
     <>
@@ -21,6 +22,7 @@ function App() {
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
         <Route path="/verify-email" element={<EmailVer />} />
+        <Route path="/ecommerce" element={<Ecommerce />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
