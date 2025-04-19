@@ -174,7 +174,7 @@ const Register = () => {
                             <button
                                 type='submit'
                                 className='w-full flex justify-center py-2 px-4 border border-transparent
-                                    rounded-md shadow-sm text-sm font-medium text-white transition duration-150 ease-in-out disabled:opacity-50'
+                                    rounded-md shadow-sm text-sm font-medium text-white transition duration-150 ease-in-out disabled:opacity-50 bg-[#1a1a1a] cursor-pointer hover:bg-[#333]'
                                 disabled={loading}
                             >
                                 {loading ? (

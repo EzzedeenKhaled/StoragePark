@@ -21,7 +21,7 @@ function HomePage() {
             flexDirection: 'column',
           }}
         >
-          <h1>
+          <h1 className='h1Home'>
             Partners in <br />
             Warehousing <br />
             and <br />
@@ -45,15 +45,15 @@ function HomePage() {
             flexDirection: 'column',
           }}
         >
-          <h1 style={{ marginBottom: '20px' }}>Get Started</h1>
+          <h1 className='h1Home' style={{ marginBottom: '20px' }}>Get Started</h1>
           <div style={{ display: 'flex', marginBottom: '20px' }}>
-            <button
+            <button className='btnHome'
               onClick={() => navigate('/partner')}
               style={{ margin: '10px', background: '#FF8B13', color: 'white', borderRadius: '15px' }}
             >
               Become a Partner
             </button>
-            <button
+            <button className='btnHome'
               onClick={() => navigate('/ecommerce')}
               style={{ margin: '10px', background: '#FF8B13', color: 'white', borderRadius: '15px' }}
             >

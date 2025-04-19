@@ -9,20 +9,20 @@ export const useUserStore = create((set, get) => ({
 
 	signup_Done: async ({ certificateFile, businessLicenseFile, taxComplianceFile }) => {
 		const formData = new FormData();
-		
+
 		formData.append("certificateFile", certificateFile);
 		formData.append("businessLicenseFile", businessLicenseFile);
 		formData.append("taxComplianceFile", taxComplianceFile);
-		
+
 		set({ loading: true });
-	
+
 		try {
 			const response = await axios.post("/auth/upload-documents", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			});
-	
+
 			if (response.data.message) {
 				toast.success("Files uploaded successfully!");
 			} else {
@@ -35,8 +35,8 @@ export const useUserStore = create((set, get) => ({
 			set({ loading: false });
 		}
 	},
-	
-	
+
+
 	signup_Next: async (formData) => {
 		const { firstName, lastName, companyName, email, phone, address, website, googleProfile, role } = formData;
 		set({ loading: true });
@@ -68,13 +68,48 @@ export const useUserStore = create((set, get) => ({
 
 		try {
 			const res = await axios.post("/auth/login", { email, password });
-			if(res.status !== 200) {
+			if (res.status !== 200) {
 				toast.error("Invalid credentials");
 			}
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });
 			toast.error("An error occurred");
+		}
+	},
+	productFormSubmit: async (data) => {
+		const formData = new FormData();
+		formData.append("imageProduct", data.imageProduct);
+		formData.append('category', data.category);
+		formData.append('productName', data.productName);
+		formData.append('weight', data.weight);
+		formData.append('quantity', data.quantity);
+		formData.append('pricePerUnit', data.pricePerUnit);
+		formData.append('description', data.description);
+		formData.append('brand', data.brand);
+		formData.append('storageCondition', data.storageCondition);
+		formData.append('packagingType', data.packagingType);
+		formData.append('packageWidth', data.packageWidth);
+		formData.append('packageHeight', data.packageHeight);
+		set({ loading: true });
+
+		try {
+			const response = await axios.post("/auth/product-create", formData, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+
+			if (response.data.message) {
+				toast.success("Product created successfully!");
+			} else {
+				toast.error(response.data.message);
+			}
+		} catch (error) {
+			console.error("Error creating product:", error);
+			toast.error("Failed to create product. Please try again.");
+		} finally {
+			set({ loading: false });
 		}
 	},
 	checkAuth: async () => {

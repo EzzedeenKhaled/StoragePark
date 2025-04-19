@@ -1,9 +1,11 @@
 import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
 import Admin from "../models/admin.model.js";
+import Item from "../models/item.model.js";
 import jwt from "jsonwebtoken";
 import sendVerificationEmail  from "../lib/mail.js";
 import crypto from "crypto";
+import { imagekit } from "../lib/imageKit.js";
 import multer from "multer";
 // import path from "path";
 // import fs from "fs";
@@ -71,6 +73,53 @@ export const partnetInfoSignup = async (req, res) => {
 	} catch (error) {
 	  console.error("Error fetching partner requests:", error);
 	  res.status(500).json({ error: "Internal Server Error" });
+	}
+  };
+  export const createProduct = async (req, res) => {
+	try {
+	  // Extract the product data from the request
+	  const { category, productName, weight, quantity, pricePerUnit, description, brand, storageCondition, packagingType, packageWidth, packageHeight } = req.body;
+  
+	  // Ensure the image is available
+	  if (!req.file) {
+		return res.status(400).json({ message: 'Image is required.' });
+	  }
+  
+	  // Convert the image file to base64
+	  const base64Img = req.file.buffer.toString('base64');
+	  const imgName = req.file.originalname; // Use a timestamp to ensure unique filenames
+	//   console.log("Image name:", imgName);
+	  // Upload image to ImageKit
+	  const uploadResult = await UploadImage(base64Img, imgName);
+  
+	  // Get the URL of the uploaded image
+	  const imageUrl = uploadResult.url;
+  
+	  // Create a new product document
+	  const newProduct = new Item({
+		category,
+		productName,
+		weight,
+		quantity,
+		pricePerUnit,
+		description,
+		brand,
+		storageCondition,
+		packagingType,
+		packageWidth,
+		packageHeight,
+		imageProduct: imageUrl,
+		// partner: "1841471"
+	  });
+  
+	  // Save the product to the database
+	  await newProduct.save();
+  
+	  // Return success response
+	  return res.status(201).json({ message: 'Product created successfully!', product: newProduct });
+	} catch (error) {
+	  console.error('Error creating product:', error);
+	  return res.status(500).json({ message: 'Failed to create product. Please try again.' });
 	}
   };
 export const acceptedPartners = async (req, res) => {
@@ -172,22 +221,25 @@ export const uploadDocument = async (req, res) => {
 		}
   
 		const { certificateFile, businessLicenseFile, taxComplianceFile } = req.files;
-  
 		// Convert files to Base64
 		if (certificateFile) {
-		  partner.partner.certificateFile = certificateFile[0].buffer.toString("base64");
-		}
-		if (businessLicenseFile) {
-		  partner.partner.businessLicenseFile = businessLicenseFile[0].buffer.toString("base64");
-		}
-		if (taxComplianceFile) {
-		  partner.partner.taxComplianceFile = taxComplianceFile[0].buffer.toString("base64");
-		}
-  
-		await partner.save();
-		const email = partner.email;
-		const verificationToken = partner.verificationToken;
-		await sendVerificationEmail(email, verificationToken);
+			const img = await UploadImage(certificateFile[0].buffer.toString("base64"), certificateFile[0].originalname);
+			partner.partner.certificateFile = img.url;
+		  }
+	  
+		  if (businessLicenseFile) {
+			const img = await UploadImage(businessLicenseFile[0].buffer.toString("base64"), businessLicenseFile[0].originalname);
+			partner.partner.businessLicenseFile = img.url;
+		  }
+	  
+		  if (taxComplianceFile) {
+			const img = await UploadImage(taxComplianceFile[0].buffer.toString("base64"), taxComplianceFile[0].originalname);
+			partner.partner.taxComplianceFile = img.url;
+		  }
+	  
+		  await partner.save();
+	  
+		  await sendVerificationEmail(partner.email, partner.verificationToken);
   
 		return res.status(200).json({
 		  message: "Files uploaded and partner updated successfully",
@@ -198,6 +250,21 @@ export const uploadDocument = async (req, res) => {
 	  return res.status(500).json({ message: "Internal server error", error: error.message });
 	}
   };
+  const UploadImage = async (base64Img, imgName) => {
+	try {
+	  const result = await imagekit.upload({
+		file: base64Img,      // Can be base64 or buffer
+		fileName: imgName,    // Required
+		tags: ["tag1", "tag2"]
+	  });
+	  console.log(result);
+	  return result;
+	} catch (error) {
+	  console.error(error);
+	  throw error;
+	}
+  };
+  
 export const login = async (req, res) => {
 	try {
 		const { email, password } = req.body;

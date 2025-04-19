@@ -1,17 +1,5 @@
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  /* Container Styles */
-/* Centering the container */
-html, body {
-    height: 100%; /* Ensure the body takes up the full viewport height */
-    margin: 0; /* Remove default margin */
-    background-color: #f4f4f4;
-  }
+
   
   .email-verification-container {
     display: flex;

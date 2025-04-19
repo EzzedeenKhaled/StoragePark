@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-
 // Component
 function Eheader() {
   return (
@@ -43,13 +42,19 @@ function Eheader() {
 }
 
 // Styles as an Object
+
 const styles = {
+  heroSection: {
+    position: 'relative',
+    overflow: 'hidden',
+    marginTop: '20px',
+  },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '10px 20px',
-    backgroundColor: '#f5f5f5',
+    // backgroundColor: '#f5f5f5',
   },
   logo: {
     display: 'flex',
@@ -74,7 +79,7 @@ const styles = {
     border: 'none',
     outline: 'none',
     fontSize: '14px',
-    width: '300px', // Adjust width as needed
+    width: '300px',
   },
   searchButton: {
     border: 'none',
@@ -87,11 +92,6 @@ const styles = {
   },
   action: {
     cursor: 'pointer',
-  },
-  heroSection: {
-    position: 'relative',
-    overflow: 'hidden',
-    marginTop: '20px',
   },
   heroImage: {
     width: '100%',
@@ -132,5 +132,6 @@ const styles = {
     transition: 'background-color 0.3s ease',
   },
 };
+
 
 export default Eheader;
