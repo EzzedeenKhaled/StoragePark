@@ -1,7 +1,6 @@
-import ImageKit from "imagekit";
 import dotenv from "dotenv";
-
-dotenv.config();
+dotenv.config({ path: './Backend/.env' });
+import ImageKit from "imagekit";
 
 export const imagekit = new ImageKit({
     publicKey: process.env.kitPublic,  // Replace with your public API key
