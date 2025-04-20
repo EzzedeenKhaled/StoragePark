@@ -3,17 +3,21 @@ import { Link } from 'react-router-dom';
 import { LogIn, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 const Login = () => {
     const navigate = useNavigate();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
-	const { login, loading } = useUserStore();
-
+	const { login, loading, user } = useUserStore();
+    useEffect(() => {
+        if (user) {
+            navigate("/ecommerce");
+        }
+    }, [user, navigate]);
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		console.log(email, password);
 		login(email, password);
 	};
     const [errorMessage] = useState("");

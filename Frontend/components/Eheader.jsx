@@ -1,137 +1,71 @@
-import { Link } from "react-router-dom";
-// Component
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useUserStore } from '../src/stores/useUserStore';
+import { ProfileMenu } from './ProfileMenu';
+
 function Eheader() {
+  const { user } = useUserStore();
+
   return (
     <div>
-      {/* Header */}
-      <header style={styles.header}>
+      <header className="flex justify-between items-center px-5 py-3">
         {/* Logo */}
-        <div style={styles.logo}>
-          <img src="/logo_b.png" alt="Storage Park Logo" style={styles.logoImage} />
+        <div className="flex items-center font-bold">
+          <img src="/logo_b.png" alt="Storage Park Logo" className="w-24 mr-2" />
         </div>
 
         {/* Search Bar */}
-        <div style={styles.searchBar}>
-          <input type="text" placeholder="Search" style={styles.searchInput} />
-          <button style={styles.searchButton}>🔍</button>
+        <div className="flex items-center relative">
+          <input 
+            type="text" 
+            placeholder="Search" 
+            className="w-[300px] rounded-full border border-orange-500 px-4 py-2"
+          />
+          <button className="absolute right-3">
+            🔍
+          </button>
         </div>
 
         {/* Header Actions */}
-        <div style={styles.headerActions}>
-          <span style={styles.action}>
-          <Link to="/partner">Become A Partner</Link>
-            </span>
-          <span style={styles.action}>
-            <Link to="/login">Login</Link>
-          </span>
-          <span style={styles.action}>🛒</span>
+        <div className="flex items-center gap-6">
+          {user ? (
+            <>
+              <ProfileMenu />
+              <span className="cursor-pointer">🛒</span>
+            </>
+          ) : (
+            <>
+              <Link to="/partner" className="hover:text-orange-500 transition-colors">
+                Become A Partner
+              </Link>
+              <Link to="/login" className="hover:text-orange-500 transition-colors">
+                Login
+              </Link>
+              <span className="cursor-pointer">🛒</span>
+            </>
+          )}
         </div>
       </header>
 
       {/* Hero Section */}
-      <section style={styles.heroSection}>
-        <img src="/hero-image.png" alt="Order Tracking Hero Image" style={styles.heroImage} />
-        <div style={styles.overlay}>
-          <h1 style={styles.title}>Order Tracking Made Simple</h1>
-          <p style={styles.subtitle}>Real-Time Updates at Your Fingertips</p>
-          <button style={styles.trackButton}>Track Your Order</button>
+      <section className="relative mt-5">
+        <img 
+          src="/hero-image.png" 
+          alt="Order Tracking Hero Image" 
+          className="w-full"
+        />
+        <div className="absolute inset-0 flex flex-col justify-center items-center text-white text-center bg-black/50">
+          <h1 className="text-4xl font-bold mb-2">Order Tracking Made Simple</h1>
+          <p className="text-xl mb-5">Real-Time Updates at Your Fingertips</p>
+          <button 
+            className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded"
+          >
+            Track Your Order
+          </button>
         </div>
       </section>
     </div>
   );
 }
-
-// Styles as an Object
-
-const styles = {
-  heroSection: {
-    position: 'relative',
-    overflow: 'hidden',
-    marginTop: '20px',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 20px',
-    // backgroundColor: '#f5f5f5',
-  },
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
-    fontWeight: 'bold',
-  },
-  logoImage: {
-    width: '100px',
-    marginRight: '10px',
-  },
-  logoText: {
-    fontSize: '20px',
-  },
-  searchBar: {
-    display: 'flex',
-    alignItems: 'center',
-    border: '1px solid #ff9800',
-    borderRadius: '20px',
-    padding: '5px 10px',
-  },
-  searchInput: {
-    border: 'none',
-    outline: 'none',
-    fontSize: '14px',
-    width: '300px',
-  },
-  searchButton: {
-    border: 'none',
-    background: 'none',
-    cursor: 'pointer',
-  },
-  headerActions: {
-    display: 'flex',
-    gap: '20px',
-  },
-  action: {
-    cursor: 'pointer',
-  },
-  heroImage: {
-    width: '100%',
-    height: 'auto',
-    display: 'block',
-  },
-  overlay: {
-    position: 'absolute',
-    top: '0',
-    left: '0',
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    color: 'white',
-    textAlign: 'center',
-    background: 'rgba(0, 0, 0, 0.5)',
-  },
-  title: {
-    fontSize: '36px',
-    fontWeight: 'bold',
-    marginBottom: '10px',
-  },
-  subtitle: {
-    fontSize: '20px',
-    marginBottom: '20px',
-  },
-  trackButton: {
-    padding: '10px 20px',
-    backgroundColor: '#ff9800',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    fontSize: '16px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s ease',
-  },
-};
-
 
 export default Eheader;

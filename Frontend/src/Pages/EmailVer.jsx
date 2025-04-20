@@ -2,11 +2,10 @@ import { useRef, useState } from "react";
 import "../assets/Styles/EmailVer.css";
 import axios from "../../lib/axios";
 import { toast } from "react-hot-toast";
-
+import { useNavigate } from "react-router-dom";
 const EmailVerification = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // State for storing the code
   const inputRefs = useRef([]); // Refs for managing focus between input fields
-
   // Handle input changes
   const handleChange = (index, value) => {
     // Allow only numeric input
@@ -43,6 +42,7 @@ const EmailVerification = () => {
       inputRefs.current[index - 1]?.focus(); // Move focus to the previous input field
     }
   };
+  const navigate = useNavigate(); // Hook for navigation
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -51,8 +51,13 @@ const EmailVerification = () => {
 
     try {
       const response = await axios.post("/auth/verify-email", { token });
-      toast.success(response.data.message); // Show success message
-    } catch (error) {
+      toast.success(response.data.message);
+      console.log("Email verification response:", response.data);
+      if(response.status === 200) 
+        // Redirect to the ecommerce page if email verification is successful
+        navigate("/ecommerce");
+
+      } catch (error) {
       console.error("Error verifying email:", error);
       toast.error("Failed to verify email. Please try again.");
     }

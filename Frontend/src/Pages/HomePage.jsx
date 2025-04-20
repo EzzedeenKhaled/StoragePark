@@ -60,7 +60,7 @@ function HomePage() {
               Browse Products
             </button>
           </div>
-          <div style={{ position: 'absolute', bottom: '130px', left: '312px' }}>
+          <div>
             <img width="100px" height="45.93px" src='/logow.png' alt="Logo" />
           </div>
         </div>

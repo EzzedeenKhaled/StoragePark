@@ -36,7 +36,18 @@ export const useUserStore = create((set, get) => ({
 		}
 	},
 
+	updateUserCustomer: async (formData) => {
+		const { firstName, email, lastName, phone: phoneNumber } = formData;
+		set({ loading: true });
 
+		try {
+			const res = await axios.post("/auth/update-user-customer", { firstName, lastName, email, phoneNumber });
+			set({ user: res.data.data, loading: false });
+		} catch (error) {
+			set({ loading: false });
+			toast.error(error.response.data.message || "An error occurred");
+		}
+	},
 	signup_Next: async (formData) => {
 		const { firstName, lastName, companyName, email, phone, address, website, googleProfile, role } = formData;
 		set({ loading: true });
@@ -56,7 +67,7 @@ export const useUserStore = create((set, get) => ({
 		let res = null;
 		try {
 			res = await axios.post("/auth/signup", { firstName, lastName, phone, email, password, role });
-			set({ user: res.data, loading: false });
+			set({ user: res.data.data, loading: false });
 		} catch (error) {
 			set({ loading: false });
 			console.error("An error occurred");
@@ -71,10 +82,11 @@ export const useUserStore = create((set, get) => ({
 			if (res.status !== 200) {
 				toast.error("Invalid credentials");
 			}
+			console.log("login: ",res.data)
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });
-			toast.error("An error occurred");
+			toast.error(error.response?.data?.message || "An error occurred during login");
 		}
 	},
 	productFormSubmit: async (data) => {
@@ -112,10 +124,20 @@ export const useUserStore = create((set, get) => ({
 			set({ loading: false });
 		}
 	},
+	logout: async () => {
+		try {
+			await axios.post("/auth/logout");
+			set({ user: null });
+		} catch (error) {
+			toast.error(error.response?.data?.message || "An error occurred during logout");
+		}
+	},
+
 	checkAuth: async () => {
 		set({ checkingAuth: true });
 		try {
 			const response = await axios.get("/auth/profile");
+			console.log("checkAuth: ",response.data)
 			set({ user: response.data, checkingAuth: false });
 		} catch (error) {
 			console.log(error.message);

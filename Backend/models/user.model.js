@@ -1,14 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-// const itemSchema = new mongoose.Schema({
-// 	name: { type: String, required: true },
-// 	description: { type: String, required: true },
-// 	image: { type: String, required: true },
-// 	price: { type: Number, required: true },
-// 	createdAt: { type: Date, default: Date.now },
-// });
-
 const userSchema = new mongoose.Schema(
 	{
 		firstName: {
@@ -49,6 +41,14 @@ const userSchema = new mongoose.Schema(
 			businessLicenseFile: { type: String, default: null },
 			taxComplianceFile: { type: String, default: null },
 			profileImage: { type: String, default: null },
+		},
+		phoneNumber: {
+			type: String,
+			required: [true, "Phone number is required"],
+		},
+		profileImage: {
+			type: String,
+			default: null,
 		},
 		isVerified: { type: Boolean, default: false },
 		verificationToken: { type: String },

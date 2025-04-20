@@ -27,6 +27,7 @@ const Register = () => {
             if (!validateInputs()) return;
 
             const res = await signup(formData);
+            console.log("res", res);
             if(res === 400){
                 toast.error("User already exists");
                 return;

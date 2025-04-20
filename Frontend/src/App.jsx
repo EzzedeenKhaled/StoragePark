@@ -9,11 +9,23 @@ import { Toaster } from 'react-hot-toast';
 import EmailVer from "./Pages/EmailVer"
 import Ecommerce from "./Pages/Ecommerce";
 import ProductForm from "./Pages/ProductForm";
+import Profile from './Pages/Profile';
+import { useUserStore } from "./stores/useUserStore";
+import { useEffect } from "react";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import OrderHistory from "./Pages/OrderHistory";
+import Wishlist from "./Pages/Wishlist";
+
 function App() {
+  const { user, checkAuth, checkingAuth } = useUserStore();
+  useEffect(() => {
+		checkAuth();
+	}, [checkAuth]);
+	if (checkingAuth) return <LoadingSpinner />;  
   return (
     <>
     <Toaster />
-    <Router>
+
       
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -22,12 +34,15 @@ function App() {
         <Route path="/register-partner-2" element={<RegisterPartner2 />} />
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
-        <Route path="/verify-email" element={<EmailVer />} />
-        <Route path="/ecommerce" element={<Ecommerce />} />
+        <Route path="/verify-email" element={user?.isVerified ? user.role === "customer" ? <Ecommerce /> : <HomePage /> : <HomePage />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/order-history" element={<OrderHistory />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/ecommerce" element={ <Ecommerce />} />
         <Route path="/product-form" element={<ProductForm />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Router>
+
     </>
   );
 }
