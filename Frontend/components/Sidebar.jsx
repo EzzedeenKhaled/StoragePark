@@ -6,6 +6,7 @@ export function Sidebar() {
   const { user } = useUserStore();
   const location = useLocation();
   const currentPath = location.pathname;
+  console.log('Uses:', user);
   const linkClasses = (path) =>
     `flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-orange-50 ${
       currentPath === path ? "bg-orange-100 font-semibold" : ""

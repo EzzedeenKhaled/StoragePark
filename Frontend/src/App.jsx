@@ -15,13 +15,14 @@ import { useEffect } from "react";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import OrderHistory from "./Pages/OrderHistory";
 import Wishlist from "./Pages/Wishlist";
-
+import Cart from "./Pages/Cart";
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
   useEffect(() => {
 		checkAuth();
 	}, [checkAuth]);
-	if (checkingAuth) return <LoadingSpinner />;  
+	if (checkingAuth) return <LoadingSpinner />;
+  // Dashboard partner (verify email)
   return (
     <>
     <Toaster />
@@ -34,7 +35,7 @@ function App() {
         <Route path="/register-partner-2" element={<RegisterPartner2 />} />
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
-        <Route path="/verify-email" element={user?.isVerified ? user.role === "customer" ? <Ecommerce /> : <HomePage /> : <HomePage />} />
+        <Route path="/verify-email" element={<EmailVer />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/wishlist" element={<Wishlist />} />

@@ -11,7 +11,9 @@ function Eheader() {
       <header className="flex justify-between items-center px-5 py-3">
         {/* Logo */}
         <div className="flex items-center font-bold">
+          <Link to="/">
           <img src="/logo_b.png" alt="Storage Park Logo" className="w-24 mr-2" />
+          </Link>
         </div>
 
         {/* Search Bar */}

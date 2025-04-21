@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useUserStore } from '../src/stores/useUserStore';
 import { useEffect } from 'react';
+import toast from 'react-hot-toast';
 export function ProfileForm({ initialData = {} }) {
   const [formData, setFormData] = useState({
     firstName: initialData.firstName || '',
@@ -14,6 +15,7 @@ export function ProfileForm({ initialData = {} }) {
       console.log('User updated:', user);
     }
   }, [user]);
+  console.log('Usef:', user);
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
@@ -21,10 +23,17 @@ export function ProfileForm({ initialData = {} }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Handle form submission here
-    updateUserCustomer(formData);
+    const res = await updateUserCustomer(formData);
+    console.log('Response:', res);
+    if (res === 200) {
+      toast.success('Profile updated successfully!');
+    }else {
+      toast.error('Failed to update profile. Please try again.');
+      return;
+    }
     setFormData(formData);
     console.log('Form submitted:', formData);
   };
@@ -74,7 +83,7 @@ export function ProfileForm({ initialData = {} }) {
               disabled
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="w-full px-4 py-2 border border-gray-300 cursor-not-allowed rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             />
           </div>
 

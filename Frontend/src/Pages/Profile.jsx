@@ -5,7 +5,7 @@ import { useUserStore } from '../stores/useUserStore';
 
 function Profile() {
   const { user } = useUserStore();
-  
+  console.log('Usep:', user);
   return (
     <div className="flex min-h-screen bg-white">
       <Sidebar />

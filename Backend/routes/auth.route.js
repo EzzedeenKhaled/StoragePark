@@ -1,21 +1,14 @@
 import express from "express";
-import { signup, login, signup_Partner, uploadDocument, verifyEmail, partnetInfoSignup, acceptedPartners, createProduct, getProfile, logout, refreshToken, updateCustomer } from "../controllers/auth.controller.js";
+import { signup, login, logout, refreshToken, verifyEmail, getProfile } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
-import multer from 'multer';
 
-const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
+
 router.post("/signup", signup);
-router.post("/signup-partner", signup_Partner);
-router.post("/upload-documents", uploadDocument);
 router.post("/login", login);
 router.post("/logout", logout);
 router.post("/refresh-token", refreshToken);
-router.post("/update-user-customer", updateCustomer);
-router.get("/profile", protectRoute, getProfile);
 router.post("/verify-email", verifyEmail);
-router.get("/partner-requests", partnetInfoSignup);
-router.get("/partners-accepted", acceptedPartners);
-router.post("/product-create",upload.single('imageProduct'),createProduct);
-// router.get("/logo", getLogo);
+router.get("/profile", protectRoute, getProfile);
+
 export default router;

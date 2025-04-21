@@ -2,7 +2,11 @@ import express from "express";
 import { connectDB } from "./lib/db.js";
 import cors from "cors";
 import authRoutes from "./routes/auth.route.js";
+import partnerRoutes from "./routes/partner.route.js";
+import productRoutes from "./routes/product.route.js";
+import customerRoutes from "./routes/customer.route.js";
 import cookieParser from 'cookie-parser';
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -19,6 +23,9 @@ app.use(
 
 
 app.use("/api/auth", authRoutes);
+app.use("/api/partners", partnerRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/customers", customerRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on http://localhost:" + PORT);

@@ -17,7 +17,7 @@ export const useUserStore = create((set, get) => ({
 		set({ loading: true });
 
 		try {
-			const response = await axios.post("/auth/upload-documents", formData, {
+			const response = await axios.post("/partners/upload-documents", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -41,8 +41,9 @@ export const useUserStore = create((set, get) => ({
 		set({ loading: true });
 
 		try {
-			const res = await axios.post("/auth/update-user-customer", { firstName, lastName, email, phoneNumber });
+			const res = await axios.post("/customers/update", { firstName, lastName, email, phoneNumber });
 			set({ user: res.data.data, loading: false });
+			return res.status;
 		} catch (error) {
 			set({ loading: false });
 			toast.error(error.response.data.message || "An error occurred");
@@ -53,7 +54,7 @@ export const useUserStore = create((set, get) => ({
 		set({ loading: true });
 
 		try {
-			const res = await axios.post("/auth/signup-partner", { firstName, lastName, companyName, email, phone, address, website, googleProfile, role });
+			const res = await axios.post("/partners/signup-partner", { firstName, lastName, companyName, email, phone, address, website, googleProfile, role });
 			set({ loading: false });
 			return res.data
 		} catch (error) {
@@ -106,7 +107,7 @@ export const useUserStore = create((set, get) => ({
 		set({ loading: true });
 
 		try {
-			const response = await axios.post("/auth/product-create", formData, {
+			const response = await axios.post("/products/create", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
