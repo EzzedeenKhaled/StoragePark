@@ -44,6 +44,7 @@ function App() {
         <Route path="/ecommerce" element={ <Ecommerce />} />
         <Route path="/product-form" element={<ProductForm />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/category/:categoryId" element={<Category />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
