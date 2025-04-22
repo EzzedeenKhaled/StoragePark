@@ -13,7 +13,7 @@ const ProductForm = () => {
     pricePerUnit: '',
     description: '',
     brand: '',
-    storageCondition: 'standard',
+    // storageCondition: 'standard',
     packagingType: 'boxed',
     packageWidth: '',
     packageHeight: '',
@@ -140,6 +140,7 @@ const ProductForm = () => {
                 type="number"
                 name="pricePerUnit"
                 min="0.01"
+                step="0.01"
                 value={formData.pricePerUnit}
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded-md"
@@ -183,7 +184,7 @@ const ProductForm = () => {
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <h2 className="text-2xl font-medium text-gray-700 mb-4">Stock and Product Details</h2>
           <div className="space-y-4">
             <div>
@@ -222,7 +223,7 @@ const ProductForm = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div>
           <h2 className="text-2xl font-medium text-gray-700 mb-4">Packaging Details</h2>
@@ -313,7 +314,7 @@ const ProductForm = () => {
 
         <button
           type="submit"
-          className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+          className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 cursor-pointer"
         >
           Submit
         </button>

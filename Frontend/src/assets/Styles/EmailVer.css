@@ -10,7 +10,7 @@
   }
   
   .container {
-    max-width: 480px;
+    /* max-width: 480px; */
     width: 100%;
     margin: 50px auto; /* Adjust margin if needed */
     background-color: #f4f4f4; /* Light gray background */

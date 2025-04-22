@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useUserStore } from '../src/stores/useUserStore';
 import { ProfileMenu } from './ProfileMenu';
 
-function Eheader() {
+function Eheader( { heroImage } ) {
   const { user } = useUserStore();
 
   return (
@@ -50,7 +50,7 @@ function Eheader() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative mt-5">
+      {heroImage && <section className="relative mt-5">
         <img 
           src="/hero-image.png" 
           alt="Order Tracking Hero Image" 
@@ -65,7 +65,7 @@ function Eheader() {
             Track Your Order
           </button>
         </div>
-      </section>
+      </section>}
     </div>
   );
 }

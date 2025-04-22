@@ -16,6 +16,7 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import OrderHistory from "./Pages/OrderHistory";
 import Wishlist from "./Pages/Wishlist";
 import Cart from "./Pages/Cart";
+import ProductPage from "./Pages/ProductPage";
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
   useEffect(() => {
@@ -33,6 +34,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register-partner-1" element={<RegisterPartner />} />
         <Route path="/register-partner-2" element={<RegisterPartner2 />} />
+        <Route path="/product-page" element={<ProductPage />} />
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
         <Route path="/verify-email" element={<EmailVer />} />

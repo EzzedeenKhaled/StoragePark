@@ -1,9 +1,9 @@
 import Item from "../models/item.model.js";
-
+import { imagekit } from "../lib/imageKit.js";
 export const createProduct = async (req, res) => {
 	try {
 		// Extract the product data from the request
-		const { category, productName, weight, quantity, pricePerUnit, description, brand, storageCondition, packagingType, packageWidth, packageHeight } = req.body;
+		const { category, productName, weight, quantity, pricePerUnit, description, brand, packagingType, packageWidth, packageHeight } = req.body;
 
 		// Ensure the image is available
 		if (!req.file) {
@@ -29,7 +29,7 @@ export const createProduct = async (req, res) => {
 			pricePerUnit,
 			description,
 			brand,
-			storageCondition,
+			// storageCondition,
 			packagingType,
 			packageWidth,
 			packageHeight,
@@ -47,3 +47,30 @@ export const createProduct = async (req, res) => {
 		return res.status(500).json({ message: 'Failed to create product. Please try again.' });
 	}
 };
+
+const UploadImage = async (base64Img, imgName) => {
+	try {
+		const result = await imagekit.upload({
+			file: base64Img,      // Can be base64 or buffer
+			fileName: imgName,    // Required
+			tags: ["tag1", "tag2"]
+		});
+		console.log(result);
+		return result;
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+};
+
+// Public route: Get all active items for customers
+export const getActiveItems = async (req, res) => {
+	try {
+	  const items = await Item.find({ isActive: true }).populate('partner', 'name');
+	  console.log("Active items:", items);
+	  res.json(items);
+	} catch (error) {
+	  res.status(500).json({ message: 'Server error', error: error.message });
+	}
+  };
+  

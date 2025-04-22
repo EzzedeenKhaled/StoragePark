@@ -30,10 +30,10 @@ const itemSchema = new mongoose.Schema(
 			type: String,
 			required: false,
 		},
-		storageCondition: {
-			type: String,
-			required: false,
-		},
+		// storageCondition: {
+		// 	type: String,
+		// 	required: false,
+		// },
 		packagingType: {
 			type: String,
 			required: false,
@@ -54,6 +54,10 @@ const itemSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 			required: false,
+		},
+		isActive: {
+			type: Boolean,
+			default: true,
 		},
 		createdAt: {
 			type: Date,

@@ -4,17 +4,25 @@ import '../src/assets/Styles/ProductCarousel.css';
 function ProductCarousel({ products, categories, title }) {
   const containerRef = useRef(null);
 
+  const scrollItemWidth = () => {
+    if (containerRef.current) {
+      const item = containerRef.current.querySelector('.product-card, .category-card');
+      return item ? item.getBoundingClientRect().width : 0;
+    }
+    return 0;
+  };
+
   const scrollLeft = () => {
     if (containerRef.current) {
-      const containerWidth = containerRef.current.getBoundingClientRect().width;
-      containerRef.current.scrollLeft -= containerWidth;
+      const itemWidth = scrollItemWidth();
+      containerRef.current.scrollLeft -= itemWidth;
     }
   };
 
   const scrollRight = () => {
     if (containerRef.current) {
-      const containerWidth = containerRef.current.getBoundingClientRect().width;
-      containerRef.current.scrollLeft += containerWidth;
+      const itemWidth = scrollItemWidth();
+      containerRef.current.scrollLeft += itemWidth;
     }
   };
 
@@ -31,7 +39,7 @@ function ProductCarousel({ products, categories, title }) {
       <div className="product-container" ref={containerRef}>
         {products &&
           products.map((product) => (
-            <div className="product-card" key={product.id}>
+            <div className="product-card cursor-pointer" key={product.id}>
               <div className="product-image">
                 {product.discount > 0 && (
                   <span className="discount-tag">{product.discount}% off</span>
@@ -50,7 +58,7 @@ function ProductCarousel({ products, categories, title }) {
 
         {categories &&
           categories.map((category, index) => (
-            <div className="category-card" key={index}>
+            <div className="category-card cursor-pointer" key={index}>
               <div className="icon-placeholder"></div>
               <h3>{category}</h3>
             </div>

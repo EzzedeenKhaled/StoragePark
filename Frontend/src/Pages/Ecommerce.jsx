@@ -1,6 +1,8 @@
 import Eheader from '../../components/Eheader';
 import ProductCarousel from '../../components/ProductCarousel';
 import Footer from '../../components/Footer';
+import { useUserStore } from '../stores/useUserStore';
+import { useEffect } from 'react';
 const products = [
   { id: 1, image: 'images/card122.jpg', name: 'Product 1', price: 20, discount: 0 },
   { id: 2, image: 'images/card2.jpg', name: 'Product 2', price: 20, discount: 50, originalPrice: 40 },
@@ -17,12 +19,26 @@ const products = [
 const categories = ['Clothes', 'Electronics', 'Health & Household', 'Beauty', 'Toys', 'Sports', 'Books', 'Automotive', 'Computers', 'Grocery', 'Home & Kitchen', 'Pet Supplies', 'Baby Products', 'Office Products', 'Video Games', 'Musical Instruments', 'Tools & Home Improvement', 'Garden & Outdoor', 'Arts, Crafts & Sewing', 'Industrial & Scientific'];
 
 function Ecommerce() {
+  const { activeItems, fetchActiveItems } = useUserStore();
+  useEffect(() => {
+    fetchActiveItems(); // Fetch active items from backend
+  }, [fetchActiveItems]);
+  const mappedProducts = activeItems.map(item => ({
+    id: item._id,
+    name: item.productName,
+    price: item.pricePerUnit,
+    originalPrice: item.originalPrice, // if available
+    discount: item.discount || 0,
+    image: item.imageProduct
+  }));
+  console.log("Mapped Products:", mappedProducts);
   return (
     <>
-      <Eheader />
+      <Eheader heroImage={true}/>
       <ProductCarousel categories={categories} title="Shop by Category" />
       <ProductCarousel products={products} title="Black Friday" />
       <ProductCarousel products={products} title="Latest Products" />
+      <ProductCarousel products={mappedProducts} title="Active Items" />
       <Footer />
     </>
   );

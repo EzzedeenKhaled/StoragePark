@@ -6,6 +6,7 @@ export const useUserStore = create((set, get) => ({
 	user: null,
 	loading: false,
 	checkingAuth: true,
+	activeItems: [],
 
 	signup_Done: async ({ certificateFile, businessLicenseFile, taxComplianceFile }) => {
 		const formData = new FormData();
@@ -100,7 +101,7 @@ export const useUserStore = create((set, get) => ({
 		formData.append('pricePerUnit', data.pricePerUnit);
 		formData.append('description', data.description);
 		formData.append('brand', data.brand);
-		formData.append('storageCondition', data.storageCondition);
+		// formData.append('storageCondition', data.storageCondition);
 		formData.append('packagingType', data.packagingType);
 		formData.append('packageWidth', data.packageWidth);
 		formData.append('packageHeight', data.packageHeight);
@@ -125,6 +126,16 @@ export const useUserStore = create((set, get) => ({
 			set({ loading: false });
 		}
 	},
+	fetchActiveItems: async () => {
+		set({ loading: true });
+		try {
+		  const res = await axios.get('/products/active-items');
+		  set({ activeItems: res.data, loading: false });
+		} catch (err) {
+		  console.error("Error fetching active items:", err);
+		  set({ loading: false });
+		}
+	  },
 	logout: async () => {
 		try {
 			await axios.post("/auth/logout");

@@ -19,10 +19,6 @@
     flex-direction: column;
     gap: 15px;
 }
-
-/* .footer_comp .left h1{
-    color: #FF8B13;
-} */
  
 .footer_comp .right{
     display: flex;
