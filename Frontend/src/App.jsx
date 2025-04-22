@@ -16,6 +16,7 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import OrderHistory from "./Pages/OrderHistory";
 import Wishlist from "./Pages/Wishlist";
 import Cart from "./Pages/Cart";
+import Category from "./Pages/Category";
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
   useEffect(() => {
@@ -42,6 +43,7 @@ function App() {
         <Route path="/ecommerce" element={ <Ecommerce />} />
         <Route path="/product-form" element={<ProductForm />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/category/:categoryId" element={<Category />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
