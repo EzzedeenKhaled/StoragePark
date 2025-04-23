@@ -52,7 +52,7 @@ const RegisterPartner2 = () => {
 
         console.log("Submitting Form Data:", formData);
 
-        await signup_Done(formData);
+        const res = await signup_Done(formData);
         navigate("/verify-email");
     };
 

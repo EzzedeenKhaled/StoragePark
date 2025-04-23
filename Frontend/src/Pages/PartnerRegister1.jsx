@@ -36,7 +36,7 @@ const RegisterPartner = () => {
 
         } catch (error) {
             console.error("Error checking signup:", error);
-            toast.error("Something went wrong. Please try again.");
+            // toast.error("Something went wrong. Please try again.");
         }
     };
 

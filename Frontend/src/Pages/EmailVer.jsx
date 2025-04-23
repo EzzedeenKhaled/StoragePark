@@ -52,11 +52,11 @@ const EmailVerification = () => {
     try {
       const response = await axios.post("/auth/verify-email", { token });
       toast.success(response.data.message);
-      console.log("Email verification response:", response.data);
-      if(response.status === 200) 
-        // Redirect to the ecommerce page if email verification is successful
+      // console.log("Email verification response:", response.data);
+      if(response.data.data.role === "customer")
         navigate("/ecommerce");
-
+      else if(response.data.data.role === "partner")
+        navigate("/partner-dashboard");
       } catch (error) {
       console.error("Error verifying email:", error);
       toast.error("Failed to verify email. Please try again.");

@@ -7,10 +7,11 @@ import { imagekit } from "../lib/imageKit.js";
 
 
 export const signup_Partner = async (req, res) => {
-    const { firstName, lastName, email, phoneNumber, address, websiteURL, role, companyName, companyEmail } = req.body;
-
+    const { firstName, lastName, email, phoneNumber, address, websiteURL, companyName, companyEmail } = req.body;
     try {
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({
+            $or: [{ email }, { phoneNumber }]
+        });
         if (userExists) {
             return res.status(400).json({ message: "User already exists", email: userExists.email });
         }
@@ -23,14 +24,15 @@ export const signup_Partner = async (req, res) => {
             firstName,
             lastName,
             email,
-            role: role || "partner",
+            role: "partner",
             partner: {
                 companyName,
                 companyEmail,
-                phoneNumber,
                 address,
+                phoneNumber,
                 websiteURL,
             },
+            phoneNumber,
             verificationToken
         });
 

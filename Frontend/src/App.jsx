@@ -16,9 +16,11 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import OrderHistory from "./Pages/OrderHistory";
 import Wishlist from "./Pages/Wishlist";
 import Cart from "./Pages/Cart";
+import Category from './Pages/Category';
 import ProductPage from "./Pages/ProductPage";
+import PartnerDashboard from "./Pages/PartnerDashboard";
 function App() {
-  const { user, checkAuth, checkingAuth } = useUserStore();
+  const { checkAuth, checkingAuth } = useUserStore();
   useEffect(() => {
 		checkAuth();
 	}, [checkAuth]);
@@ -37,6 +39,7 @@ function App() {
         <Route path="/product-page" element={<ProductPage />} />
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
+        <Route path="/partner-dashboard" element={<PartnerDashboard />} />  
         <Route path="/verify-email" element={<EmailVer />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/order-history" element={<OrderHistory />} />

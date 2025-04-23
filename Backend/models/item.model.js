@@ -59,6 +59,10 @@ const itemSchema = new mongoose.Schema(
 			type: Boolean,
 			default: true,
 		},
+		discount: {
+			type: Number,
+			default: 0,
+		},
 		createdAt: {
 			type: Date,
 			default: Date.now,

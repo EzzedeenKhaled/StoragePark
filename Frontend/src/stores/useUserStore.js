@@ -29,6 +29,7 @@ export const useUserStore = create((set, get) => ({
 			} else {
 				toast.error(response.data.message);
 			}
+			return response;
 		} catch (error) {
 			console.error("Error uploading files:", error);
 			toast.error("Failed to upload files. Please try again.");
@@ -51,11 +52,10 @@ export const useUserStore = create((set, get) => ({
 		}
 	},
 	signup_Next: async (formData) => {
-		const { firstName, lastName, companyName, email, phone, address, website, googleProfile, role } = formData;
+		const { firstName, lastName, companyName, email, phone: phoneNumber, address, website, googleProfile, role } = formData;
 		set({ loading: true });
-
 		try {
-			const res = await axios.post("/partners/signup-partner", { firstName, lastName, companyName, email, phone, address, website, googleProfile, role });
+			const res = await axios.post("/partners/signup-partner", { firstName, lastName, companyName, email, phoneNumber, address, website, googleProfile, role });
 			set({ loading: false });
 			return res.data
 		} catch (error) {
