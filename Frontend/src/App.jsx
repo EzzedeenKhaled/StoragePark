@@ -36,7 +36,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register-partner-1" element={<RegisterPartner />} />
         <Route path="/register-partner-2" element={<RegisterPartner2 />} />
-        <Route path="/product-page" element={<ProductPage />} />
+        <Route path="/product-page/:productId" element={<ProductPage />} />
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
         <Route path="/partner-dashboard" element={<PartnerDashboard />} />  

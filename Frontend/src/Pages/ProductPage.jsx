@@ -3,8 +3,36 @@ import ProductGallery from "../../components/ProductGallery";
 import ProductDetails from "../../components/ProductDetails";
 import RelatedProducts from "../../components/RelatedProducts";
 import Footer from "../../components/Footer";
+import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import {LoadingSpinner} from "../../components/LoadingSpinner";
+import axios from "../../lib/axios";
 
 const ProductPage = () => {
+const { productId } = useParams();
+const [product, setProduct] = useState(null);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState('');
+
+useEffect(() => {
+  const fetchProduct = async () => {
+    try {
+      const res = await axios.get(`/products/${productId}`);
+      setProduct(res.data);
+    } catch (err) {
+      setError('Failed to load product.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProduct();
+}, [productId]);
+
+if (loading) return <LoadingSpinner />;
+if (error) return <div className="text-center text-red-500 py-10">{error}</div>;
+if (!product) return <div className="text-center py-10">Product not found.</div>;
   return (
     <div className="min-h-screen flex flex-col">
       <Eheader heroImage={false}/>
@@ -12,12 +40,12 @@ const ProductPage = () => {
       <main className="flex-1 container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <ProductGallery 
-            mainImage="https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxfDB8MXxyYW5kb218MHx8aG9vZGllfHx8fHx8MTcwOTQxNDAzMQ&ixlib=rb-4.0.3&q=80&w=1080" 
+            mainImage={product.image} 
           />
-          <ProductDetails />
+          <ProductDetails product={product}/>
         </div>
         
-        <RelatedProducts />
+        <RelatedProducts productRelated={product.category}/>
       </main>
 
       <Footer />

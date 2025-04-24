@@ -50,6 +50,18 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			default: null,
 		},
+		cartItems: [
+			{
+				quantity: {
+					type: Number,
+					default: 1,
+				},
+				item: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: "Item",
+				},
+			},
+		],
 		isVerified: { type: Boolean, default: false },
 		verificationToken: { type: String },
 		wishlist: [

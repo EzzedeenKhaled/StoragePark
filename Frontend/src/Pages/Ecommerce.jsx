@@ -26,9 +26,9 @@ function Ecommerce() {
   const mappedProducts = activeItems.map(item => ({
     id: item._id,
     name: item.productName,
-    discount: item.discount || 0,
+    discount: item.discount || 50,
     originalPrice: item.pricePerUnit,
-    price: item.discount ? item.pricePerUnit - (item.pricePerUnit * (item.discount / 100)) : 0,
+    price: item.discount ? item.pricePerUnit - (item.pricePerUnit * (item.discount / 100)) : item.pricePerUnit,
     image: item.imageProduct
   }));
   console.log("Mapped Products:", mappedProducts);

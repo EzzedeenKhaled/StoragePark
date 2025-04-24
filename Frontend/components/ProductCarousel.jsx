@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import '../src/assets/Styles/ProductCarousel.css';
-
+import { useNavigate } from 'react-router-dom';
 function ProductCarousel({ products, categories, title }) {
   const containerRef = useRef(null);
 
@@ -25,7 +25,10 @@ function ProductCarousel({ products, categories, title }) {
       containerRef.current.scrollLeft += itemWidth;
     }
   };
-
+  const navigate = useNavigate();
+  const handleClick = (productId) => {
+    navigate(`/product-page/${productId}`);
+  };
   return (
     <section className="product">
       <h2 className="product-category">{title}</h2>
@@ -39,7 +42,11 @@ function ProductCarousel({ products, categories, title }) {
       <div className="product-container" ref={containerRef}>
         {products &&
           products.map((product) => (
-            <div className="product-card cursor-pointer" key={product.id}>
+            <div
+              className="product-card cursor-pointer"
+              onClick={() => handleClick(product.id)}
+              key={product.id}
+            >
               <div className="product-image">
                 {product.discount > 0 && (
                   <span className="discount-tag">{product.discount}% off</span>
@@ -49,7 +56,7 @@ function ProductCarousel({ products, categories, title }) {
               <div className="product-info">
                 <h2 className="product-brand">{product.name}</h2>
                 <span className="price">${product.price}</span>
-                {product.originalPrice && (
+                {product.originalPrice && product.discount > 0 && (
                   <span className="actual-price">${product.originalPrice}</span>
                 )}
               </div>

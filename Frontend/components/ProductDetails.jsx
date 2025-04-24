@@ -1,7 +1,9 @@
 import { Fragment, useState } from "react";
 import { Listbox, ListboxButton, ListboxOptions, Transition } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
-
+import { useCartStore } from "../src/stores/useCartStore";
+import { useUserStore } from "../src/stores/useUserStore";
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 const colors = [
   { name: "Forest Green", value: "green" },
   { name: "Black", value: "black" },
@@ -40,8 +42,7 @@ const Dropdown = ({ label, options, selected, setSelected, placeholder }) => (
                 key={option.value}
                 value={option}
                 className={({ active }) =>
-                  `cursor-default select-none py-2 px-4 ${
-                    active ? "bg-gray-100 text-black" : "text-gray-700"
+                  `cursor-default select-none py-2 px-4 ${active ? "bg-gray-100 text-black" : "text-gray-700"
                   }`
                 }
               >
@@ -55,15 +56,35 @@ const Dropdown = ({ label, options, selected, setSelected, placeholder }) => (
   </div>
 );
 
-const ProductDetails = () => {
+const ProductDetails = ({ product }) => {
+  const { user } = useUserStore();
+  const { addToCart } = useCartStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { productId } = useParams();
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
-
+  const [showDescription, setShowDescription] = useState(false);
+  const [showShipping, setShowShipping] = useState(false);
+  const handleAddToCart = () => {
+    if (user) {
+      // User is logged in, add item to the cart
+      addToCart(productId); // Assuming this function updates the cart
+    } else {
+      // User is not logged in, redirect to login page with state
+      navigate("/login", {
+        state: {
+          from: location.pathname, // current page
+          productId: productId     // product you're trying to interact with
+        }
+      });
+    }
+  };
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Polar Default Hoodie</h1>
-        <p className="text-2xl">99.99 $</p>
+        <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+        <p className="text-2xl">{product.price} $</p>
       </div>
 
       <div className="space-y-4">
@@ -82,37 +103,41 @@ const ProductDetails = () => {
           placeholder="Select a size"
         />
 
-        <button className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition">
+        <button onClick={handleAddToCart} className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition cursor-pointer">
           Add to cart
         </button>
       </div>
 
       <div className="space-y-4">
         <div>
-          <button className="flex items-center justify-between w-full py-2">
+          <button
+            onClick={() => setShowDescription(!showDescription)}
+            className="flex items-center justify-between w-full py-2"
+          >
             <span className="font-medium">Description</span>
-            <ChevronDown size={16} />
+            <ChevronDown size={16} className={`${showDescription ? 'rotate-180' : ''} transition`} />
           </button>
-          <div className="pt-2 space-y-2 text-gray-600 text-sm">
-            <p>✦ Designed by Adrian</p>
-            <p>🇬🇧 MADE IN ENGLAND</p>
-            <p>🧵 Materials: 70% cotton, 30% polyester</p>
-            <p>
-              Fleece Fabric, 310 gsm, Soft brushed inside, Metal Eyelets, Round Cotton String,
-              Script Logo Embroidery, Raglan Sleeves, Regular Fit
-            </p>
-          </div>
+          {showDescription && (
+            <div className="pt-2 space-y-2 text-gray-600 text-sm text-left">
+              <p>{product.description}</p>
+            </div>
+          )}
         </div>
 
         <div>
-          <button className="flex items-center justify-between w-full py-2">
+          <button
+            onClick={() => setShowShipping(!showShipping)}
+            className="flex items-center justify-between w-full py-2"
+          >
             <span className="font-medium">Shipping and return policies</span>
-            <ChevronDown size={16} />
+            <ChevronDown size={16} className={`${showShipping ? 'rotate-180' : ''} transition`} />
           </button>
-          <div className="pt-2 space-y-2 text-gray-600 text-sm">
-            <p>📅 Order today to get by Dec 17-26</p>
-            <p>🔄 Exchanges accepted within 14 days</p>
-          </div>
+          {showShipping && (
+            <div className="pt-2 space-y-2 text-gray-600 text-sm text-left">
+              <p>📅 Order today to get by Dec 17-26</p>
+              <p>🔄 Exchanges accepted within 14 days</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
