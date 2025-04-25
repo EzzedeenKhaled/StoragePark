@@ -48,7 +48,7 @@ function Eheader({ heroImage }) {
                 Login
               </Link>
               <Link to="/cart" className="text-gray-700 hover:text-orange-500 transition-colors relative">
-                <ShoppingCart size={20} color='orange' />
+                <ShoppingCart size={20} color='black' />
               </Link>
             </>
           )}

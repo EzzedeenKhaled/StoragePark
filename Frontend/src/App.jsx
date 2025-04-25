@@ -19,6 +19,8 @@ import Cart from "./Pages/Cart";
 import Category from './Pages/Category';
 import ProductPage from "./Pages/ProductPage";
 import PartnerDashboard from "./Pages/PartnerDashboard";
+import RequestList from "./Pages/Admin/Requests/RequestList";
+import Partners from "./Pages/Admin/Partner/partners";
 function App() {
   const { checkAuth, checkingAuth } = useUserStore();
   useEffect(() => {
@@ -49,6 +51,8 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/category/:categoryName" element={<Category />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/admin/requests" element={<RequestList />} />
+        <Route path="/admin/partners" element={<Partners />} />
       </Routes>
 
     </>

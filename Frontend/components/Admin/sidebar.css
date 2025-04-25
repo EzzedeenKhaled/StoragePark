@@ -1,0 +1,128 @@
+.sidebar {
+    position: fixed; /* Fixed positioning */
+    top: 0;
+    left: 0;
+    width: 220px; /* Sidebar width */
+    height: 100vh; /* Full height */
+    background-color: black;
+    z-index: 1; /* Ensure the sidebar stays behind the header */
+    padding-top: 20px;
+    margin: 0; /* Remove margin */
+    box-sizing: border-box;
+    color: white;
+  }
+  
+  
+  .sidebar img {
+    width: 20px;
+    margin-right: 10px;
+  }
+  
+  .logo img {
+    width: 100%;
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+  
+  .sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    margin-left: 10px;
+  }
+  
+  .sidebar nav ul li {
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  
+  .sidebar nav ul li > div {
+    display: flex;
+    align-items: center;
+  }
+  
+  .arrow {
+    font-size: 12px;
+    margin-left: 4px; /* Push arrow to the right */
+  }
+  
+  .sub-menu {
+    list-style: none;
+    padding-left: 20px; /* Indent sub-menu items */
+    margin-top: 5px; /* Add spacing between parent and sub-menu */
+  }
+  
+  .sub-menu li {
+    padding: 2px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: block; /* Ensure sub-menu items stack vertically */
+  }
+  
+  .sub-menu li:hover {
+    color: darkorange;
+  }
+  
+  .logout-section {
+    display: flex;
+    align-items: center;
+    margin-top: 150px; /* Push logout button to the bottom */
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  
+  .logout-section:hover {
+    background-color: transparent;
+    color: darkorange;
+  }
+  /* Default Icon Color */
+.icon {
+    filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%); /* White color */
+  }
+  
+  /* Active Icon */
+  .icon.active-icon {
+    filter: brightness(0) saturate(100%) invert(39%) sepia(87%) saturate(2776%) hue-rotate(354deg) brightness(105%) contrast(103%); /* Orange color */
+  }
+  
+  
+  /* Active Component */
+  .active-component {
+    color: darkorange; /* Highlight the entire row */
+  }
+  
+  .active-component .icon {
+    filter: brightness(0) saturate(100%) invert(39%) sepia(87%) saturate(2776%) hue-rotate(354deg) brightness(105%) contrast(103%); /* Orange color */
+  }
+  
+  .active-component span {
+    color: darkorange; /* Orange text color */
+  }
+  
+  /* Submenu Items */
+  .sub-menu {
+    list-style: none;
+    padding-left: 40px; /* Align submenu items under the parent menu text */
+    margin-top: 5px; /* Add spacing between parent and sub-menu */
+  }
+  
+  .sub-menu li {
+    color: white; /* Default text color for inactive submenu items */
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left: 30px;
+    display: block; /* Ensure sub-menu items stack vertically */
+  }
+  
+  /* Active Submenu Item */
+  .sub-menu li.active-submenu {
+    color: darkorange; /* Highlight the active submenu item */
+    font-weight: bold;
+  }
+  .sidebar nav ul li:hover .icon {
+    filter: brightness(0) saturate(100%) invert(39%) sepia(87%) saturate(2776%) hue-rotate(354deg) brightness(105%) contrast(103%);
+  }
+  
+  .sidebar nav ul li:hover span {
+    color: darkorange;
+  }
+  

@@ -1,0 +1,320 @@
+/* Global Styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+  }
+  
+  .app {
+    display: flex;
+    height: 100vh;
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  .content {
+    margin-left: 240px;
+    margin-top: 40px;
+    overflow-y: auto;
+    padding: 30px;
+    width: calc(100% - 240px);
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+  
+  /* Header Actions */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 0;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    gap: 300px;
+  }
+  
+  .header-actions .title {
+    color: #1a1a1a;
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  
+  .search-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-bar {
+    position: relative;
+    width: 300px;
+  }
+  
+  .search-bar input {
+    width: 100%;
+    padding: 12px 20px;
+    padding-left: 40px;
+    border-radius: 12px;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    outline: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: #333;
+  }
+  
+  .search-bar input:focus {
+    border-color: darkorange;
+    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.1);
+  }
+  
+  .search-bar::before {
+    content: '🔍';
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    pointer-events: none;
+  }
+  
+  /* Request Cards */
+  .requests-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .request-card {
+    background-color: white;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    flex: 1 1 calc(33.333% - 16px);
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  
+  .request-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    border-color: darkorange;
+  }
+  
+  .request-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, darkorange, #ff8c00);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .request-card:hover::before {
+    opacity: 1;
+  }
+  
+  .request-card h3 {
+    color: #1a1a1a;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    position: relative;
+  }
+  
+  .request-card p {
+    color: #333;
+    font-size: 15px;
+    margin: 8px 0;
+    line-height: 1.6;
+  }
+  
+  .request-card .status {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .request-card .details {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .request-card .date {
+    color: #555;
+    font-size: 13px;
+  }
+  
+  .request-card .action {
+    color: darkorange;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+  }
+  
+  .modal {
+    background-color: white;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    width: 400px;
+    max-width: 90%;
+    position: relative;
+  }
+  
+  .modal h3 {
+    color: #1a1a1a;
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 600;
+  }
+  
+  .modal p {
+    color: #333;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  
+  .modal-buttons button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .modal-buttons .cancel-button {
+    background-color: #f8f9fa;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+  }
+  
+  .modal-buttons .cancel-button:hover {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .modal-buttons .confirm-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+  }
+  
+  .modal-buttons .confirm-button:hover {
+    background-color: #218838;
+  }
+  
+  .closes-button {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 24px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #333;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+  
+  .closes-button:hover {
+    background-color: #f8f9fa;
+    color: #333;
+  }
+  .legal-documentation{
+    color: black;
+  }
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .request-card {
+      flex: 1 1 calc(50% - 16px);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .content {
+      margin-left: 0;
+      width: 100%;
+      padding: 20px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 0;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      gap: 300px;
+  }
+  
+    .header-actions .title {
+      text-align: left;
+      width: 100%;
+    }
+  
+    .search-container {
+      margin-left: 10px;
+      width: 100%;
+    }
+  
+    .search-bar {
+      margin-left: 10px;
+      width: 100%;
+    }
+  
+    .request-card {
+      flex: 1 1 100%;
+    }
+  }
+  
