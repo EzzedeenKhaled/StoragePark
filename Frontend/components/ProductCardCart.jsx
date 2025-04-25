@@ -2,7 +2,7 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 
-const ProductCard = ({ product, inCart, onSale }) => {
+const ProductCardCart = ({ product, inCart, onSale }) => {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden relative transition-transform hover:-translate-y-1">
       {onSale && (
@@ -39,4 +39,4 @@ const ProductCard = ({ product, inCart, onSale }) => {
   );
 };
 
-export default ProductCard;
+export default ProductCardCart;

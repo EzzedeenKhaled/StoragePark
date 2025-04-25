@@ -19,6 +19,7 @@ import Cart from "./Pages/Cart";
 import Category from './Pages/Category';
 import ProductPage from "./Pages/ProductPage";
 import PartnerDashboard from "./Pages/PartnerDashboard";
+import EmptyCart from "./Pages/EmptyCart";
 function App() {
   const { checkAuth, checkingAuth } = useUserStore();
   useEffect(() => {
@@ -45,6 +46,7 @@ function App() {
         <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/ecommerce" element={ <Ecommerce />} />
+        <Route path="/empty-cart" element={<EmptyCart />} />
         <Route path="/product-form" element={<ProductForm />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/category/:categoryName" element={<Category />} />

@@ -1,8 +1,9 @@
-import Eheader from '../../components/Eheader';
+import Header from '../../components/Header';
 import ProductCarousel from '../../components/ProductCarousel';
 import Footer from '../../components/Footer';
 import { useUserStore } from '../stores/useUserStore';
 import { useEffect } from 'react';
+import TrackOrder from '../../components/TrackOrder';
 const products = [
   { id: 1, image: 'images/card122.jpg', name: 'Product 1', price: 20, discount: 0 },
   { id: 2, image: 'images/card2.jpg', name: 'Product 2', price: 20, discount: 50, originalPrice: 40 },
@@ -24,7 +25,7 @@ function Ecommerce() {
     fetchActiveItems(); // Fetch active items from backend
   }, [fetchActiveItems]);
   const mappedProducts = activeItems.map(item => ({
-    id: item._id,
+    _id: item._id,
     name: item.productName,
     discount: item.discount || 50,
     originalPrice: item.pricePerUnit,
@@ -34,7 +35,8 @@ function Ecommerce() {
   console.log("Mapped Products:", mappedProducts);
   return (
     <>
-      <Eheader heroImage={true}/>
+      <Header />
+      <TrackOrder />
       <ProductCarousel categories={categories} title="Shop by Category" />
       <ProductCarousel products={products} title="Black Friday" />
       <ProductCarousel products={products} title="Latest Products" />

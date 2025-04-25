@@ -11,112 +11,110 @@ import '../assets/Styles/Category.css';
 import {useUserStore} from "../stores/useUserStore";
 const Category = () => {
   const { categoryName } = useParams();
-  const { fetchItemsByCategory } = useUserStore();
+  const { fetchItemsByCategory, category } = useUserStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilterPopover, setShowFilterPopover] = useState(false);
-  // const [products, setProducts] = useState([]);
   const totalPages = 8;
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchItemsByCategory(categoryName);
       console.log("Category data:", data);
-      // setProducts(data);
     };
     fetchData();
   }, [categoryName, fetchItemsByCategory]);
   // Dummy product data based on the images
-  const products = [
-    {
-      id: 1,
-      name: 'Cotton Fleece Half-Zip Sweatshirt',
-      price: 16.99,
-      originalPrice: 24.99,
-      // onSale: true,
-      discount: 32,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 2,
-      name: 'Crew Neck Cotton Shirt',
-      price: 12.99,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 3,
-      name: 'Regular Cotton Jeans',
-      price: 17.99,
-      originalPrice: 22.99,
-      // onSale: true,
-      discount: 22,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 4,
-      name: 'Wide-Leg Jeans',
-      price: 16.99,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 5,
-      name: 'Product Name',
-      price: 23.99,
-      originalPrice: 29.99,
-      // onSale: true,
-      discount: 20,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 6,
-      name: 'New York Yankees Varsity Jacket',
-      price: 21.99,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 7,
-      name: 'Leather Blouson Jacket',
-      price: 22.99,
-      originalPrice: 34.99,
-      // onSale: true,
-      discount: 34,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 8,
-      name: 'OshkoshB\'Gosh Long Sleeve',
-      price: 15.99,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 9,
-      name: 'Straight Jeans',
-      price: 18.99,
-      originalPrice: 25.99,
-      // onSale: true,
-      discount: 27,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 10,
-      name: 'Polar Default Hoodie',
-      price: 99.99,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 11,
-      name: 'Pullover Hoodie',
-      price: 19.99,
-      originalPrice: 29.99,
-      // onSale: true,
-      discount: 33,
-      image: 'https://via.placeholder.com/300x400'
-    },
-    {
-      id: 12,
-      name: 'Loose-Fit Denim',
-      price: 17.99,
-      image: 'https://via.placeholder.com/300x400'
-    }
-  ];
+  // const products = [
+  //   {
+  //     id: 1,
+  //     name: 'Cotton Fleece Half-Zip Sweatshirt',
+  //     price: 16.99,
+  //     originalPrice: 24.99,
+  //     // onSale: true,
+  //     discount: 32,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 2,
+  //     name: 'Crew Neck Cotton Shirt',
+  //     price: 12.99,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 3,
+  //     name: 'Regular Cotton Jeans',
+  //     price: 17.99,
+  //     originalPrice: 22.99,
+  //     // onSale: true,
+  //     discount: 22,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 4,
+  //     name: 'Wide-Leg Jeans',
+  //     price: 16.99,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 5,
+  //     name: 'Product Name',
+  //     price: 23.99,
+  //     originalPrice: 29.99,
+  //     // onSale: true,
+  //     discount: 20,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 6,
+  //     name: 'New York Yankees Varsity Jacket',
+  //     price: 21.99,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 7,
+  //     name: 'Leather Blouson Jacket',
+  //     price: 22.99,
+  //     originalPrice: 34.99,
+  //     // onSale: true,
+  //     discount: 34,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 8,
+  //     name: 'OshkoshB\'Gosh Long Sleeve',
+  //     price: 15.99,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 9,
+  //     name: 'Straight Jeans',
+  //     price: 18.99,
+  //     originalPrice: 25.99,
+  //     // onSale: true,
+  //     discount: 27,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 10,
+  //     name: 'Polar Default Hoodie',
+  //     price: 99.99,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 11,
+  //     name: 'Pullover Hoodie',
+  //     price: 19.99,
+  //     originalPrice: 29.99,
+  //     // onSale: true,
+  //     discount: 33,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   },
+  //   {
+  //     id: 12,
+  //     name: 'Loose-Fit Denim',
+  //     price: 17.99,
+  //     image: 'https://via.placeholder.com/300x400'
+  //   }
+  // ];
   
   // Dummy review data based on the images
   const reviews = [
@@ -164,8 +162,8 @@ const Category = () => {
 
   <main className="main-content">
     <div className="container">
-    {/* <h1 className="page-title">{categoryName}</h1> */}
-      <h1 className="page-title">Clothes</h1>
+    <h1 className="page-title">{categoryName}</h1>
+      {/* <h1 className="page-title">Clothes</h1> */}
 
       <div className="content-wrapper">
         <div className="content" style={{ position: "relative" }}>
@@ -177,8 +175,8 @@ const Category = () => {
               All filters
             </button>
             <div className="results-info">
-            {/* <span>{products.length} items</span> */}
-              <span>1,000+ items</span>
+            <span>{category.length} item{category.length === 1 ? '' : 's'}</span>
+              {/* <span>1,000+ items</span> */}
             </div>
             <div className="sort-dropdown">
               <label htmlFor="sort">Sort by: </label>
@@ -193,7 +191,7 @@ const Category = () => {
 
           <FilterSidebar open={showFilterPopover} onClose={handleCloseFilters} />
 
-          <ProductGrid products={products} />
+          <ProductGrid products={category} />
 
           <div className="more-items">
             <p>There&apos;s so much more for you to discover</p>

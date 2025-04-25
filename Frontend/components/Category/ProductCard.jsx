@@ -6,13 +6,14 @@ import '../../src/assets/Styles/ProductCard.css';
 
 const ProductCard = ({ product }) => {
   const [liked, setLiked] = useState(false);
-  
+  console.log("ProductCard: ",product)
   // If percentOff is provided, use it directly, otherwise calculate it
-  const displayPercentOff = product?.discount || 0;
+  const displayPercentOff = product?.discount;
   
   // If onSale flag is provided, use it, otherwise determine from prices
   const isOnSale = product?.discount > 0 ? true : false;
 
+  const discountPrice = product?.discount ? product?.pricePerUnit - (product?.pricePerUnit * (displayPercentOff / 100)) : product?.pricePerUnit;
   return (
     <div className="product-card" style={{ position: 'relative', paddingTop: '16px' }}>
       {/* Sale tag */}
@@ -65,20 +66,21 @@ const ProductCard = ({ product }) => {
           fill={liked ? "#ea384c" : "none"}
           size={22}
           strokeWidth={2}
+          className='cursor-pointer'
         />
       </button>
       {/* Product Card Content */}
-      <Link to={`/product-page/${product?.id}`} className="product-link">
+      <Link to={`/product-page/${product?._id}`} className="product-link">
         <div className="product-image">
-          <img src={product?.image} alt="Product" />
+          <img src={product?.imageProduct} alt="Product" />
         </div>
         <div className="product-info" style={{ position: 'relative', minHeight: 60 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {/* If sale, show new price, strikethrough old, percent off */}
             <span className="product-price" style={{ color: isOnSale ? '#ea384c' : '#f60', fontWeight: 700 }}>
-              {product?.price}$
+              {discountPrice}$
             </span>
-            {isOnSale && product?.originalPrice && (
+            {isOnSale && product?.pricePerUnit && (
               <>
                 <span
                   style={{
@@ -88,7 +90,7 @@ const ProductCard = ({ product }) => {
                     fontWeight: 400
                   }}
                 >
-                  {product?.originalPrice}$
+                  {product?.pricePerUnit}$
                 </span>
                 {displayPercentOff && (
                   <span
@@ -107,7 +109,7 @@ const ProductCard = ({ product }) => {
               </>
             )}
           </div>
-          <h3 className="product-name">{product?.name}</h3>
+          <h3 className="product-name">{product?.productName}</h3>
         </div>
       </Link>
     </div>

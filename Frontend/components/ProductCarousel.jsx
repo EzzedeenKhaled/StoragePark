@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import '../src/assets/Styles/ProductCarousel.css';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './Category/ProductCard';
+import { Link } from 'react-router-dom';
 function ProductCarousel({ products, categories, title }) {
   const containerRef = useRef(null);
 
@@ -69,7 +70,9 @@ function ProductCarousel({ products, categories, title }) {
           categories.map((category, index) => (
             <div className="category-card cursor-pointer" key={index}>
               <div className="icon-placeholder"></div>
+              <Link to={`/category/${category}`} className="category-link">
               <h3>{category}</h3>
+              </Link>
             </div>
           ))}
       </div>

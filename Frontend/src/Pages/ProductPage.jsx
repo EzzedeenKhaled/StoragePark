@@ -1,4 +1,4 @@
-import Eheader from "../../components/Eheader";
+import Header from "../../components/Header";
 import ProductGallery from "../../components/ProductGallery";
 import ProductDetails from "../../components/ProductDetails";
 import RelatedProducts from "../../components/RelatedProducts";
@@ -36,7 +36,7 @@ if (error) return <NotFound />;
 if (!product) return <div className="text-center py-10">Product not found.</div>;
   return (
     <div className="min-h-screen flex flex-col">
-      <Eheader heroImage={false}/>
+      <Header />
       
       <main className="flex-1 container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">

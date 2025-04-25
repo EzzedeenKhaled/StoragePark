@@ -7,6 +7,7 @@ export const useUserStore = create((set, get) => ({
 	loading: false,
 	checkingAuth: true,
 	activeItems: [],
+	category: [],
 
 	signup_Done: async ({ certificateFile, businessLicenseFile, taxComplianceFile }) => {
 		const formData = new FormData();
@@ -141,7 +142,7 @@ export const useUserStore = create((set, get) => ({
 		try {
 			console.log("category: ",category)
 			const res = await axios.get(`/products/category/${category}`);
-			set({ activeItems: res.data, loading: false });
+			set({ category: res.data, loading: false });
 		} catch (err) {
 			console.error("Error fetching items by category:", err);
 			set({ loading: false });

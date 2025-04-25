@@ -1,29 +1,31 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
-// import Footer from '../../components/Footer';
-import ProductCard from '../../components/ProductCard';
-import { ArrowRight, Handshake, Trash2 } from 'lucide-react';
+import ProductCardCart from '../../components/ProductCardCart';
+import { ArrowRight, Trash2 } from 'lucide-react';
+import { useCartStore } from '../stores/useCartStore';
 
 const Cart = () => {
-  // Cart items with state to manage quantities
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      title: 'Polar Default Hoodie',
-      price: '99.99',
-      image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=80&w=1972&ixlib=rb-4.0.3',
-      quantity: 1
-    },
-    {
-      id: 2,
-      title: 'Cotton Fleece Half-Zip Sweatshirt',
-      price: '16.99',
-      image: 'https://images.unsplash.com/photo-1626497764746-6dc36546b388?auto=format&fit=crop&q=80&w=2026&ixlib=rb-4.0.3',
-      quantity: 1
+  const { cart } = useCartStore();
+  const item = cart?.[0]?.data?.item; // safely access it
+
+  // Setup state for cartItems based on the item from cart store
+  const [cartItems, setCartItems] = useState([]);
+console.log(cartItems);
+  // Load item into cartItems on mount
+  useEffect(() => {
+    if (item) {
+      setCartItems([
+        {
+          id: item._id || 1, // fallback if no id
+          title: item.productName || 'No Name',
+          price: item.pricePerUnit || '0.00',
+          image: item.imageProduct || 'https://via.placeholder.com/150',
+          quantity: 1
+        }
+      ]);
     }
-  ]);
+  }, [item]);
 
   // Calculate subtotal
   const subtotal = cartItems.reduce((total, item) => {
@@ -47,7 +49,7 @@ const Cart = () => {
     setCartItems(cartItems.filter(item => item.id !== id));
   };
 
-  // Sale items
+  // Sale items (can leave as it is)
   const saleItems = [
     {
       id: 3,
@@ -84,7 +86,6 @@ const Cart = () => {
   ];
 
   return (
-    
     <div className="w-full min-h-screen flex flex-col bg-gray-50">
       <Header />
       
@@ -92,10 +93,9 @@ const Cart = () => {
         <h1 className="text-orange-500 text-3xl font-bold mb-6">Your cart</h1>
         
         <div className="bg-orange-50 p-4 rounded-lg flex items-start gap-3 mb-6">
-            <img src="handshake.png" alt="hanshake.png" height={15}/>
-          {/* <Handshake size={24} className="text-orange-600 mt-1 flex-shrink-0" /> */}
+          <img src="handshake.png" alt="handshake" height={15}/>
           <p className="text-sm">
-            Storage Park Purchase Protection: Shop confidently on Storage Park knowing if something goes wrong with an order, we&apos;ve got your back. 
+            Storage Park Purchase Protection: Shop confidently on Storage Park knowing if something goes wrong with an order, we've got your back. 
             <a href="#" className="text-orange-600 hover:underline ml-1">See program terms</a>
           </p>
         </div>
@@ -144,11 +144,11 @@ const Cart = () => {
               </div>
               <div className="flex justify-between py-2 border-b">
                 <span>Shipping</span>
-                <span>Calculated at checkout</span>
+                <span>$3</span>
               </div>
               <div className="flex justify-between py-2 mt-2">
                 <span className="font-bold">Total</span>
-                <span className="font-bold">${subtotal}</span>
+                <span className="font-bold">${(parseFloat(subtotal) + 3).toFixed(2)}</span>
               </div>
             </div>
             
@@ -163,9 +163,9 @@ const Cart = () => {
         ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow-md mb-8">
             <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-            <p className="mb-6 text-gray-600">Looks like you haven&apos;t added anything to your cart yet.</p>
+            <p className="mb-6 text-gray-600">Looks like you haven't added anything to your cart yet.</p>
             <Link 
-              to="/" 
+              to="/ecommerce" 
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg inline-flex items-center gap-2 transition-colors"
             >
               Continue shopping
@@ -177,12 +177,10 @@ const Cart = () => {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {saleItems.map(item => (
-            <ProductCard key={item.id} product={item} onSale={true} />
+            <ProductCardCart key={item.id} product={item} onSale={true} />
           ))}
         </div>
       </main>
-      
-      {/* <Footer /> */}
     </div>
   );
 };
