@@ -19,6 +19,8 @@ import Cart from "./Pages/Cart";
 import Category from './Pages/Category';
 import ProductPage from "./Pages/ProductPage";
 import PartnerDashboard from "./Pages/PartnerDashboard";
+import RequestList from "./Pages/Admin/Requests/RequestList";
+import Partners from "./Pages/Admin/Partner/partners";
 import EmptyCart from "./Pages/EmptyCart";
 function App() {
   const { checkAuth, checkingAuth } = useUserStore();
@@ -38,6 +40,7 @@ function App() {
         <Route path="/register-partner-1" element={<RegisterPartner />} />
         <Route path="/register-partner-2" element={<RegisterPartner2 />} />
         <Route path="/product-page/:productId" element={<ProductPage />} />
+        <Route path='empty-cart' element={<EmptyCart />} />
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
         <Route path="/partner-dashboard" element={<PartnerDashboard />} />  
@@ -51,6 +54,8 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/category/:categoryName" element={<Category />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/admin/requests" element={<RequestList />} />
+        <Route path="/admin/partners" element={<Partners />} />
       </Routes>
 
     </>
