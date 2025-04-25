@@ -1,5 +1,6 @@
 import Item from "../models/item.model.js";
 import { imagekit } from "../lib/imageKit.js";
+import mongoose from "mongoose";
 export const createProduct = async (req, res) => {
 	try {
 		// Extract the product data from the request
@@ -73,10 +74,17 @@ export const getActiveItems = async (req, res) => {
 		res.status(500).json({ message: 'Server error', error: error.message });
 	}
 };
-
 export const getProductById = async (req, res) => {
 	try {
 		const { productId } = req.params;
+
+		const isValidObjectId = (id) =>
+			mongoose.Types.ObjectId.isValid(id)
+
+		if (!isValidObjectId(productId)) {
+			return res.status(400).json({ message: 'Invalid product ID' });
+		}
+
 		const item = await Item.findById(productId);
 
 		if (!item) {
@@ -93,4 +101,21 @@ export const getProductById = async (req, res) => {
 		console.error("Error fetching product:", error);
 		res.status(500).json({ message: 'Server error' });
 	}
-};  
+};
+
+export const getItemsByCategory = async (req, res) => {
+	try {
+		const { category } = req.params;
+
+		const items = await Item.find({ category });
+
+		if (items.length === 0) {
+			return res.status(404).json({ message: 'No items found in this category' });
+		}
+
+		res.status(200).json(items);
+	} catch (error) {
+		console.error('Error fetching items by category:', error);
+		res.status(500).json({ message: 'Server error' });
+	}
+};

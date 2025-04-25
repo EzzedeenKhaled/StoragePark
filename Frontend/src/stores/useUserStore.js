@@ -136,6 +136,17 @@ export const useUserStore = create((set, get) => ({
 		  set({ loading: false });
 		}
 	  },
+	fetchItemsByCategory: async (category) => {
+		set({ loading: true });
+		try {
+			console.log("category: ",category)
+			const res = await axios.get(`/products/category/${category}`);
+			set({ activeItems: res.data, loading: false });
+		} catch (err) {
+			console.error("Error fetching items by category:", err);
+			set({ loading: false });
+		}
+	},
 	logout: async () => {
 		try {
 			await axios.post("/auth/logout");

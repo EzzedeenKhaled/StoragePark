@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import '../src/assets/Styles/ProductCarousel.css';
 import { useNavigate } from 'react-router-dom';
+import ProductCard from './Category/ProductCard';
 function ProductCarousel({ products, categories, title }) {
   const containerRef = useRef(null);
 
@@ -42,25 +43,26 @@ function ProductCarousel({ products, categories, title }) {
       <div className="product-container" ref={containerRef}>
         {products &&
           products.map((product) => (
-            <div
-              className="product-card cursor-pointer"
-              onClick={() => handleClick(product.id)}
-              key={product.id}
-            >
-              <div className="product-image">
-                {product.discount > 0 && (
-                  <span className="discount-tag">{product.discount}% off</span>
-                )}
-                <img src={product.image} className="product-thumb" alt={product.name} />
-              </div>
-              <div className="product-info">
-                <h2 className="product-brand">{product.name}</h2>
-                <span className="price">${product.price}</span>
-                {product.originalPrice && product.discount > 0 && (
-                  <span className="actual-price">${product.originalPrice}</span>
-                )}
-              </div>
-            </div>
+            // <div
+            //   className="product-card cursor-pointer"
+            //   onClick={() => handleClick(product.id)}
+            //   key={product.id}
+            // >
+            //   <div className="product-image">
+            //     {product.discount > 0 && (
+            //       <span className="discount-tag">{product.discount}% off</span>
+            //     )}
+            //     <img src={product.image} className="product-thumb" alt={product.name} />
+            //   </div>
+            //   <div className="product-info">
+            //     <h2 className="product-brand">{product.name}</h2>
+            //     <span className="price">${product.price}</span>
+            //     {product.originalPrice && product.discount > 0 && (
+            //       <span className="actual-price">${product.originalPrice}</span>
+            //     )}
+            //   </div>
+            // </div>
+            <ProductCard key={product.id} product={product} />
           ))}
 
         {categories &&

@@ -4,15 +4,14 @@ import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import '../../src/assets/Styles/ProductCard.css';
 
-const ProductCard = ({ id, name, price, image, originalPrice, onSale, percentOff }) => {
+const ProductCard = ({ product }) => {
   const [liked, setLiked] = useState(false);
   
   // If percentOff is provided, use it directly, otherwise calculate it
-  const displayPercentOff = percentOff || (originalPrice && price < originalPrice ? 
-    Math.round(((originalPrice - price) / originalPrice) * 100) : null);
+  const displayPercentOff = product?.discount || 0;
   
   // If onSale flag is provided, use it, otherwise determine from prices
-  const isOnSale = onSale !== undefined ? onSale : (!!originalPrice && price < originalPrice);
+  const isOnSale = product?.discount > 0 ? true : false;
 
   return (
     <div className="product-card" style={{ position: 'relative', paddingTop: '16px' }}>
@@ -69,17 +68,17 @@ const ProductCard = ({ id, name, price, image, originalPrice, onSale, percentOff
         />
       </button>
       {/* Product Card Content */}
-      <Link to={`/product/${id}`} className="product-link">
+      <Link to={`/product-page/${product?.id}`} className="product-link">
         <div className="product-image">
-          <img src={image} alt={name} />
+          <img src={product?.image} alt="Product" />
         </div>
         <div className="product-info" style={{ position: 'relative', minHeight: 60 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {/* If sale, show new price, strikethrough old, percent off */}
             <span className="product-price" style={{ color: isOnSale ? '#ea384c' : '#f60', fontWeight: 700 }}>
-              {price}$
+              {product?.price}$
             </span>
-            {isOnSale && originalPrice && (
+            {isOnSale && product?.originalPrice && (
               <>
                 <span
                   style={{
@@ -89,7 +88,7 @@ const ProductCard = ({ id, name, price, image, originalPrice, onSale, percentOff
                     fontWeight: 400
                   }}
                 >
-                  {originalPrice}$
+                  {product?.originalPrice}$
                 </span>
                 {displayPercentOff && (
                   <span
@@ -108,7 +107,7 @@ const ProductCard = ({ id, name, price, image, originalPrice, onSale, percentOff
               </>
             )}
           </div>
-          <h3 className="product-name">{name}</h3>
+          <h3 className="product-name">{product?.name}</h3>
         </div>
       </Link>
     </div>

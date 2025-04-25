@@ -1,5 +1,6 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import FilterSidebar from '../../components/Category/FilterSidebar';
 import ProductGrid from '../../components/Category/ProductGrid';
@@ -7,12 +8,22 @@ import Pagination from '../../components/Category/Pagination';
 import Reviews from '../../components/Category/Reviews';
 import Footer from '../../components/Footer';
 import '../assets/Styles/Category.css';
-
+import {useUserStore} from "../stores/useUserStore";
 const Category = () => {
+  const { categoryName } = useParams();
+  const { fetchItemsByCategory } = useUserStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilterPopover, setShowFilterPopover] = useState(false);
+  // const [products, setProducts] = useState([]);
   const totalPages = 8;
-  
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchItemsByCategory(categoryName);
+      console.log("Category data:", data);
+      // setProducts(data);
+    };
+    fetchData();
+  }, [categoryName, fetchItemsByCategory]);
   // Dummy product data based on the images
   const products = [
     {
@@ -20,8 +31,8 @@ const Category = () => {
       name: 'Cotton Fleece Half-Zip Sweatshirt',
       price: 16.99,
       originalPrice: 24.99,
-      onSale: true,
-      percentOff: 32,
+      // onSale: true,
+      discount: 32,
       image: 'https://via.placeholder.com/300x400'
     },
     {
@@ -35,8 +46,8 @@ const Category = () => {
       name: 'Regular Cotton Jeans',
       price: 17.99,
       originalPrice: 22.99,
-      onSale: true,
-      percentOff: 22,
+      // onSale: true,
+      discount: 22,
       image: 'https://via.placeholder.com/300x400'
     },
     {
@@ -50,8 +61,8 @@ const Category = () => {
       name: 'Product Name',
       price: 23.99,
       originalPrice: 29.99,
-      onSale: true,
-      percentOff: 20,
+      // onSale: true,
+      discount: 20,
       image: 'https://via.placeholder.com/300x400'
     },
     {
@@ -65,8 +76,8 @@ const Category = () => {
       name: 'Leather Blouson Jacket',
       price: 22.99,
       originalPrice: 34.99,
-      onSale: true,
-      percentOff: 34,
+      // onSale: true,
+      discount: 34,
       image: 'https://via.placeholder.com/300x400'
     },
     {
@@ -80,8 +91,8 @@ const Category = () => {
       name: 'Straight Jeans',
       price: 18.99,
       originalPrice: 25.99,
-      onSale: true,
-      percentOff: 27,
+      // onSale: true,
+      discount: 27,
       image: 'https://via.placeholder.com/300x400'
     },
     {
@@ -95,8 +106,8 @@ const Category = () => {
       name: 'Pullover Hoodie',
       price: 19.99,
       originalPrice: 29.99,
-      onSale: true,
-      percentOff: 33,
+      // onSale: true,
+      discount: 33,
       image: 'https://via.placeholder.com/300x400'
     },
     {
@@ -153,6 +164,7 @@ const Category = () => {
 
   <main className="main-content">
     <div className="container">
+    {/* <h1 className="page-title">{categoryName}</h1> */}
       <h1 className="page-title">Clothes</h1>
 
       <div className="content-wrapper">
@@ -165,6 +177,7 @@ const Category = () => {
               All filters
             </button>
             <div className="results-info">
+            {/* <span>{products.length} items</span> */}
               <span>1,000+ items</span>
             </div>
             <div className="sort-dropdown">

@@ -7,12 +7,13 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {LoadingSpinner} from "../../components/LoadingSpinner";
 import axios from "../../lib/axios";
+import NotFound from "./NotFound";
 
 const ProductPage = () => {
 const { productId } = useParams();
 const [product, setProduct] = useState(null);
 const [loading, setLoading] = useState(true);
-const [error, setError] = useState('');
+const [error, setError] = useState(false);
 
 useEffect(() => {
   const fetchProduct = async () => {
@@ -20,8 +21,8 @@ useEffect(() => {
       const res = await axios.get(`/products/${productId}`);
       setProduct(res.data);
     } catch (err) {
-      setError('Failed to load product.');
-      console.error(err);
+      setError(true);
+      // console.error(err);
     } finally {
       setLoading(false);
     }
@@ -31,7 +32,7 @@ useEffect(() => {
 }, [productId]);
 
 if (loading) return <LoadingSpinner />;
-if (error) return <div className="text-center text-red-500 py-10">{error}</div>;
+if (error) return <NotFound />;
 if (!product) return <div className="text-center py-10">Product not found.</div>;
   return (
     <div className="min-h-screen flex flex-col">
