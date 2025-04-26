@@ -1,0 +1,7 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f1f1f1;
+}
+
+/* Add any additional admin-wide styles here */ 
