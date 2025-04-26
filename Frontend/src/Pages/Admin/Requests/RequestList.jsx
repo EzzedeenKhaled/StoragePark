@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Header from '../../../../components/Admin/Header';
 import RequestCard from './RequestCard';
 import "./request.css";
 import axios from 'axios';
-import Sidebar from '../../../../components/Admin/Sidebar';
+
 // Sample data with all possible fields
 const requestsData = [
   {
@@ -102,7 +102,7 @@ const RequestsList = () => {
       await axios.post('/api/confirm-request', { id: selectedRequest.id });
       alert('Request confirmed successfully!');
       closeModal();
-    } catch (error) {
+    } catch {
       alert('An error occurred while confirming the request.');
     }
   };
@@ -113,7 +113,7 @@ const RequestsList = () => {
       await axios.post('/api/cancel-request', { id: selectedRequest.id });
       alert('Request canceled successfully!');
       closeModal();
-    } catch (error) {
+    } catch {
       alert('An error occurred while canceling the request.');
     }
   };
@@ -137,8 +137,6 @@ const RequestsList = () => {
   });
 
   return (
-    <>
-    <Sidebar />
     <div className="content">
       {/* Header */}
       <Header />
@@ -147,6 +145,7 @@ const RequestsList = () => {
       <div className="header-actions">
         <h3 className="title">Requests</h3>
         <div className="search-bar">
+          
           <input
             type="text"
             placeholder="Search by name, email, address, or phone"
@@ -220,7 +219,6 @@ const RequestsList = () => {
         </div>
       )}
     </div>
-    </>
   );
 };
 

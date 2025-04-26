@@ -45,7 +45,7 @@ const Partners = () => {
       <div className="partners-page">
         <div className="partners-content">
           {/* Header Row */}
-          <div className="header-actions">
+          <div className="header-actionsP">
             <h2 className="title">Partners</h2>
             <div className="search-container">
               <div className="search-bar">

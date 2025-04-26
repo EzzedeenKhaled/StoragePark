@@ -8,20 +8,22 @@ import Store from './Store/Store';
 
 function AdminDashboard() {
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 bg-[#1E2640] z-30">
+      <aside className="fixed inset-y-0 left-0 bg-[#1E2640] z-30 overflow-y-auto">
         <Sidebar />
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64 min-h-screen">
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/requests" element={<RequestsList />} />
-          <Route path="/partners" element={<Partners />} />
-          <Route path="/store" element={<Store />} />
-        </Routes>
+      <main className="flex-1 ml-64 relative overflow-y-auto">
+        <div className="h-full">
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/requests" element={<RequestsList />} />
+            <Route path="/partners" element={<Partners />} />
+            <Route path="/store" element={<Store />} />
+          </Routes>
+        </div>
       </main>
     </div>
   );

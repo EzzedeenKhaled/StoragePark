@@ -36,7 +36,7 @@
 }
 
 /* Header Actions */
-.header-actions {
+.header-actionsP {
     display: flex;
     align-items: center;
     gap: 300px;
@@ -45,7 +45,7 @@
     width: 100%;
 }
 
-.header-actions .title {
+.header-actionsP .title {
     font-size: 32px;
     font-weight: 600;
     color: #333;
@@ -177,7 +177,7 @@
         padding: 20px;
     }
     
-    .header-actions {
+    .header-actionsP {
         flex-direction: column;
         align-items: flex-start;
         gap: 20px;
