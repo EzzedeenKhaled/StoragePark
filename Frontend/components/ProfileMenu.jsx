@@ -12,7 +12,6 @@ export function ProfileMenu() {
     logout(); // Clear store, cookies, etc.
     navigate("/login");
   };
-  console.log('Usem:', user);
   return (
     <div className="relative">
       <button 

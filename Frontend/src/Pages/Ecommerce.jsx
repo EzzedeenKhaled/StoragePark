@@ -24,15 +24,15 @@ function Ecommerce() {
   useEffect(() => {
     fetchActiveItems(); // Fetch active items from backend
   }, [fetchActiveItems]);
-  const mappedProducts = activeItems.map(item => ({
-    _id: item._id,
-    name: item.productName,
-    discount: item.discount || 50,
-    originalPrice: item.pricePerUnit,
-    price: item.discount ? item.pricePerUnit - (item.pricePerUnit * (item.discount / 100)) : item.pricePerUnit,
-    image: item.imageProduct
-  }));
-  console.log("Mapped Products:", mappedProducts);
+  // const mappedProducts = activeItems.map(item => ({
+  //   _id: item._id,
+  //   name: item.productName,
+  //   discount: item.discount || 50,
+  //   originalPrice: item.pricePerUnit,
+  //   price: item.discount ? item.pricePerUnit - (item.pricePerUnit * (item.discount / 100)) : item.pricePerUnit,
+  //   image: item.imageProduct
+  // }));
+// console.log("mappedProducts: ", mappedProducts)
   return (
     <>
       <Header />
@@ -40,7 +40,7 @@ function Ecommerce() {
       <ProductCarousel categories={categories} title="Shop by Category" />
       <ProductCarousel products={products} title="Black Friday" />
       <ProductCarousel products={products} title="Latest Products" />
-      <ProductCarousel products={mappedProducts} title="Active Items" />
+      <ProductCarousel products={activeItems} title="Active Items" />
       <Footer />
     </>
   );

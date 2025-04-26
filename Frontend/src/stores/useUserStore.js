@@ -2,13 +2,67 @@ import { create } from "zustand";
 import axios from "../../lib/axios";
 import { toast } from "react-hot-toast";
 
+
 export const useUserStore = create((set, get) => ({
 	user: null,
 	loading: false,
 	checkingAuth: true,
 	activeItems: [],
 	category: [],
+	wishlist: [],
+	addToWishlist: async (itemId) => {
+		try {
+			const res = await axios.post("/wishlist/add-to-wishlist", { itemId });
+			console.log("addToWishlist response: ", res.data);
+			set({ wishlist: res.data.wishlist });
+			toast.success("Item added to wishlist");
+		} catch (error) {
+			console.error("Error adding to wishlist:", error);
+			toast.error(error.response?.data?.message || "Failed to add item to wishlist");
+		}
+	},
 
+	removeFromWishlist: async (itemId) => {
+		set({ loading: true });
+		try {
+		  // Optimistically update the UI
+		  set(state => ({
+			wishlist: state.wishlist.filter(item => item._id !== itemId),
+			loading: false
+		  }));
+		  
+		  // Then make the API call
+		  const res = await axios.delete("/wishlist/remove-from-wishlist", {
+			data: { productId: itemId }
+		  });
+		  
+		  // Final update with server response
+		  set({ wishlist: res.data.wishlist });
+		  toast.success("Removed from wishlist");
+		  return res.data.wishlist;
+		} catch (error) {
+		  // Revert if error occurs
+		  set(state => ({
+			wishlist: state.wishlist, // Keep current state
+			loading: false
+		  }));
+		  console.error("Error removing from wishlist:", error);
+		  toast.error(error.response?.data?.message || "Failed to remove from wishlist");
+		  throw error;
+		}
+	  },
+
+	getWishlist: async () => {
+		set({ loading: true });
+		try {
+			const res = await axios.get("/wishlist/get-wishlist");
+			set({ wishlist: res.data.wishlist, loading: false });
+		} catch (error) {
+			console.error("Error fetching wishlist:", error);
+			toast.error(error.response?.data?.message || "Failed to fetch wishlist");
+			set({ loading: false });
+		}
+	},
 	signup_Done: async ({ certificateFile, businessLicenseFile, taxComplianceFile }) => {
 		const formData = new FormData();
 
@@ -85,7 +139,6 @@ export const useUserStore = create((set, get) => ({
 			if (res.status !== 200) {
 				toast.error("Invalid credentials");
 			}
-			console.log("login: ",res.data)
 			set({ user: res.data, loading: false });
 		} catch (error) {
 			set({ loading: false });
@@ -130,17 +183,17 @@ export const useUserStore = create((set, get) => ({
 	fetchActiveItems: async () => {
 		set({ loading: true });
 		try {
-		  const res = await axios.get('/products/active-items');
-		  set({ activeItems: res.data, loading: false });
+			const res = await axios.get('/products/active-items');
+			set({ activeItems: res.data, loading: false });
 		} catch (err) {
-		  console.error("Error fetching active items:", err);
-		  set({ loading: false });
+			console.error("Error fetching active items:", err);
+			set({ loading: false });
 		}
-	  },
+	},
 	fetchItemsByCategory: async (category) => {
 		set({ loading: true });
 		try {
-			console.log("category: ",category)
+			console.log("category: ", category)
 			const res = await axios.get(`/products/category/${category}`);
 			set({ category: res.data, loading: false });
 		} catch (err) {
@@ -161,7 +214,7 @@ export const useUserStore = create((set, get) => ({
 		set({ checkingAuth: true });
 		try {
 			const response = await axios.get("/auth/profile");
-			console.log("checkAuth: ",response.data)
+			// console.log("checkAuth: ",response.data)
 			set({ user: response.data, checkingAuth: false });
 		} catch (error) {
 			console.log(error.message);

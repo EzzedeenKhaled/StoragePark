@@ -4,8 +4,12 @@ import { ProfileForm } from '../../components/ProfileForm';
 import { useUserStore } from '../stores/useUserStore';
 
 function Profile() {
-  const { user } = useUserStore();
-  console.log('Usep:', user);
+  const { user, getWishlist } = useUserStore();
+    React.useEffect(() => {
+    if (user) { 
+      getWishlist();
+    }
+  }, [user, getWishlist]);
   return (
     <div className="flex min-h-screen bg-white">
       <Sidebar />
