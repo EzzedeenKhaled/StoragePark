@@ -64,7 +64,7 @@ const Sidebar = () => {
             onClick={() => {
               setExpandedMenu(null); // Collapse any open menus
               setActiveItem("Dashboard"); // Set Dashboard as active
-              navigate("/");
+              navigate("/admin");
             }}
             className={`sidebar-item ${activeItem === "Dashboard" ? "active-component" : ""}`}
           >
@@ -181,7 +181,7 @@ const Sidebar = () => {
             onClick={() => {
               setExpandedMenu(null); // Collapse any open menus
               setActiveItem("Store"); // Set Store as active
-              navigate("/store");
+              navigate("/admin/store");
             }}
             className={`sidebar-item ${activeItem === "Store" ? "active-component" : ""}`}
           >
