@@ -1,12 +1,21 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
+import { useUserStore } from '../../src/stores/useUserStore';
+import { toast } from 'react-hot-toast'; // Make sure you have toast
 import '../../src/assets/Styles/ProductCard.css';
 
 const ProductCard = ({ product }) => {
-  const [liked, setLiked] = useState(false);
-  console.log("ProductCard: ",product)
+  // console.log("ProductCard", product);
+  const { user, wishlist, addToWishlist, removeFromWishlist, getWishlist } = useUserStore();
+  console.log('wishlist', wishlist);
+  const [liked, setLiked] = useState(wishlist.includes(product._id));
+  // useEffect(() => {
+  //   setLiked(wishlist.includes(product._id));
+  // }, [wishlist, product._id]);
+  // useEffect(() => {
+  //   getWishlist(); // Fetch wishlist once when the app loads
+  // }, []);
   // If percentOff is provided, use it directly, otherwise calculate it
   const displayPercentOff = product?.discount;
   
@@ -14,6 +23,33 @@ const ProductCard = ({ product }) => {
   const isOnSale = product?.discount > 0 ? true : false;
 
   const discountPrice = product?.discount ? product?.pricePerUnit - (product?.pricePerUnit * (displayPercentOff / 100)) : product?.pricePerUnit;
+
+  const handleWishlistClick = async (e) => {
+    e.preventDefault();
+    
+    if (!user) {
+      toast.error("Please log in first");
+      return;
+    }
+    // console.log("handleWishlistClick", product._id);
+    const isInWishlist = wishlist.includes(product._id);
+    // console.log("isInWishlist", isInWishlist);
+    try {
+      if (isInWishlist) {
+        await removeFromWishlist(product._id);
+        setLiked(false);
+        // toast.success("Removed from wishlist");
+      } else {
+        await addToWishlist(product._id);
+        setLiked(true);
+        // toast.success("Added to wishlist");
+      }
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+      // toast.error("Something went wrong");
+    }
+  };
+
   return (
     <div className="product-card" style={{ position: 'relative', paddingTop: '16px' }}>
       {/* Sale tag */}
@@ -40,10 +76,7 @@ const ProductCard = ({ product }) => {
       <button
         type="button"
         aria-label={liked ? "Remove from wishlist" : "Add to wishlist"}
-        onClick={e => {
-          e.preventDefault();
-          setLiked(like => !like);
-        }}
+        onClick={handleWishlistClick}
         style={{
           position: 'absolute',
           top: 10,

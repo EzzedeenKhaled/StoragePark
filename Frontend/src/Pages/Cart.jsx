@@ -2,54 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
 import ProductCardCart from '../../components/ProductCardCart';
-import { ArrowRight, Trash2 } from 'lucide-react';
+import { ArrowRight, Trash2, Minus, Plus } from 'lucide-react';
 import { useCartStore } from '../stores/useCartStore';
-
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 const Cart = () => {
-  const { cart } = useCartStore();
-  const item = cart?.[0]?.data?.item; // safely access it
-
-  // Setup state for cartItems based on the item from cart store
-  const [cartItems, setCartItems] = useState([]);
-console.log(cartItems);
-  // Load item into cartItems on mount
+  const { cart, total, subtotal, removeFromCart, updateQuantity, getCartItems,loading } = useCartStore();
   useEffect(() => {
-    if (item) {
-      setCartItems([
-        {
-          id: item._id || 1, // fallback if no id
-          title: item.productName || 'No Name',
-          price: item.pricePerUnit || '0.00',
-          image: item.imageProduct || 'https://via.placeholder.com/150',
-          quantity: 1
-        }
-      ]);
+    async function fetchCart() {
+      await getCartItems();
     }
-  }, [item]);
 
-  // Calculate subtotal
-  const subtotal = cartItems.reduce((total, item) => {
-    return total + (parseFloat(item.price) * item.quantity);
-  }, 0).toFixed(2);
-
-  // Handle quantity change
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) return;
-    
-    setCartItems(cartItems.map(item => {
-      if (item.id === id) {
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    }));
-  };
-
-  // Handle item removal
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
-
-  // Sale items (can leave as it is)
+    fetchCart();
+  }, [getCartItems]);
+  if (loading) return <LoadingSpinner />;
+  // const item = cart?.[0];
+  // console.log(item); // safely access it
   const saleItems = [
     {
       id: 3,
@@ -88,55 +55,55 @@ console.log(cartItems);
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-50">
       <Header />
-      
+
       <main className="w-full px-4 py-8 flex-grow">
         <h1 className="text-orange-500 text-3xl font-bold mb-6">Your cart</h1>
-        
+
         <div className="bg-orange-50 p-4 rounded-lg flex items-start gap-3 mb-6">
-          <img src="handshake.png" alt="handshake" height={15}/>
+          <img src="handshake.png" alt="handshake" height={15} />
           <p className="text-sm">
-            Storage Park Purchase Protection: Shop confidently on Storage Park knowing if something goes wrong with an order, we've got your back. 
+            Storage Park Purchase Protection: Shop confidently on Storage Park knowing if something goes wrong with an order, we've got your back.
             <a href="#" className="text-orange-600 hover:underline ml-1">See program terms</a>
           </p>
         </div>
-        
-        {cartItems.length > 0 ? (
+
+        {cart.length > 0 ? (
           <div className="space-y-6 mb-8">
-            {cartItems.map(item => (
-              <div key={item.id} className="bg-white p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-center gap-4">
-                <img 
-                  src={item.image} 
-                  alt={item.title} 
-                  className="w-full sm:w-24 h-24 object-cover rounded" 
+            {cart.map(item => (
+              <div key={item._id} className="bg-white p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-center gap-4">
+                <img
+                  src={item.imageProduct}
+                  alt={item.productName}
+                  className="w-full sm:w-24 h-24 object-cover rounded"
                 />
                 <div className="flex-1">
-                  <h3 className="font-medium text-lg">{item.title}</h3>
-                  <p className="text-orange-500 font-bold">${item.price}</p>
+                  <h3 className="font-medium text-lg">{item.productName}</h3>
+                  <p className="text-orange-500 font-bold">${item.pricePerUnit}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button 
-                    className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded flex items-center justify-center transition-colors"
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                  <button
+                    className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded flex items-center justify-center transition-colors cursor-pointer"
+                    onClick={() => updateQuantity(item._id, item.quantity - 1)}
                   >
-                    -
+                    <Minus className='text-gray-600' />
                   </button>
                   <span className="mx-2">{item.quantity}</span>
-                  <button 
-                    className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded flex items-center justify-center transition-colors"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  <button
+                    className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded flex items-center justify-center transition-colors cursor-pointer"
+                    onClick={() => updateQuantity(item._id, item.quantity + 1)}
                   >
-                    +
+                    <Plus className='text-gray-600' />
                   </button>
                 </div>
-                <button 
-                  className="text-red-500 hover:text-red-700 transition-colors"
-                  onClick={() => removeItem(item.id)}
+                <button
+                  className="cursor-pointer text-red-500 hover:text-red-700 transition-colors"
+                  onClick={() => removeFromCart(item._id)}
                 >
                   <Trash2 size={20} />
                 </button>
               </div>
             ))}
-            
+
             <div className="bg-white p-4 rounded-lg shadow-md">
               <div className="flex justify-between py-2 border-b">
                 <span>Subtotal</span>
@@ -151,9 +118,9 @@ console.log(cartItems);
                 <span className="font-bold">${(parseFloat(subtotal) + 3).toFixed(2)}</span>
               </div>
             </div>
-            
-            <Link 
-              to="/checkout" 
+
+            <Link
+              to="/checkout"
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 w-full transition-colors"
             >
               <span>Proceed to checkout</span>
@@ -164,17 +131,17 @@ console.log(cartItems);
           <div className="text-center py-12 bg-white rounded-lg shadow-md mb-8">
             <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
             <p className="mb-6 text-gray-600">Looks like you haven't added anything to your cart yet.</p>
-            <Link 
-              to="/ecommerce" 
+            <Link
+              to="/ecommerce"
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg inline-flex items-center gap-2 transition-colors"
             >
               Continue shopping
             </Link>
           </div>
         )}
-        
+
         <h2 className="text-2xl font-bold mb-4">More On Sale Items To Add</h2>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {saleItems.map(item => (
             <ProductCardCart key={item.id} product={item} onSale={true} />

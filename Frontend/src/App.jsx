@@ -19,22 +19,32 @@ import Cart from "./Pages/Cart";
 import Category from './Pages/Category';
 import ProductPage from "./Pages/ProductPage";
 import PartnerDashboard from "./Pages/PartnerDashboard";
-import RequestList from "./Pages/Admin/Requests/RequestList";
-import Partners from "./Pages/Admin/Partner/partners";
+import { useCartStore } from "./stores/useCartStore";
+// import RequestList from "./Pages/Admin/Requests/RequestList";
+// import Partners from "./Pages/Admin/Partner/partners";
 import EmptyCart from "./Pages/EmptyCart";
+
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
 function App() {
-  const { checkAuth, checkingAuth } = useUserStore();
+  const { checkAuth, checkingAuth, user } = useUserStore();
+  const { getCartItems } = useCartStore();
   useEffect(() => {
-		checkAuth();
-	}, [checkAuth]);
-	if (checkingAuth) return <LoadingSpinner />;
+    checkAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    getCartItems();
+  }, [getCartItems, user]);
+
+  if (checkingAuth) return <LoadingSpinner />;
   // Dashboard partner (verify email)
   return (
     <>
-    <Toaster />
+      <Toaster />
 
-      
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
@@ -44,12 +54,12 @@ function App() {
         <Route path='empty-cart' element={<EmptyCart />} />
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
-        <Route path="/partner-dashboard" element={<PartnerDashboard />} />  
+        <Route path="/partner-dashboard" element={<PartnerDashboard />} />
         <Route path="/verify-email" element={<EmailVer />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/ecommerce" element={ <Ecommerce />} />
+        <Route path="/ecommerce" element={<Ecommerce />} />
         <Route path="/empty-cart" element={<EmptyCart />} />
         <Route path="/product-form" element={<ProductForm />} />
         <Route path="/cart" element={<Cart />} />
@@ -58,7 +68,8 @@ function App() {
         <Route path="/admin/*" element={<AdminDashboard />} />
         
         <Route path="*" element={<Navigate to="/" replace />} />
-
+        {/* <Route path="/admin/requests" element={<RequestList />} />
+        <Route path="/admin/partners" element={<Partners />} /> */}
       </Routes>
 
     </>
