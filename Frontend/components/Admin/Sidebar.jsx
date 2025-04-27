@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import "./sidebar.css";
 import logo from "/logo2.png";
 import dashboard from "/dashboard.png";
@@ -64,16 +64,18 @@ const Sidebar = () => {
             onClick={() => {
               setExpandedMenu(null); // Collapse any open menus
               setActiveItem("Dashboard"); // Set Dashboard as active
-              navigate("/");
+              navigate("/admin");
             }}
             className={`sidebar-item ${activeItem === "Dashboard" ? "active-component" : ""}`}
           >
-            <img
-              src={dashboard}
-              alt="Dashboard"
-              className={`icon ${activeItem === "Dashboard" ? "active-icon" : ""}`}
-            />
-            <span>Dashboard</span>
+            <div className="menu-item-content">
+              <img
+                src={dashboard}
+                alt="Dashboard"
+                className={`icon ${activeItem === "Dashboard" ? "active-icon" : ""}`}
+              />
+              <span>Dashboard</span>
+            </div>
           </li>
 
           {/* Users */}
@@ -82,7 +84,7 @@ const Sidebar = () => {
             className={`sidebar-item ${activeItem === "Users" ? "active-component" : ""}`}
           >
             {/* Parent Menu Item */}
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div className="menu-item-content">
               <img
                 src={users}
                 alt="Users"
@@ -97,7 +99,7 @@ const Sidebar = () => {
                 <li
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent closing the menu
-                    handleChildClick("Requests", "/requests");
+                    handleChildClick("Requests", "/admin/requests");
                   }}
                   className={`sub-menu-item ${activeItem === "Requests" ? "active-submenu" : ""}`}
                 >
@@ -106,7 +108,7 @@ const Sidebar = () => {
                 <li
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent closing the menu
-                    handleChildClick("Partners", "/partners");
+                    handleChildClick("Partners", "/admin/partners");
                   }}
                   className={`sub-menu-item ${activeItem === "Partners" ? "active-submenu" : ""}`}
                 >
@@ -115,7 +117,7 @@ const Sidebar = () => {
                 <li
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent closing the menu
-                    handleChildClick("Employees", "/employees");
+                    handleChildClick("Employees", "/admin/employees");
                   }}
                   className={`sub-menu-item ${activeItem === "Employees" ? "active-submenu" : ""}`}
                 >
@@ -140,7 +142,7 @@ const Sidebar = () => {
             className={`sidebar-item ${activeItem === "Payments" ? "active-component" : ""}`}
           >
             {/* Parent Menu Item */}
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div className="menu-item-content">
               <img
                 src={Payments}
                 alt="Payments"
@@ -179,16 +181,18 @@ const Sidebar = () => {
             onClick={() => {
               setExpandedMenu(null); // Collapse any open menus
               setActiveItem("Store"); // Set Store as active
-              navigate("/store");
+              navigate("/admin/store");
             }}
             className={`sidebar-item ${activeItem === "Store" ? "active-component" : ""}`}
           >
-            <img
-              src={store}
-              alt="Store"
-              className={`icon ${activeItem === "Store" ? "active-icon" : ""}`}
-            />
-            <span>Store</span>
+            <div className="menu-item-content">
+              <img
+                src={store}
+                alt="Store"
+                className={`icon ${activeItem === "Store" ? "active-icon" : ""}`}
+              />
+              <span>Store</span>
+            </div>
           </li>
           <li
             onClick={() => {
@@ -198,12 +202,14 @@ const Sidebar = () => {
             }}
             className={`sidebar-item ${activeItem === "Incoming Orders" ? "active-component" : ""}`}
           >
-            <img
-              src={incoming}
-              alt="Incoming Orders"
-              className={`icon ${activeItem === "Incoming Orders" ? "active-icon" : ""}`}
-            />
-            <span>Incoming Orders</span>
+            <div className="menu-item-content">
+              <img
+                src={incoming}
+                alt="Incoming Orders"
+                className={`icon ${activeItem === "Incoming Orders" ? "active-icon" : ""}`}
+              />
+              <span>Incoming Orders</span>
+            </div>
           </li>
           <li
             onClick={() => {
@@ -213,12 +219,14 @@ const Sidebar = () => {
             }}
             className={`sidebar-item ${activeItem === "Outgoing Orders" ? "active-component" : ""}`}
           >
-            <img
-              src={outgoing}
-              alt="Outgoing Orders"
-              className={`icon ${activeItem === "Outgoing Orders" ? "active-icon" : ""}`}
-            />
-            <span>Outgoing Orders</span>
+            <div className="menu-item-content">
+              <img
+                src={outgoing}
+                alt="Outgoing Orders"
+                className={`icon ${activeItem === "Outgoing Orders" ? "active-icon" : ""}`}
+              />
+              <span>Outgoing Orders</span>
+            </div>
           </li>
           <li
             onClick={() => {
@@ -228,12 +236,14 @@ const Sidebar = () => {
             }}
             className={`sidebar-item ${activeItem === "Reports" ? "active-component" : ""}`}
           >
-            <img
-              src={reports}
-              alt="Reports"
-              className={`icon ${activeItem === "Reports" ? "active-icon" : ""}`}
-            />
-            <span>Reports</span>
+            <div className="menu-item-content">
+              <img
+                src={reports}
+                alt="Reports"
+                className={`icon ${activeItem === "Reports" ? "active-icon" : ""}`}
+              />
+              <span>Reports</span>
+            </div>
           </li>
         </ul>
       </nav>

@@ -24,6 +24,8 @@ import { useCartStore } from "./stores/useCartStore";
 // import RequestList from "./Pages/Admin/Requests/RequestList";
 // import Partners from "./Pages/Admin/Partner/partners";
 import EmptyCart from "./Pages/EmptyCart";
+
+import AdminDashboard from "./Pages/Admin/AdminDashboard";
 function App() {
   const { checkAuth, checkingAuth, user } = useUserStore();
   const { getCartItems } = useCartStore();
@@ -64,6 +66,9 @@ function App() {
         <Route path="/payment-form" element={<PaymentForm />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/category/:categoryName" element={<Category />} />
+
+        <Route path="/admin/*" element={<AdminDashboard />} />
+        
         <Route path="*" element={<Navigate to="/" replace />} />
         {/* <Route path="/admin/requests" element={<RequestList />} />
         <Route path="/admin/partners" element={<Partners />} /> */}
