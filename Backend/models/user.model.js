@@ -61,20 +61,14 @@ const userSchema = new mongoose.Schema(
 				ref: "Item",
 			  },
 			}
-		  ],
-		  wishlist: [
-			{
-			  type: mongoose.Schema.Types.ObjectId,
-			  ref: 'Item' 
-			}
 		  ],	  
 		isVerified: { type: Boolean, default: false },
 		verificationToken: { type: String },
 		wishlist: [
 			{
 			  type: mongoose.Schema.Types.ObjectId,
-			  ref: "Item",
-			},
+			  ref: "Item"
+			}
 		  ],		  
 	},
 	{
