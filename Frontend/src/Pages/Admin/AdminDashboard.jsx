@@ -1,10 +1,11 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Sidebar from '../../../components/Admin/Sidebar';
 import DashboardPage from './Dashboard/DashboardPage';
 import RequestsList from './Requests/RequestList';
 import Partners from './Partner/partners';
 import Store from './Store/Store';
+import Customers from './Customers';
+import Employees from './Employees';
 
 function AdminDashboard() {
   return (
@@ -22,6 +23,8 @@ function AdminDashboard() {
             <Route path="/requests" element={<RequestsList />} />
             <Route path="/partners" element={<Partners />} />
             <Route path="/store" element={<Store />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/employees" element={<Employees />} />
           </Routes>
         </div>
       </main>

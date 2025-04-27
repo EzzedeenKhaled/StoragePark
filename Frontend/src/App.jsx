@@ -25,6 +25,9 @@ import { useCartStore } from "./stores/useCartStore";
 import EmptyCart from "./Pages/EmptyCart";
 
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function App() {
   const { checkAuth, checkingAuth, user } = useUserStore();
   const { getCartItems } = useCartStore();
@@ -42,6 +45,18 @@ function App() {
   // Dashboard partner (verify email)
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <Toaster />
 
 
