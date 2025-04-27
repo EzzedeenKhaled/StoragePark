@@ -18,7 +18,7 @@ const Header = () => {
   };
 
   return (
-    <div className="header">
+    <div className="header1">
       <div className="profile-container">
         <label htmlFor="profile-upload" className="profile-upload-label">
           <img src={profileImage} alt="Profile" className="profile-picture" />

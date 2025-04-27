@@ -13,7 +13,7 @@ const Login = () => {
     const productId = location.state?.productId;
     const from = location.state?.from; // Default to '/' if no 'from' is present
     const { login, loading, user } = useUserStore();
-    const { addToCart } = useCartStore(); 
+    const { addToCart } = useCartStore();
     useEffect(() => {
         if (user) {
             if (productId) {
@@ -22,7 +22,7 @@ const Login = () => {
             } else {
                 navigate('/ecommerce');
             }
-        } 
+        }
     }, [user, navigate, from, productId]);
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -82,8 +82,12 @@ const Login = () => {
                                     </>
                                 )}
                             </button>
+
                             <div className="form_bottom">
                                 Don&apos;t have an account?<Link className='linkBtn' to="/register-customer">Get Started</Link>
+                            </div>
+                            <div className="forgotPassword">
+                                <Link className='linkBtn' to="/forgot-password">Forgot Password?</Link>
                             </div>
                         </form>
                     </div>

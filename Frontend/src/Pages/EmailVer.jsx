@@ -3,33 +3,37 @@ import "../assets/Styles/EmailVer.css";
 import axios from "../../lib/axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import PasswordConfirmForm from "./PasswordConfirmForm"; // Import PasswordConfirmForm
+
 const EmailVerification = () => {
+  const location = useLocation();
+  const email = location.state?.email || null;
   const [code, setCode] = useState(["", "", "", "", "", ""]); // State for storing the code
   const inputRefs = useRef([]); // Refs for managing focus between input fields
+  const [isVerified, setIsVerified] = useState(false); // State to track verification status
+  const navigate = useNavigate(); // Hook for navigation
+
   // Handle input changes
   const handleChange = (index, value) => {
-    // Allow only numeric input
-    if (!/^\d*$/.test(value)) return;
+    if (!/^[a-zA-Z0-9]*$/.test(value)) return;
 
     const newCode = [...code];
 
-    // Handle pasted content
     if (value.length > 1) {
-      const pastedCode = value.slice(0, 6).split(""); // Take only the first 6 digits
+      const pastedCode = value.slice(0, 6).split(""); // Take only the first 6 characters
       for (let i = 0; i < 6; i++) {
-        newCode[i] = pastedCode[i] || ""; // Fill the array with pasted digits
+        newCode[i] = pastedCode[i] || ""; // Fill the array with pasted characters
       }
       setCode(newCode);
 
-      // Focus on the last non-empty input or the first empty one
-      const lastFilledIndex = newCode.findLastIndex((digit) => digit !== "");
+      const lastFilledIndex = newCode.findLastIndex((char) => char !== "");
       const focusIndex = lastFilledIndex < 5 ? lastFilledIndex + 1 : 5;
       inputRefs.current[focusIndex]?.focus();
     } else {
-      newCode[index] = value; // Update the specific input field
+      newCode[index] = value;
       setCode(newCode);
 
-      // Move focus to the next input field if a value is entered
       if (value && index < 5) {
         inputRefs.current[index + 1]?.focus();
       }
@@ -42,22 +46,29 @@ const EmailVerification = () => {
       inputRefs.current[index - 1]?.focus(); // Move focus to the previous input field
     }
   };
-  const navigate = useNavigate(); // Hook for navigation
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = code.join(""); // Combine the digits into a single string
-
+    let token = code.join("").toUpperCase();
     try {
-      const response = await axios.post("/auth/verify-email", { token });
-      toast.success(response.data.message);
-      // console.log("Email verification response:", response.data);
-      if(response.data.data.role === "customer")
+      let response = null;
+      if (email) {
+        response = await axios.post("/auth/verify-code", { token, email });
+        toast.success(response.data.message);
+      } else {
+        response = await axios.post("/auth/verify-email", { token });
+        toast.success(response.data.message);
+      }
+
+      if (response.data.data.role === "customer") {
         navigate("/ecommerce");
-      else if(response.data.data.role === "partner")
+      } else if (response.data.data.role === "partner") {
         navigate("/partner-dashboard");
-      } catch (error) {
+      }
+
+      setIsVerified(true); // Set the email as verified when successful
+    } catch (error) {
       console.error("Error verifying email:", error);
       toast.error("Failed to verify email. Please try again.");
     }
@@ -65,39 +76,45 @@ const EmailVerification = () => {
 
   return (
     <div className="email-verification-container">
-      <div className="container">
+      
+      <div className="container4">
         {/* Main Content */}
+        {!isVerified && 
         <div className="header">
-          <h2>Verify Your Email</h2>
-          <p>Enter the 6-digit code sent to your email address.</p>
+          <h2>{email ? "Verify the Code Sent to Your Email" : "Verify Your Email"}</h2>
+          <p>Enter the 6-digit code {email ? `sent to ${email}` : "sent to your email address"}.</p>
         </div>
+    }
+        {!isVerified ? (
+          <form className="form" onSubmit={handleSubmit}>
+            {/* Input Fields for the 6-Digit Code */}
+            <div className="input-group">
+              {code.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => (inputRefs.current[index] = el)} // Assign refs dynamically
+                  type="text"
+                  maxLength="1"
+                  value={digit}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  className="input-field"
+                />
+              ))}
+            </div>
 
-        <form className="form" onSubmit={handleSubmit}>
-          {/* Input Fields for the 6-Digit Code */}
-          <div className="input-group">
-            {code.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => (inputRefs.current[index] = el)} // Assign refs dynamically
-                type="text"
-                maxLength="1" // Restrict to one character per input
-                value={digit}
-                onChange={(e) => handleChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                className="input-field"
-              />
-            ))}
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={code.some((digit) => !digit)} // Disable button if any field is empty
-            className="submit-button"
-          >
-            Verify Email
-          </button>
-        </form>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={code.some((digit) => !digit)}
+              className="submit-button"
+            >
+              {email ? "Verify Code" : "Verify Email"}
+            </button>
+          </form>
+        ) : (
+          <PasswordConfirmForm email={email} /> // Render PasswordConfirmForm once the email is verified
+        )}
       </div>
     </div>
   );

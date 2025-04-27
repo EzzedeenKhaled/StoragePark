@@ -14,41 +14,77 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send verification email
-async function sendVerificationEmail(email, token) {
+async function sendVerificationEmail(email, token, isCode) {
   const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+
+  let subject = "";
+  let htmlContent = "";
+
+  if (isCode) {
+    // Password reset email
+    subject = "Password Reset Request - Action Required";
+    htmlContent = `
+      <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 24px;">
+          <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
+        </div>
+
+        <!-- Header -->
+        <h1 style="font-size: 28px; font-weight: 700; text-align: center; color: #2196f3; margin-bottom: 16px;">Reset Your Password</h1>
+        <p style="font-size: 16px; text-align: center; color: #555; margin-bottom: 24px;">Use the following 6-digit code to reset your password:</p>
+
+        <!-- Reset Code -->
+        <div style="background-color: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px; font-size: 32px; font-weight: bold; color: #2196f3; margin: 24px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+          ${token}
+        </div>
+        <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 24px;">Enter this code in the password reset form.</p>
+
+        <!-- Footer -->
+        <p style="text-align: center; font-size: 12px; color: #999; margin-top: 24px;">
+          If you did not request a password reset, you can safely ignore this email.
+        </p>
+      </div>
+    `;
+  } else {
+    // Normal email verification
+    subject = "Action Required: Verify Your Email Address";
+    htmlContent = `
+      <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 24px;">
+          <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
+        </div>
+
+        <!-- Header -->
+        <h1 style="font-size: 28px; font-weight: 700; text-align: center; color: #ff9800; margin-bottom: 16px;">Thank You for Registering!</h1>
+        <p style="font-size: 16px; text-align: center; color: #555; margin-bottom: 24px;">To complete your registration, please enter the following 6-digit verification code:</p>
+
+        <!-- Verification Code -->
+        <div style="background-color: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px; font-size: 32px; font-weight: bold; color: #ff9800; margin: 24px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+          ${token}
+        </div>
+        <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 24px;">Copy and paste this code into the verification form on our website.</p>
+
+        <!-- Footer -->
+        <p style="text-align: center; font-size: 12px; color: #999; margin-top: 24px;">
+          This email was sent from your email service. If you did not register for this account, please ignore this email.
+        </p>
+      </div>
+    `;
+  }
+
   const mailOptions = {
     from: process.env.GMAIL_USER,
     to: email,
-    subject: "Action Required: Verify Your Email Address", // Updated subject line
-    html: `
-  <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-    <!-- Logo -->
-    <div style="text-align: center; margin-bottom: 24px;">
-      <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
-    </div>
-
-    <!-- Header -->
-    <h1 style="font-size: 28px; font-weight: 700; text-align: center; color: #ff9800; margin-bottom: 16px;">Thank You for Registering!</h1>
-    <p style="font-size: 16px; text-align: center; color: #555; margin-bottom: 24px;">To complete your registration, please enter the following 6-digit verification code:</p>
-
-    <!-- Verification Code -->
-    <div style="background-color: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px; font-size: 32px; font-weight: bold; color: #ff9800; margin: 24px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-      ${token}
-    </div>
-    <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 24px;">Copy and paste this code into the verification form on our website.</p>
-
-    <!-- Footer -->
-    <p style="text-align: center; font-size: 12px; color: #999; margin-top: 24px;">
-      This email was sent from your email service. If you did not register for this account, please ignore this email.
-    </p>
-  </div>
-`,
+    subject: subject,
+    html: htmlContent,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error)
       console.error("Error sending email:", error);
-     else 
+    else
       console.log("Email sent:", info.response);
   });
 }

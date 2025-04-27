@@ -69,7 +69,43 @@ const userSchema = new mongoose.Schema(
 			  type: mongoose.Schema.Types.ObjectId,
 			  ref: "Item"
 			}
-		  ],		  
+		  ],
+		  orders: [
+			{
+				orderId: {
+					type: String,
+					default: () => base62.encode(Buffer.from(uuidv4(), 'hex')), // Generates a unique order ID for each order Shortened UUID
+					unique: true, // Ensure each order ID is unique
+				},
+				orderDate: { type: Date, default: Date.now },
+				items: [
+					{
+						item: {
+							type: mongoose.Schema.Types.ObjectId,
+							ref: "Item", // Assuming an Item model exists
+						},
+						quantity: { type: Number, required: true },
+						price: { type: Number, required: true }, // Price of each item
+					}
+				],
+				totalAmount: { type: Number, required: true }, // Total price for the order
+				status: {
+					type: String,
+					enum: ["pending", "shipped", "delivered", "cancelled"],
+					default: "pending",
+				},
+				deliveryAddress: { type: String }, // Address where the order was delivered
+				shippingDate: { type: Date },
+				deliveryDate: { type: Date },
+				mapLink: { type: String, default: null }, // Link to the delivery map (e.g., Google Maps)
+			}
+		],	  
+		resetPasswordCode: {
+			type: String,
+		},
+		resetPasswordExpires: {
+			type: Date,
+		},
 	},
 	{
 		timestamps: true,

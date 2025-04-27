@@ -17,6 +17,7 @@ import OrderHistory from "./Pages/OrderHistory";
 import Wishlist from "./Pages/Wishlist";
 import Cart from "./Pages/Cart";
 import Category from './Pages/Category';
+import ForgotPassword from "./Pages/ForgotPassword";
 import ProductPage from "./Pages/ProductPage";
 import PartnerDashboard from "./Pages/PartnerDashboard";
 import PaymentForm from './Pages/PaymentForm';
@@ -58,7 +59,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
-      <Toaster />
+        <Toaster />
 
 
       <Routes>
@@ -76,6 +77,7 @@ function App() {
         <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/ecommerce" element={<Ecommerce />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/empty-cart" element={<EmptyCart />} />
         <Route path="/product-form" element={<ProductForm />} />
         <Route path="/payment-form" element={<PaymentForm />} />

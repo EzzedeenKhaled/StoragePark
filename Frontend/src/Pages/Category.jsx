@@ -161,7 +161,7 @@ const Category = () => {
   <Header />
 
   <main className="main-content">
-    <div className="container">
+    <div className="container1">
     <h1 className="page-title">{categoryName}</h1>
       {/* <h1 className="page-title">Clothes</h1> */}
 

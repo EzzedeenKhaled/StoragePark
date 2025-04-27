@@ -1,5 +1,5 @@
 /* Ensure the header takes full width */
-.header {
+.header1 {
     position: fixed;
     top: 0;
     left: 220px; /* Align it to the right of the sidebar */

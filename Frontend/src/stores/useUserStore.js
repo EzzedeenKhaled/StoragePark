@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 export const useUserStore = create((set, get) => ({
 	user: null,
 	loading: false,
-	checkingAuth: true,
+	checkingAuth: false,
 	activeItems: [],
 	category: [],
 	wishlist: [],
@@ -147,6 +147,23 @@ export const useUserStore = create((set, get) => ({
 			toast.error(error.response?.data?.message || "An error occurred during login");
 		}
 	},
+	resetPassword: async (password, confirmPassword, email) => {
+		set({ loading: true });
+		if (password !== confirmPassword) {
+			toast.error("Passwords do not match");
+			set({ loading: false });
+			return;
+		}
+		try {
+			const res = await axios.post("/auth/reset-password", { email,password });
+			toast.success("Password reset successfully");
+			set({ loading: false });
+			return res.status;
+		} catch (error) {
+			set({ loading: false });
+			toast.error(error.response?.data?.message || "An error occurred during password reset");
+		}
+	},
 	productFormSubmit: async (data) => {
 		const formData = new FormData();
 		formData.append("imageProduct", data.imageProduct);
@@ -229,6 +246,15 @@ export const useUserStore = create((set, get) => ({
 		} catch (error) {
 			console.log(error.message);
 			set({ checkingAuth: false, user: null });
+		}
+	},
+
+	forgotPassword: async (email) => {
+		try {
+			const response = await axios.post("/auth/forgot-password", { email });
+			return response.status;
+		} catch (error) {
+			toast.error("Email not found");
 		}
 	},
 

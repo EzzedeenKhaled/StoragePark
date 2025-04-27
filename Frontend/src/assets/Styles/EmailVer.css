@@ -9,8 +9,8 @@
     background-color: #f4f4f4; /* Optional: Background color for the page */
   }
   
-  .container {
-    /* max-width: 480px; */
+  .container4 {
+    max-width: 480px;
     width: 100%;
     margin: 50px auto; /* Adjust margin if needed */
     background-color: #f4f4f4; /* Light gray background */
@@ -53,6 +53,7 @@
   }
   
   .input-field {
+    text-transform: uppercase;
     width: 48px; /* Fixed width for each input */
     height: 48px; /* Fixed height */
     text-align: center;
