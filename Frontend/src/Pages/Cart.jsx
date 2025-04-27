@@ -51,7 +51,6 @@ const Cart = () => {
       image: 'https://images.unsplash.com/photo-1517150140803-a7c235de31dd?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3'
     }
   ];
-
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -120,7 +119,18 @@ const Cart = () => {
             </div>
 
             <Link
-              to="/checkout"
+              to="/payment-form"
+              state={{
+                cartItems: cart.map(item => ({
+                  name: item.productName,
+                  category: item.category, // Make sure your cart items have a category field
+                  price: item.pricePerUnit,
+                  quantity: item.quantity,
+                  image: item.imageProduct
+                })),
+                subtotal: subtotal,
+                total: (parseFloat(subtotal) + 3).toFixed(2)
+              }}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 w-full transition-colors"
             >
               <span>Proceed to checkout</span>

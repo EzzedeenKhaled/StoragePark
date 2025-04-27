@@ -20,10 +20,18 @@ const products = [
 const categories = ['Clothes', 'Electronics', 'Health & Household', 'Beauty', 'Toys', 'Sports', 'Books', 'Automotive', 'Computers', 'Grocery', 'Home & Kitchen', 'Pet Supplies', 'Baby Products', 'Office Products', 'Video Games', 'Musical Instruments', 'Tools & Home Improvement', 'Garden & Outdoor', 'Arts, Crafts & Sewing', 'Industrial & Scientific'];
 
 function Ecommerce() {
-  const { activeItems, fetchActiveItems } = useUserStore();
+  const { activeItems, fetchActiveItems, getWishlist, user, wishlist } = useUserStore();
   useEffect(() => {
-    fetchActiveItems(); // Fetch active items from backend
-  }, [fetchActiveItems]);
+    const fetchData = async () => {
+      fetchActiveItems(); // (assuming it's synchronous)
+      if (user) {
+        await getWishlist();
+      }
+    };
+  
+    fetchData();
+  }, [fetchActiveItems, getWishlist, user]);
+  
   // const mappedProducts = activeItems.map(item => ({
   //   _id: item._id,
   //   name: item.productName,
@@ -37,10 +45,10 @@ function Ecommerce() {
     <>
       <Header />
       <TrackOrder />
-      <ProductCarousel categories={categories} title="Shop by Category" />
-      <ProductCarousel products={products} title="Black Friday" />
-      <ProductCarousel products={products} title="Latest Products" />
-      <ProductCarousel products={activeItems} title="Active Items" />
+      <ProductCarousel categories={categories}  title="Shop by Category" />
+      <ProductCarousel products={products} wishlist={user ? wishlist : []} title="Black Friday" />
+      <ProductCarousel products={products} wishlist={user ? wishlist : []} title="Latest Products" />
+      <ProductCarousel products={activeItems} wishlist={user ? wishlist : []} title="Active Items" />
       <Footer />
     </>
   );

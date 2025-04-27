@@ -9,7 +9,9 @@ const Header = () => {
   const navigate = useNavigate();
   const { cart } = useCartStore();
   const { user } = useUserStore();
-
+React.useEffect(() => {
+  console.log("Header user: ", user)
+}, [user]);
   const handleCartClick = () => {
     if (cart.length === 0) {
       navigate('/empty-cart');

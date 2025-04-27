@@ -19,6 +19,7 @@ import Cart from "./Pages/Cart";
 import Category from './Pages/Category';
 import ProductPage from "./Pages/ProductPage";
 import PartnerDashboard from "./Pages/PartnerDashboard";
+import PaymentForm from './Pages/PaymentForm';
 import { useCartStore } from "./stores/useCartStore";
 // import RequestList from "./Pages/Admin/Requests/RequestList";
 // import Partners from "./Pages/Admin/Partner/partners";
@@ -60,6 +61,7 @@ function App() {
         <Route path="/ecommerce" element={<Ecommerce />} />
         <Route path="/empty-cart" element={<EmptyCart />} />
         <Route path="/product-form" element={<ProductForm />} />
+        <Route path="/payment-form" element={<PaymentForm />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/category/:categoryName" element={<Category />} />
         <Route path="*" element={<Navigate to="/" replace />} />

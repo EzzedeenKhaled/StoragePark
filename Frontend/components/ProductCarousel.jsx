@@ -3,7 +3,7 @@ import '../src/assets/Styles/ProductCarousel.css';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './Category/ProductCard';
 import { Link } from 'react-router-dom';
-function ProductCarousel({ products, categories, title }) {
+function ProductCarousel({ products, categories, title, wishlist }) {
   const containerRef = useRef(null);
 
   const scrollItemWidth = () => {
@@ -63,7 +63,7 @@ function ProductCarousel({ products, categories, title }) {
             //     )}
             //   </div>
             // </div>
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product._id || product.id} product={product} wishlist={wishlist} />
           ))}
 
         {categories &&

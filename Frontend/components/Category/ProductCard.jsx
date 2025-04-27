@@ -2,48 +2,54 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { useUserStore } from '../../src/stores/useUserStore';
-import { toast } from 'react-hot-toast'; // Make sure you have toast
+import { toast } from 'react-hot-toast';
 import '../../src/assets/Styles/ProductCard.css';
 
 const ProductCard = ({ product }) => {
-  // console.log("ProductCard", product);
-  const { user, wishlist, addToWishlist, removeFromWishlist, getWishlist } = useUserStore();
-  console.log('wishlist', wishlist);
-  const [liked, setLiked] = useState(wishlist.includes(product._id));
-  // useEffect(() => {
-  //   setLiked(wishlist.includes(product._id));
-  // }, [wishlist, product._id]);
-  // useEffect(() => {
-  //   getWishlist(); // Fetch wishlist once when the app loads
-  // }, []);
-  // If percentOff is provided, use it directly, otherwise calculate it
-  const displayPercentOff = product?.discount;
-  
-  // If onSale flag is provided, use it, otherwise determine from prices
-  const isOnSale = product?.discount > 0 ? true : false;
+  const { user, addToWishlist, removeFromWishlist } = useUserStore();
+  const [liked, setLiked] = useState(false);
 
-  const discountPrice = product?.discount ? product?.pricePerUnit - (product?.pricePerUnit * (displayPercentOff / 100)) : product?.pricePerUnit;
+  useEffect(() => {
+    if (!user) {
+      setLiked(false);
+      return;
+    }
+
+    const wishlistFromStorage = JSON.parse(localStorage.getItem(`wishlist_${user._id}`)) || [];
+    setLiked(wishlistFromStorage.includes(product._id));
+  }, [product._id, user]);
+
+  const displayPercentOff = product?.discount;
+  const isOnSale = product?.discount > 0;
+  const discountPrice = isOnSale 
+    ? product?.pricePerUnit - (product?.pricePerUnit * (displayPercentOff / 100))
+    : product?.pricePerUnit;
 
   const handleWishlistClick = async (e) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast.error("Please log in first");
       return;
     }
-    // console.log("handleWishlistClick", product._id);
-    const isInWishlist = wishlist.includes(product._id);
-    // console.log("isInWishlist", isInWishlist);
+
     try {
-      if (isInWishlist) {
+      let wishlistFromStorage = JSON.parse(localStorage.getItem(`wishlist_${user._id}`)) || [];
+
+      if (liked) {
         await removeFromWishlist(product._id);
-        setLiked(false);
+        wishlistFromStorage = wishlistFromStorage.filter(id => id !== product._id);
         // toast.success("Removed from wishlist");
       } else {
         await addToWishlist(product._id);
-        setLiked(true);
+        if (!wishlistFromStorage.includes(product._id)) {
+          wishlistFromStorage.push(product._id);
+        }
         // toast.success("Added to wishlist");
       }
+
+      localStorage.setItem(`wishlist_${user._id}`, JSON.stringify(wishlistFromStorage));
+      setLiked(!liked);
     } catch (error) {
       console.error("Error updating wishlist:", error);
       // toast.error("Something went wrong");
@@ -52,7 +58,6 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="product-card" style={{ position: 'relative', paddingTop: '16px' }}>
-      {/* Sale tag */}
       {isOnSale && (
         <div
           style={{
@@ -72,7 +77,7 @@ const ProductCard = ({ product }) => {
           SALE
         </div>
       )}
-      {/* Heart Icon */}
+
       <button
         type="button"
         aria-label={liked ? "Remove from wishlist" : "Add to wishlist"}
@@ -102,18 +107,20 @@ const ProductCard = ({ product }) => {
           className='cursor-pointer'
         />
       </button>
-      {/* Product Card Content */}
+
       <Link to={`/product-page/${product?._id}`} className="product-link">
         <div className="product-image">
           <img src={product?.imageProduct} alt="Product" />
         </div>
         <div className="product-info" style={{ position: 'relative', minHeight: 60 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* If sale, show new price, strikethrough old, percent off */}
-            <span className="product-price" style={{ color: isOnSale ? '#ea384c' : '#f60', fontWeight: 700 }}>
+            <span
+              className="product-price"
+              style={{ color: isOnSale ? '#ea384c' : '#f60', fontWeight: 700 }}
+            >
               {discountPrice}$
             </span>
-            {isOnSale && product?.pricePerUnit && (
+            {isOnSale && (
               <>
                 <span
                   style={{
@@ -125,20 +132,19 @@ const ProductCard = ({ product }) => {
                 >
                   {product?.pricePerUnit}$
                 </span>
-                {displayPercentOff && (
-                  <span
-                    style={{
-                      marginLeft: 3,
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: '#ea384c',
-                      background: '#ffe4ea',
-                      borderRadius: 4,
-                      padding: '1px 7px'
-                    }}>
-                    -{displayPercentOff}%
-                  </span>
-                )}
+                <span
+                  style={{
+                    marginLeft: 3,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: '#ea384c',
+                    background: '#ffe4ea',
+                    borderRadius: 4,
+                    padding: '1px 7px'
+                  }}
+                >
+                  -{displayPercentOff}%
+                </span>
               </>
             )}
           </div>

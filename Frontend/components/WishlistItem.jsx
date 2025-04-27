@@ -1,18 +1,33 @@
 import React from 'react';
 import { useCartStore } from '../src/stores/useCartStore';
 import { useUserStore } from '../src/stores/useUserStore';
-import {LoadingSpinner} from './LoadingSpinner';
+import { LoadingSpinner } from './LoadingSpinner';
+import { toast } from 'react-hot-toast';
+
 export function WishlistItem({ wishlist }) {
   const { addToCart } = useCartStore();
-  const { removeFromWishlist, loading } = useUserStore();
+  const { removeFromWishlist, loading, getWishlist, user } = useUserStore();
   
+  // Handle removing item from wishlist
   const handleRemove = async (productId) => {
     try {
+      // Get the user's wishlist from localStorage
+      let wishlistFromStorage = JSON.parse(localStorage.getItem(`wishlist_${user._id}`)) || [];
+
+      // Remove from wishlist in the store
       await removeFromWishlist(productId);
-      // The store update will automatically trigger a re-render
+
+      // Remove the product from localStorage wishlist
+      wishlistFromStorage = wishlistFromStorage.filter(id => id !== productId);
+      localStorage.setItem(`wishlist_${user._id}`, JSON.stringify(wishlistFromStorage));
+
+      // Optionally, refresh the wishlist from the store if needed
+      await getWishlist(); // Refresh the wishlist from the store
+
+      // toast.success("Item removed from wishlist");
     } catch (error) {
       console.error("Failed to remove item:", error);
-      toast.error("Failed to remove item from wishlist");
+      // toast.error("Failed to remove item from wishlist");
     }
   };
 
@@ -38,7 +53,7 @@ export function WishlistItem({ wishlist }) {
             <p className="text-gray-600 mb-4">
               ${item.pricePerUnit ? item.pricePerUnit.toFixed(2) : "0.00"}
             </p>
-            <p className={`text-sm ${item.quantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-sm ${item.quantity > 0 ? 'text-green-600' : 'text-red-600'}`} >
               {item.quantity > 0 ? 'In Stock' : 'Out of Stock'}
             </p>
           </div>

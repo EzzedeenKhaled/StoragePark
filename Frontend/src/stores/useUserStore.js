@@ -25,11 +25,11 @@ export const useUserStore = create((set, get) => ({
 	removeFromWishlist: async (itemId) => {
 		set({ loading: true });
 		try {
-		  // Optimistically update the UI
-		  set(state => ({
-			wishlist: state.wishlist.filter(item => item._id !== itemId),
-			loading: false
-		  }));
+		//   // Optimistically update the UI
+		//   set(state => ({
+		// 	wishlist: state.wishlist.filter(item => item._id !== itemId),
+		// 	loading: false
+		//   }));
 		  
 		  // Then make the API call
 		  const res = await axios.delete("/wishlist/remove-from-wishlist", {
@@ -57,6 +57,7 @@ export const useUserStore = create((set, get) => ({
 		try {
 			const res = await axios.get("/wishlist/get-wishlist");
 			set({ wishlist: res.data.wishlist, loading: false });
+			return res;
 		} catch (error) {
 			console.error("Error fetching wishlist:", error);
 			toast.error(error.response?.data?.message || "Failed to fetch wishlist");
@@ -125,6 +126,7 @@ export const useUserStore = create((set, get) => ({
 		try {
 			res = await axios.post("/auth/signup", { firstName, lastName, phone, email, password, role });
 			set({ user: res.data.data, loading: false });
+			return res;
 		} catch (error) {
 			set({ loading: false });
 			console.error("An error occurred");
@@ -203,12 +205,20 @@ export const useUserStore = create((set, get) => ({
 	},
 	logout: async () => {
 		try {
-			await axios.post("/auth/logout");
-			set({ user: null });
+		  await axios.post("/auth/logout");
+		  
+		  const user = useUserStore.getState().user;
+	  
+		//   if (user) {
+		// 	// Optional: you can also clear temporary in-memory wishlist if you have one
+		// 	localStorage.removeItem(`wishlist_temp_${user._id}`);
+		//   }
+	  
+		  set({ user: null });
 		} catch (error) {
-			toast.error(error.response?.data?.message || "An error occurred during logout");
+		  toast.error(error.response?.data?.message || "An error occurred during logout");
 		}
-	},
+	  },
 
 	checkAuth: async () => {
 		set({ checkingAuth: true });
