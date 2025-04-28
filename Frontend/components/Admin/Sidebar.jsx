@@ -126,7 +126,7 @@ const Sidebar = () => {
                 <li
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent closing the menu
-                    handleChildClick("Customers", "/customer");
+                    handleChildClick("Customers", "/admin/customer");
                   }}
                   className={`sub-menu-item ${activeItem === "Customers" ? "active-submenu" : ""}`}
                 >
