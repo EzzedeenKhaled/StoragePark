@@ -21,7 +21,20 @@ export const useUserStore = create((set, get) => ({
 			toast.error(error.response?.data?.message || "Failed to add item to wishlist");
 		}
 	},
-
+	makeOrder: async (orderData) => {
+		set({ loading: true });
+		try {
+			const res = await axios.post("/orders/make-order", orderData);
+			set({ loading: false });
+			toast.success("Order placed successfully!");
+			
+			return res.status;
+		} catch (error) {
+			console.error("Error placing order:", error);
+			toast.error(error.response?.data?.message || "Failed to place order");
+			set({ loading: false });
+		}
+	},
 	removeFromWishlist: async (itemId) => {
 		set({ loading: true });
 		try {
@@ -95,18 +108,31 @@ export const useUserStore = create((set, get) => ({
 	},
 
 	updateUserCustomer: async (formData) => {
-		const { firstName, email, lastName, phone: phoneNumber } = formData;
 		set({ loading: true });
-
+	  
 		try {
-			const res = await axios.post("/customers/update", { firstName, lastName, email, phoneNumber });
-			set({ user: res.data.data, loading: false });
-			return res.status;
+		  const data = new FormData();
+		  data.append("firstName", formData.firstName);
+		  data.append("lastName", formData.lastName);
+		  data.append("email", formData.email);
+		  data.append("phoneNumber", formData.phone);
+	  
+		  if (formData.image) {
+			data.append("profileImage", formData.image); // key should match your backend expectation
+		  }
+	  
+		  const res = await axios.post("/customers/update", data, {
+			headers: { "Content-Type": "multipart/form-data" },
+		  });
+	  
+		  set({ user: res.data.data, loading: false });
+		  return res.status;
 		} catch (error) {
-			set({ loading: false });
-			toast.error(error.response.data.message || "An error occurred");
+		  set({ loading: false });
+		  toast.error(error.response?.data?.message || "An error occurred");
 		}
-	},
+	  },
+	  
 	signup_Next: async (formData) => {
 		const { firstName, lastName, companyName, email, phone: phoneNumber, address, website, googleProfile, role } = formData;
 		set({ loading: true });

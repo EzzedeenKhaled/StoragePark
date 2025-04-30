@@ -3,7 +3,6 @@ import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import sendVerificationEmail from "../lib/mail.js";
 import crypto from "crypto";
-import bcrypt from "bcryptjs";
 
 const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -149,6 +148,7 @@ export const login = async (req, res) => {
 				email: user.email,
 				role: user.role,
 				isVerified: user.isVerified,
+				profileImage: user.profileImage,
 				phoneNumber: user.phoneNumber,
 			});
 		} else {
@@ -313,6 +313,7 @@ export const getProfile = async (req, res) => {
 			role: req.user.role,
 			isVerified: req.user.isVerified,
 			phoneNumber: req.user.phoneNumber,
+			profileImage: req.user.profileImage,
 		});
 	} catch (error) {
 		res.status(500).json({ message: "Server error", error: error.message });

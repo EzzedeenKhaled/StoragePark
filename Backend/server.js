@@ -6,6 +6,7 @@ import partnerRoutes from "./routes/partner.route.js";
 import productRoutes from "./routes/product.route.js";
 import customerRoutes from "./routes/customer.route.js";
 import wishlistRoutes from "./routes/wishlist.route.js";
+import orderRoutes from "./routes/order.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import cookieParser from 'cookie-parser';
 
@@ -30,6 +31,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/orders", orderRoutes); // Assuming orders are handled in customerRoutes
 
 app.listen(PORT, () => {
   console.log("Server is running on http://localhost:" + PORT);

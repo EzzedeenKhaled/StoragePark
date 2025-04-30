@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUserStore } from '../src/stores/useUserStore';
-import { useEffect } from 'react';
 import toast from 'react-hot-toast';
+
 export function ProfileForm({ initialData = {} }) {
   const [formData, setFormData] = useState({
     firstName: initialData.firstName || '',
@@ -9,13 +9,25 @@ export function ProfileForm({ initialData = {} }) {
     lastName: initialData.lastName || '',
     phone: initialData.phone || '',
   });
+
+  const [previewImage, setPreviewImage] = useState(null);
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
   const { user, updateUserCustomer } = useUserStore();
+
   useEffect(() => {
     if (user) {
       console.log('User updated:', user);
     }
   }, [user]);
-  console.log('Usef:', user);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImageFile(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
@@ -25,37 +37,48 @@ export function ProfileForm({ initialData = {} }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    const res = await updateUserCustomer(formData);
-    console.log('Response:', res);
+    const updatedData = { ...formData };
+    if (selectedImageFile) {
+      updatedData.image = selectedImageFile;
+    }
+  
+    const res = await updateUserCustomer(updatedData);
     if (res === 200) {
       toast.success('Profile updated successfully!');
-    }else {
+    } else {
       toast.error('Failed to update profile. Please try again.');
-      return;
     }
-    setFormData(formData);
-    console.log('Form submitted:', formData);
   };
 
   const handleReset = () => {
     setFormData(initialData);
+    setPreviewImage(null);
   };
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Your Profile Picture</h2>
+      <h2 className="text-2xl font-semibold mb-6">Your Profile</h2>
       
       {/* Profile Picture Section */}
       <div className="mb-8">
-        <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center text-3xl mb-4">
-        <img
-          src={user?.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzcsHv578aOlNW5kDRZ5Lc5AZQowEd-fojyQ&s"}
-          alt="Profile"
-          className="w-full h-full object-cover"
-        />
-        </div>
-      </div>
+  <label htmlFor="profileImage" className="cursor-pointer group relative block w-24 h-24 rounded-full overflow-hidden">
+    <img
+      src={previewImage || user?.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzcsHv578aOlNW5kDRZ5Lc5AZQowEd-fojyQ&s"}
+      alt="Profile"
+      className="w-full h-full object-cover"
+    />
+    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <span className="text-white text-sm font-medium ml-6">Change Picture</span>
+    </div>
+  </label>
+  <input
+    type="file"
+    id="profileImage"
+    accept="image/*"
+    onChange={handleImageChange}
+    className="hidden"
+  />
+</div>
 
       {/* Profile Form */}
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
