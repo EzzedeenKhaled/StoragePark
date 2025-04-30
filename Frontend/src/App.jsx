@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from "./Pages/Login";
 import Register from "./Pages/CustomerRegister";
 import RegisterPartner from "./Pages/PartnerRegister1";
@@ -19,14 +19,12 @@ import Cart from "./Pages/Cart";
 import Category from './Pages/Category';
 import ForgotPassword from "./Pages/ForgotPassword";
 import ProductPage from "./Pages/ProductPage";
-import PartnerDashboard from "./Pages/PartnerDashboard";
 import PaymentForm from './Pages/PaymentForm';
 import { useCartStore } from "./stores/useCartStore";
-// import RequestList from "./Pages/Admin/Requests/RequestList";
-// import Partners from "./Pages/Admin/Partner/partners";
+import PartnerDashboard from "./Pages/Partner/PartnerDashboard";
 import EmptyCart from "./Pages/EmptyCart";
-
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
+import PartnerAnalytics from "./Pages/Partner/Analytics/PartnerAnalytics";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -85,7 +83,8 @@ function App() {
         <Route path="/category/:categoryName" element={<Category />} />
 
         <Route path="/admin/*" element={<AdminDashboard />} />
-        
+        <Route path="/partner/*" element={<PartnerDashboard />} />
+        <Route path="/partner/analytics" element={<PartnerAnalytics />} />
         <Route path="*" element={<Navigate to="/" replace />} />
         {/* <Route path="/admin/requests" element={<RequestList />} />
         <Route path="/admin/partners" element={<Partners />} /> */}
