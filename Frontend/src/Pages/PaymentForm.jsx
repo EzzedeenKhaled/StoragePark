@@ -2,17 +2,12 @@ import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from "react-hot-toast";
+import axios from '../../lib/axios';
 import { Loader } from "lucide-react";
 import { useUserStore } from '../stores/useUserStore';
 const PaymentForm = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    cardNumber: '',
-    cardName: '',
-    expiryDate: '',
-    ccv: ''
-  });
-  const { loading } = useUserStore();
+  const { loading, makeOrder } = useUserStore();
   // Get the state passed from the Cart page
   const location = useLocation();
   const { cartItems = [], subtotal = 0, total = 0 } = location.state || {};
@@ -20,20 +15,11 @@ const PaymentForm = () => {
   // Calculate discount if needed
   const discount = 0;
   const finalTotal = parseFloat(total) - discount;
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  console.log('User location:', cartItems);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
-    if (!formData.cardNumber || !formData.cardName || !formData.expiryDate || !formData.ccv) {
-      toast.error('Please fill in all payment details');
-      return;
-    }
 
     try {
       // Get user's location (you'll need proper geolocation implementation)
@@ -52,40 +38,25 @@ const PaymentForm = () => {
 
       // Prepare order data
       const orderData = {
-        paymentDetails: formData,
-        orderSummary: {
-          items: cartItems.map(item => ({
-            productId: item._id || item.id,
-            name: item.name || item.productName,
-            price: item.price || item.pricePerUnit,
-            quantity: item.quantity,
-            image: item.image || item.imageProduct
-          })),
-          subtotal: parseFloat(subtotal),
-          shipping: 3.00,
-          discount,
-          total: finalTotal
-        },
-        userLocation,
-        timestamp: new Date().toISOString()
+        items: cartItems.map(item => ({
+          item: item._id || item.id, // This is the ObjectId reference to the Item model
+          name: item.name || item.productName,
+          quantity: item.quantity,
+          price: item.price || item.pricePerUnit, // Price per unit
+        })),
+        totalAmount: finalTotal,
+        deliveryAddress: "", // Assuming you collected this from formData
+        mapLink: userLocation?.mapLink || null,  // Optional map link if available
+        shippingDate: null,  // You can update this later when the order is shipped
+        deliveryDate: null,  // You can update this later when the order is delivered
+        status: "pending"    // Initial status
       };
+      
 
       // Send to backend
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // if using auth
-        },
-        body: JSON.stringify(orderData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to place order');
-      }
-
-      const result = await response.json();
-      navigate('/order-confirmation', { state: { orderId: result.orderId } });
+      const res = await makeOrder(orderData);
+      console.log('Order response:', res);
+      // navigate('/order-confirmation', { state: { orderId: res.orderId } });
     } catch (err) { 
       console.error('Order submission error:', err);
       toast.error(err.message || 'Failed to process payment. Please try again.');
@@ -93,7 +64,7 @@ const PaymentForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center gap-2 mb-8">
           <button
@@ -102,76 +73,17 @@ const PaymentForm = () => {
           >
             <ArrowLeft size={24} />
           </button>
-          <div className="flex-1 flex justify-center pr-8">
-            <div className="flex items-center gap-4">
-              <div className="text-orange-500">Cart</div>
-              <div className="h-[2px] w-32 bg-orange-500"></div>
-              <div className="text-orange-500 font-semibold">Payment</div>
-            </div>
-          </div>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Payment Form Section */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-2xl font-semibold mb-6">Payment</h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">Name on card:</label>
-                  <input
-                    type="text"
-                    name="cardName"
-                    value={formData.cardName}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Esther Howard"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">Card number:</label>
-                  <input
-                    type="text"
-                    name="cardNumber"
-                    value={formData.cardNumber}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded-md"
-                    placeholder="1234 5678 9012 3456"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Expiry date:</label>
-                    <input
-                      type="text"
-                      name="expiryDate"
-                      value={formData.expiryDate}
-                      onChange={handleChange}
-                      className="w-full p-2 border rounded-md"
-                      placeholder="MM/YY"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">CCV:</label>
-                    <input
-                      type="text"
-                      name="ccv"
-                      value={formData.ccv}
-                      onChange={handleChange}
-                      className="w-full p-2 border rounded-md"
-                      placeholder="***"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div className="bg-orange-50 p-6 border-b border-orange-200">
+            <h2 className="text-2xl font-semibold text-gray-800 text-center">Payment on Delivery</h2>
+            <p className="text-center text-gray-600 mt-2">
+              Your order will be delivered to your address and payment will be collected upon delivery
+            </p>
+          </div>
 
             {/* Order Summary Section */}
             <div className="bg-white rounded-lg p-6 shadow-sm">

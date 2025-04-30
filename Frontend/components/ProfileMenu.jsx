@@ -7,7 +7,6 @@ export function ProfileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useUserStore();
   const navigate = useNavigate();
-
   const handleLogout = () => {
     logout(); // Clear store, cookies, etc.
     navigate("/login");

@@ -1,13 +1,43 @@
 import User from "../models/user.model.js";
+import {imagekit} from "../lib/imageKit.js"; // Ensure correct path to imagekit instance
+
+const UploadImage = async (base64Img, imgName) => {
+	try {
+		const result = await imagekit.upload({
+			file: base64Img,
+			fileName: imgName,
+			tags: ["profile", "customer"]
+		});
+		return result;
+	} catch (error) {
+		console.error("ImageKit Upload Error:", error);
+		throw error;
+	}
+};
 
 export const updateCustomer = async (req, res) => {
 	try {
 		const { email, firstName, lastName, phoneNumber } = req.body;
-		console.log("updateCustomer", req.body)
+		const file = req.file;
+
+		const updateFields = {
+			firstName,
+			lastName,
+			phoneNumber
+		};
+
+		// If image is provided, upload to ImageKit
+		if (file) {
+			const base64Img = file.buffer.toString("base64");
+			const imgName =file.originalname;
+			const uploadResult = await UploadImage(base64Img, imgName);
+			updateFields.profileImage = uploadResult.url;
+		}
+
 		const updatedCustomer = await User.findOneAndUpdate(
-			{ email }, // filter
-			{ firstName, lastName, phoneNumber }, // update fields
-			{ new: true, runValidators: true } // return updated doc, validate fields
+			{ email },
+			updateFields,
+			{ new: true, runValidators: true }
 		);
 
 		if (!updatedCustomer) {

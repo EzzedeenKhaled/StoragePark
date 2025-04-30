@@ -10,6 +10,7 @@ import EmailVer from "./Pages/EmailVer"
 import Ecommerce from "./Pages/Ecommerce";
 import ProductForm from "./Pages/ProductForm";
 import Profile from './Pages/Profile';
+import PurchaseSuccessPage from './Pages/PurchaseSuccessPage';
 import { useUserStore } from "./stores/useUserStore";
 import { useEffect } from "react";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -72,6 +73,7 @@ function App() {
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
         <Route path="/partner-dashboard" element={<PartnerDashboard />} />
+        <Route path="/purchase-success" element={<PurchaseSuccessPage />} />
         <Route path="/verify-email" element={<EmailVer />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/order-history" element={<OrderHistory />} />
