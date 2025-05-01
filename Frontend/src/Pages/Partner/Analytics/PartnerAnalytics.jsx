@@ -31,7 +31,6 @@ StatCard.propTypes = {
   change: PropTypes.string.isRequired,
   lastWeekValue: PropTypes.string.isRequired
 };
-
 const UserActivityChart = () => {
   const data = [
     { name: 'S', value: 9000 },
