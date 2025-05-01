@@ -54,7 +54,7 @@ if (!product) return <div className="text-center py-10">Product not found.</div>
           <ProductDetails product={product}/>
         </div>
         {user? (
-            <ProductReviews />
+            <ProductReviews itemId={productId}/>
           ) : (
             <div>
               <h1>Please login to leave a review</h1>
