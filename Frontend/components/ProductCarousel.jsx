@@ -3,8 +3,10 @@ import '../src/assets/Styles/ProductCarousel.css';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './Category/ProductCard';
 import { Link } from 'react-router-dom';
+
 function ProductCarousel({ products, categories, title, wishlist }) {
   const containerRef = useRef(null);
+  const navigate = useNavigate();
 
   const scrollItemWidth = () => {
     if (containerRef.current) {
@@ -27,10 +29,7 @@ function ProductCarousel({ products, categories, title, wishlist }) {
       containerRef.current.scrollLeft += itemWidth;
     }
   };
-  const navigate = useNavigate();
-  const handleClick = (productId) => {
-    navigate(`/product-page/${productId}`);
-  };
+  
   return (
     <section className="product">
       <h2 className="product-category">{title}</h2>
@@ -44,34 +43,21 @@ function ProductCarousel({ products, categories, title, wishlist }) {
       <div className="product-container" ref={containerRef}>
         {products &&
           products.map((product) => (
-            // <div
-            //   className="product-card cursor-pointer"
-            //   onClick={() => handleClick(product.id)}
-            //   key={product.id}
-            // >
-            //   <div className="product-image">
-            //     {product.discount > 0 && (
-            //       <span className="discount-tag">{product.discount}% off</span>
-            //     )}
-            //     <img src={product.image} className="product-thumb" alt={product.name} />
-            //   </div>
-            //   <div className="product-info">
-            //     <h2 className="product-brand">{product.name}</h2>
-            //     <span className="price">${product.price}</span>
-            //     {product.originalPrice && product.discount > 0 && (
-            //       <span className="actual-price">${product.originalPrice}</span>
-            //     )}
-            //   </div>
-            // </div>
             <ProductCard key={product._id || product.id} product={product} wishlist={wishlist} />
           ))}
 
         {categories &&
           categories.map((category, index) => (
             <div className="category-card cursor-pointer" key={index}>
-              <div className="icon-placeholder"></div>
-              <Link to={`/category/${category}`} className="category-link">
-              <h3>{category}</h3>
+              <Link to={`/category/${category.name}`} className="category-link">
+                <div className="category-image">
+                  <img 
+                    src={category.image}
+                    alt={category.name} 
+                    className="category-thumb"
+                  />
+                </div>
+                <h3>{category.name}</h3>
               </Link>
             </div>
           ))}

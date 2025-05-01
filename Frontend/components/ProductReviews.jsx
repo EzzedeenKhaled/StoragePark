@@ -130,7 +130,7 @@ const ProductReviews = ({ itemId }) => {
           <div key={review.id} className="border-b border-gray-200 pb-6">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-900">{review.user.firstName ?? "Anonymous"}</span>
+                <span className="font-medium text-gray-900">{review?.user?.firstName ?? "Anonymous"}</span>
                 {review.verified && (
                   <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
                     Verified Purchase

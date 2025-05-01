@@ -2,53 +2,73 @@ import Header from '../../components/Header';
 import ProductCarousel from '../../components/ProductCarousel';
 import Footer from '../../components/Footer';
 import { useUserStore } from '../stores/useUserStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import TrackOrder from '../../components/TrackOrder';
-const products = [
-  { id: 1, image: 'images/card122.jpg', name: 'Product 1', price: 20, discount: 0 },
-  { id: 2, image: 'images/card2.jpg', name: 'Product 2', price: 20, discount: 50, originalPrice: 40 },
-  { id: 3, image: 'images/card3.jpg', name: 'Product 3', price: 20, discount: 50, originalPrice: 40 },
-  { id: 4, image: 'images/card4.jpg', name: 'Product 4', price: 20, discount: 50, originalPrice: 40 },
-  { id: 5, image: 'images/card5.jpg', name: 'Product 5', price: 20, discount: 50, originalPrice: 40 },
-  { id: 6, image: 'images/card6.jpg', name: 'Product 6', price: 20, discount: 50, originalPrice: 40 },
-  { id: 7, image: 'images/card7.jpg', name: 'Product 7', price: 20, discount: 50, originalPrice: 40 },
-  { id: 8, image: 'images/card8.jpg', name: 'Product 8', price: 20, discount: 50, originalPrice: 40 },
-  { id: 9, image: 'images/card9.jpg', name: 'Product 9', price: 20, discount: 50, originalPrice: 40 },
-  { id: 10, image: 'images/card10.jpg', name: 'Product 10', price: 20, discount: 50, originalPrice: 40 }
-];
 
-const categories = ['Clothes', 'Electronics', 'Health & Household', 'Beauty', 'Toys', 'Sports', 'Books', 'Automotive', 'Computers', 'Grocery', 'Home & Kitchen', 'Pet Supplies', 'Baby Products', 'Office Products', 'Video Games', 'Musical Instruments', 'Tools & Home Improvement', 'Garden & Outdoor', 'Arts, Crafts & Sewing', 'Industrial & Scientific'];
+
+const categories = [
+  { name: 'Electronics', image: '/electronics.jpeg' },
+  { name: 'Beauty', image: '/beauty.jpg' },
+  { name: 'Toys', image: '/toys.jpg' },
+  { name: 'Clothes', image: '/clothes.jpg' },
+  { name: 'Health & Household', image: '/health-household.jpg' },
+  { name: 'Sports', image: '/sports.avif' },
+  { name: 'Books', image: '/books.jpg' },
+  { name: 'Automotive', image: '/automotive.jpg' },
+  { name: 'Computers', image: '/computers.jpg' },
+  { name: 'Grocery', image: '/grocery.jpg' },
+  { name: 'Home & Kitchen', image: '/home-kitchen.jpg' },
+  { name: 'Pet Supplies', image: '/pet-supplies.jpg' }
+];
 
 function Ecommerce() {
   const { activeItems, fetchActiveItems, getWishlist, user, wishlist } = useUserStore();
+  const [firstHalf, setFirstHalf] = useState([]);
+  const [secondHalf, setSecondHalf] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
-      fetchActiveItems(); // (assuming it's synchronous)
+      await fetchActiveItems(); // Added await in case it's asynchronous
       if (user) {
         await getWishlist();
       }
     };
-  
+
     fetchData();
   }, [fetchActiveItems, getWishlist, user]);
-  
-  // const mappedProducts = activeItems.map(item => ({
-  //   _id: item._id,
-  //   name: item.productName,
-  //   discount: item.discount || 50,
-  //   originalPrice: item.pricePerUnit,
-  //   price: item.discount ? item.pricePerUnit - (item.pricePerUnit * (item.discount / 100)) : item.pricePerUnit,
-  //   image: item.imageProduct
-  // }));
-// console.log("mappedProducts: ", mappedProducts)
+
+  // Split activeItems into two arrays when it changes
+  useEffect(() => {
+    if (activeItems && activeItems.length > 0) {
+      const middleIndex = Math.ceil(activeItems.length / 2);
+      setFirstHalf(activeItems.slice(0, middleIndex));
+      setSecondHalf(activeItems.slice(middleIndex));
+    }
+  }, [activeItems]);
+
   return (
     <>
       <Header />
       <TrackOrder />
-      <ProductCarousel categories={categories}  title="Shop by Category" />
-      <ProductCarousel products={products} wishlist={user ? wishlist : []} title="Black Friday" />
-      <ProductCarousel products={products} wishlist={user ? wishlist : []} title="Latest Products" />
-      <ProductCarousel products={activeItems} wishlist={user ? wishlist : []} title="Active Items" />
+      <ProductCarousel categories={categories} title="Shop by Category" />
+      
+      {/* Display first half of active items */}
+      {firstHalf.length > 0 && (
+        <ProductCarousel 
+          products={firstHalf} 
+          wishlist={user ? wishlist : []} 
+          title="Featured Products" 
+        />
+      )}
+      
+      {/* Display second half of active items */}
+      {secondHalf.length > 0 && (
+        <ProductCarousel 
+          products={secondHalf} 
+          wishlist={user ? wishlist : []} 
+          title="New Arrivals" 
+        />
+      )}
       <Footer />
     </>
   );

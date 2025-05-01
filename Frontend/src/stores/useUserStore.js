@@ -10,6 +10,7 @@ export const useUserStore = create((set, get) => ({
 	activeItems: [],
 	category: [],
 	wishlist: [],
+
 	addToWishlist: async (itemId) => {
 		try {
 			const res = await axios.post("/wishlist/add-to-wishlist", { itemId });
@@ -27,7 +28,7 @@ export const useUserStore = create((set, get) => ({
 			const res = await axios.post("/orders/make-order", orderData);
 			set({ loading: false });
 			toast.success("Order placed successfully!");
-			
+
 			return res.status;
 		} catch (error) {
 			console.error("Error placing order:", error);
@@ -38,32 +39,32 @@ export const useUserStore = create((set, get) => ({
 	removeFromWishlist: async (itemId) => {
 		set({ loading: true });
 		try {
-		//   // Optimistically update the UI
-		//   set(state => ({
-		// 	wishlist: state.wishlist.filter(item => item._id !== itemId),
-		// 	loading: false
-		//   }));
-		  
-		  // Then make the API call
-		  const res = await axios.delete("/wishlist/remove-from-wishlist", {
-			data: { productId: itemId }
-		  });
-		  
-		  // Final update with server response
-		  set({ wishlist: res.data.wishlist });
-		  toast.success("Removed from wishlist");
-		  return res.data.wishlist;
+			//   // Optimistically update the UI
+			//   set(state => ({
+			// 	wishlist: state.wishlist.filter(item => item._id !== itemId),
+			// 	loading: false
+			//   }));
+
+			// Then make the API call
+			const res = await axios.delete("/wishlist/remove-from-wishlist", {
+				data: { productId: itemId }
+			});
+
+			// Final update with server response
+			set({ wishlist: res.data.wishlist });
+			toast.success("Removed from wishlist");
+			return res.data.wishlist;
 		} catch (error) {
-		  // Revert if error occurs
-		  set(state => ({
-			wishlist: state.wishlist, // Keep current state
-			loading: false
-		  }));
-		  console.error("Error removing from wishlist:", error);
-		  toast.error(error.response?.data?.message || "Failed to remove from wishlist");
-		  throw error;
+			// Revert if error occurs
+			set(state => ({
+				wishlist: state.wishlist, // Keep current state
+				loading: false
+			}));
+			console.error("Error removing from wishlist:", error);
+			toast.error(error.response?.data?.message || "Failed to remove from wishlist");
+			throw error;
 		}
-	  },
+	},
 
 	getWishlist: async () => {
 		set({ loading: true });
@@ -109,30 +110,30 @@ export const useUserStore = create((set, get) => ({
 
 	updateUserCustomer: async (formData) => {
 		set({ loading: true });
-	  
+
 		try {
-		  const data = new FormData();
-		  data.append("firstName", formData.firstName);
-		  data.append("lastName", formData.lastName);
-		  data.append("email", formData.email);
-		  data.append("phoneNumber", formData.phone);
-	  
-		  if (formData.image) {
-			data.append("profileImage", formData.image); // key should match your backend expectation
-		  }
-	  
-		  const res = await axios.post("/customers/update", data, {
-			headers: { "Content-Type": "multipart/form-data" },
-		  });
-	  
-		  set({ user: res.data.data, loading: false });
-		  return res.status;
+			const data = new FormData();
+			data.append("firstName", formData.firstName);
+			data.append("lastName", formData.lastName);
+			data.append("email", formData.email);
+			data.append("phoneNumber", formData.phone);
+
+			if (formData.image) {
+				data.append("profileImage", formData.image); // key should match your backend expectation
+			}
+
+			const res = await axios.post("/customers/update", data, {
+				headers: { "Content-Type": "multipart/form-data" },
+			});
+
+			set({ user: res.data.data, loading: false });
+			return res.status;
 		} catch (error) {
-		  set({ loading: false });
-		  toast.error(error.response?.data?.message || "An error occurred");
+			set({ loading: false });
+			toast.error(error.response?.data?.message || "An error occurred");
 		}
-	  },
-	  
+	},
+
 	signup_Next: async (formData) => {
 		const { firstName, lastName, companyName, email, phone: phoneNumber, address, website, googleProfile, role } = formData;
 		set({ loading: true });
@@ -181,7 +182,7 @@ export const useUserStore = create((set, get) => ({
 			return;
 		}
 		try {
-			const res = await axios.post("/auth/reset-password", { email,password });
+			const res = await axios.post("/auth/reset-password", { email, password });
 			toast.success("Password reset successfully");
 			set({ loading: false });
 			return res.status;
@@ -238,8 +239,7 @@ export const useUserStore = create((set, get) => ({
 	fetchItemsByCategory: async (category) => {
 		set({ loading: true });
 		try {
-			console.log("category: ", category)
-			const res = await axios.get(`/products/category/${category}`);
+			const res = await axios.get(`/products/category/${category}`, {rel:0});
 			set({ category: res.data, loading: false });
 		} catch (err) {
 			console.error("Error fetching items by category:", err);
@@ -248,26 +248,26 @@ export const useUserStore = create((set, get) => ({
 	},
 	logout: async () => {
 		try {
-		  await axios.post("/auth/logout");
-		  
-		  const user = useUserStore.getState().user;
-	  
-		//   if (user) {
-		// 	// Optional: you can also clear temporary in-memory wishlist if you have one
-		// 	localStorage.removeItem(`wishlist_temp_${user._id}`);
-		//   }
-	  
-		  set({ user: null });
+			await axios.post("/auth/logout");
+
+			const user = useUserStore.getState().user;
+
+			//   if (user) {
+			// 	// Optional: you can also clear temporary in-memory wishlist if you have one
+			// 	localStorage.removeItem(`wishlist_temp_${user._id}`);
+			//   }
+
+			set({ user: null });
 		} catch (error) {
-		  toast.error(error.response?.data?.message || "An error occurred during logout");
+			toast.error(error.response?.data?.message || "An error occurred during logout");
 		}
-	  },
+	},
 
 	checkAuth: async () => {
 		set({ checkingAuth: true });
 		try {
 			const response = await axios.get("/auth/profile");
-			console.log("checkAuth: ",response.data)
+			console.log("checkAuth: ", response.data)
 			set({ user: response.data, checkingAuth: false });
 		} catch (error) {
 			console.log(error.message);

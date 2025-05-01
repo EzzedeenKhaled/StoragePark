@@ -118,7 +118,7 @@ const ProductCard = ({ product }) => {
               className="product-price"
               style={{ color: isOnSale ? '#ea384c' : '#f60', fontWeight: 700 }}
             >
-              {discountPrice}$
+              {discountPrice?.toFixed(2)}$
             </span>
             {isOnSale && (
               <>

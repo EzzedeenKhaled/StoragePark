@@ -21,7 +21,6 @@ const { user } = useUserStore();
 React.useEffect(() => {
   console.log("Leave a review user: ", user)
 }, [user]);
-
 useEffect(() => {
   const fetchProduct = async () => {
     try {
@@ -37,7 +36,6 @@ useEffect(() => {
 
   fetchProduct();
 }, [productId]);
-
 if (loading) return <LoadingSpinner />;
 if (error) return <NotFound />;
 if (!product) return <div className="text-center py-10">Product not found.</div>;
@@ -62,7 +60,7 @@ if (!product) return <div className="text-center py-10">Product not found.</div>
           )}
         
         
-        <RelatedProducts productRelated={product.category}/>
+        <RelatedProducts productRelated={product.category} itemId={productId}/>
       </main>
 
       <Footer />
