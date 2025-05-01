@@ -134,7 +134,7 @@ export const login = async (req, res) => {
 	try {
 		const { email, password } = req.body;
 		const user = await User.findOne({ email });
-		if (user?.role === "partner" || user?.role === "customer" && !user.isVerified) {
+		if ((user?.role === "partner" || user?.role === "customer") && !user.isVerified) {
 			return res.status(401).json({ message: "Account is not verified yet" });
 		}
 		if (user && (await user.comparePassword(password))) {

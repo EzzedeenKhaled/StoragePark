@@ -6,6 +6,17 @@ import multer from "multer";
 import { imagekit } from "../lib/imageKit.js";
 
 
+export const getPartnerProfile = async (req, res) => {
+    try {
+        const partner = await User.findOne({ role: "partner" });
+        res.status(200).json(partner);
+    } catch (error) {
+        console.error("Error fetching partner profile:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
 export const signup_Partner = async (req, res) => {
     const { firstName, lastName, email, phoneNumber, address, websiteURL, companyName, companyEmail } = req.body;
     try {

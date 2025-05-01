@@ -23,7 +23,7 @@ function AdminDashboard() {
             <Route path="/requests" element={<RequestsList />} />
             <Route path="/partners" element={<Partners />} />
             <Route path="/store" element={<Store />} />
-            <Route path="/customers" element={<Customers />} />
+            <Route path="/customer" element={<Customers />} />
             <Route path="/employees" element={<Employees />} />
           </Routes>
         </div>

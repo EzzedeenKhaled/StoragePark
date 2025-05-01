@@ -26,6 +26,9 @@ import PartnerDashboard from "./Pages/Partner/PartnerDashboard";
 import EmptyCart from "./Pages/EmptyCart";
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
 import PartnerAnalytics from "./Pages/Partner/Analytics/PartnerAnalytics";
+import Orders from "./Pages/Partner/Orders/orders";
+import ProductList from "./Pages/Partner/products/productList";
+import ProfilePartner from "./Pages/Partner/profile/ProfilePartner";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -85,11 +88,13 @@ function App() {
         <Route path="/category/:categoryName" element={<Category />} />
 
         <Route path="/admin/*" element={<AdminDashboard />} />
+        
         <Route path="/partner/*" element={<PartnerDashboard />} />
         <Route path="/partner/analytics" element={<PartnerAnalytics />} />
+        <Route path="/partner/orders" element={<Orders />} />
+        <Route path="/partner/products" element={<ProductList />} />
+        <Route path="/partner/profile" element={<ProfilePartner />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-        {/* <Route path="/admin/requests" element={<RequestList />} />
-        <Route path="/admin/partners" element={<Partners />} /> */}
       </Routes>
 
     </>

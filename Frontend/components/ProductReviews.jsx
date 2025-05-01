@@ -162,7 +162,7 @@ const ProductReviews = () => {
                 />
               ))}
             </div>
-            <p className="text-gray-700">{review.comment}</p>
+            <p className="text-gray-700 text-left">{review.comment}</p>
           </div>
         ))}
       </div>
