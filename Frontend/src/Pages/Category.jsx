@@ -9,19 +9,23 @@ import Reviews from '../../components/Category/Reviews';
 import Footer from '../../components/Footer';
 import '../assets/Styles/Category.css';
 import {useUserStore} from "../stores/useUserStore";
+import { useReviewStore } from '../stores/useReviewStore';
 const Category = () => {
   const { categoryName } = useParams();
   const { fetchItemsByCategory, category } = useUserStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilterPopover, setShowFilterPopover] = useState(false);
+  const { fetchReviewsByCategory, reviews  } = useReviewStore();
+
   const totalPages = 8;
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchItemsByCategory(categoryName);
-      console.log("Category data:", data);
+      await fetchItemsByCategory(categoryName);
+      await fetchReviewsByCategory(categoryName);
     };
     fetchData();
-  }, [categoryName, fetchItemsByCategory]);
+  }, [categoryName, fetchItemsByCategory, fetchReviewsByCategory]);
+  
   // Dummy product data based on the images
   // const products = [
   //   {
@@ -117,36 +121,36 @@ const Category = () => {
   // ];
   
   // Dummy review data based on the images
-  const reviews = [
-    {
-      reviewer: 'Julie',
-      rating: 5,
-      comment: 'Each item is perfect for my cottage core aesthetic! I can\'t wait to wear everything!! Seller was very attentive and asked question.',
-      image: 'https://via.placeholder.com/40x40',
-      category: 'Women\'s Clothing & Accessories'
-    },
-    {
-      reviewer: 'Madonna',
-      rating: 5,
-      comment: 'The quality is fabulous! Super thick substantial material and fleece lined. The stitching is well done and it\'s a piece of art.',
-      image: 'https://via.placeholder.com/40x40',
-      category: 'Women\'s Clothing, Fall Style, Winter Dress, Sweater Dress, Cotton Dress'
-    },
-    {
-      reviewer: 'Mariam',
-      rating: 5,
-      comment: 'Love all of her clothing and items so comfy and fun!',
-      image: 'https://via.placeholder.com/40x40',
-      category: 'Upcycled Butter Soft Oversized Tunic Top, Plus Size Tunic Top Too'
-    },
-    {
-      reviewer: 'Lamia',
-      rating: 5,
-      comment: 'I am updating my review. Although shipping and service was not the best, This blouse is amazing.',
-      image: 'https://via.placeholder.com/40x40',
-      category: 'Linen wrap top reversible crop top for women Tie front or back blouse Open'
-    }
-  ];
+  // const reviews = [
+  //   {
+  //     reviewer: 'Julie',
+  //     rating: 5,
+  //     comment: 'Each item is perfect for my cottage core aesthetic! I can\'t wait to wear everything!! Seller was very attentive and asked question.',
+  //     image: 'https://via.placeholder.com/40x40',
+  //     category: 'Women\'s Clothing & Accessories'
+  //   },
+  //   {
+  //     reviewer: 'Madonna',
+  //     rating: 5,
+  //     comment: 'The quality is fabulous! Super thick substantial material and fleece lined. The stitching is well done and it\'s a piece of art.',
+  //     image: 'https://via.placeholder.com/40x40',
+  //     category: 'Women\'s Clothing, Fall Style, Winter Dress, Sweater Dress, Cotton Dress'
+  //   },
+  //   {
+  //     reviewer: 'Mariam',
+  //     rating: 5,
+  //     comment: 'Love all of her clothing and items so comfy and fun!',
+  //     image: 'https://via.placeholder.com/40x40',
+  //     category: 'Upcycled Butter Soft Oversized Tunic Top, Plus Size Tunic Top Too'
+  //   },
+  //   {
+  //     reviewer: 'Lamia',
+  //     rating: 5,
+  //     comment: 'I am updating my review. Although shipping and service was not the best, This blouse is amazing.',
+  //     image: 'https://via.placeholder.com/40x40',
+  //     category: 'Linen wrap top reversible crop top for women Tie front or back blouse Open'
+  //   }
+  // ];
   
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);

@@ -44,7 +44,7 @@ const PurchaseSuccessPage = () => {
 						</div>
 						<div className='flex items-center justify-between'>
 							<span className='text-sm text-gray-400'>Estimated delivery</span>
-							<span className='text-sm font-semibold text-emerald-400'>3-5 business days</span>
+							<span className='text-sm font-semibold text-emerald-400'>3 business days</span>
 						</div>
 					</div>
 
