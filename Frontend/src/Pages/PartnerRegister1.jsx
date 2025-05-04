@@ -32,7 +32,7 @@ const RegisterPartner = () => {
                 return;
             }
 
-            navigate("/register-partner-2");
+            navigate("/register-partner-2", { state: { email: formData.email } });
 
         } catch (error) {
             console.error("Error checking signup:", error);

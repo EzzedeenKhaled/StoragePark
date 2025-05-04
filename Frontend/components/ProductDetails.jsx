@@ -132,12 +132,35 @@ const ProductDetails = ({ product }) => {
             <span className="font-medium">Shipping and return policies</span>
             <ChevronDown size={16} className={`${showShipping ? 'rotate-180' : ''} transition`} />
           </button>
-          {showShipping && (
-            <div className="pt-2 space-y-2 text-gray-600 text-sm text-left">
-              <p>📅 Order today to get by Dec 17-26</p>
-              <p>🔄 Exchanges accepted within 14 days</p>
-            </div>
-          )}
+          {showShipping && (() => {
+            const addBusinessDays = (date, daysToAdd) => {
+              const result = new Date(date);
+              let addedDays = 0;
+              while (addedDays < daysToAdd) {
+                result.setDate(result.getDate() + 1);
+                const day = result.getDay();
+                if (day !== 0 && day !== 6) { // 0 = Sunday, 6 = Saturday
+                  addedDays++;
+                }
+              }
+              return result;
+            };
+
+            const today = new Date();
+            const startDate = addBusinessDays(today, 1); // start: next business day
+            const endDate = addBusinessDays(startDate, 2); // end: 2 more business days
+
+            const options = { month: 'short', day: 'numeric' };
+            const startStr = startDate.toLocaleDateString('en-US', options);
+            const endStr = endDate.toLocaleDateString('en-US', options);
+
+            return (
+              <div className="pt-2 space-y-2 text-gray-600 text-sm text-left">
+                <p>📅 Order today to get by {startStr} – {endStr}</p>
+                <p>🔄 Exchanges accepted within 14 days</p>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

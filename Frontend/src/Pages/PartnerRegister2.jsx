@@ -3,8 +3,10 @@ import { useState } from "react";
 import { Check, Loader } from "lucide-react";
 import { useUserStore } from '../stores/useUserStore';
 import { toast } from 'react-hot-toast';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 const RegisterPartner2 = () => {
+    const location = useLocation();
+    const email = location.state?.email;
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         certificateFile: null,
@@ -52,7 +54,7 @@ const RegisterPartner2 = () => {
 
         console.log("Submitting Form Data:", formData);
 
-        const res = await signup_Done(formData);
+        const res = await signup_Done(formData, email);
         navigate("/verify-email");
     };
 

@@ -15,7 +15,7 @@ import { useUserStore } from "./../stores/useUserStore";
 const ProductPage = () => {
 const { productId } = useParams();
 const [product, setProduct] = useState(null);
-const [loading, setLoading] = useState(true);
+const [loading, setLoading] = useState(false);
 const [error, setError] = useState(false);
 const { user } = useUserStore();
 React.useEffect(() => {
@@ -24,6 +24,7 @@ React.useEffect(() => {
 useEffect(() => {
   const fetchProduct = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`/products/${productId}`);
       setProduct(res.data);
     } catch (err) {

@@ -19,7 +19,7 @@ const PartnerDashboard = () => {
       {/* Main Content */}
       <div className="flex-1">
         {/* Header */}
-        <div className="bg-orange-500 text-white p-6">
+        <div className="bg-orange-500 text-white p-6 ml-[250px]">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold">Overview</h1>
@@ -34,7 +34,7 @@ const PartnerDashboard = () => {
         </div>
 
         {/* Dashboard Content */}
-        <div className="p-6">
+        <div className="p-6 ml-[260px]">
           {/* Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <StatCard 

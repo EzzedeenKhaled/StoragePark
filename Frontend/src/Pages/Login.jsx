@@ -16,17 +16,21 @@ const Login = () => {
     const { addToCart } = useCartStore();
     useEffect(() => {
         if (user) {
+            console.log("Userr: ",user)
             if (productId) {
                 addToCart(productId);
                 navigate(`/product-page/${productId}`);
-            } else {
+            } else if(user.role === "customer") {
                 navigate('/ecommerce');
+            } else {
+                navigate('/partner/dashboard');
             }
         }
     }, [user, navigate, from, productId]);
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        login(email, password);
+        const res = await login(email, password);
+        if(res === 403) navigate("/verify-email");
     };
     const [errorMessage] = useState("");
 

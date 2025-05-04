@@ -105,7 +105,7 @@ const Orders = () => {
       
       <div className="flex-1">
         {/* Header */}
-        <div className="bg-orange-500 text-white p-6">
+        <div className="bg-orange-500 text-white p-6 ml-[250px]">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold">Orders</h1>
@@ -144,7 +144,7 @@ const Orders = () => {
         </div>
 
         {/* Tabs and Filters */}
-        <div className="p-6">
+        <div className="p-6 ml-[250px]">
           <div className="flex justify-between items-center mb-6">
             <div className="flex space-x-1 border-b">
               {['All Orders', 'Continuing', 'Completed', 'Canceled'].map((tab) => (

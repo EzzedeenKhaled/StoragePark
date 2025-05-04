@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send verification email
-async function sendVerificationEmail(email, token, isCode) {
+async function sendVerificationEmail(email, token, isCode, isPartner) {
   const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
 
   let subject = "";
@@ -46,7 +46,42 @@ async function sendVerificationEmail(email, token, isCode) {
         </p>
       </div>
     `;
-  } else {
+  } else if (isPartner) {
+    // Partner documents reviewed and approved
+    subject = "You're Approved! Partner Access Granted";
+    htmlContent = `
+      <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 24px;">
+          <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
+        </div>
+
+        <!-- Header -->
+        <h1 style="font-size: 26px; font-weight: bold; text-align: center; color: #4caf50; margin-bottom: 16px;">Documents Reviewed – Welcome Onboard!</h1>
+
+        <!-- Message -->
+        <p style="font-size: 16px; text-align: center; color: #555; margin-bottom: 24px;">
+          Your submitted documents have been reviewed and your partner account has been approved.
+        </p>
+
+        <!-- Credentials -->
+        <div style="background-color: #f4f4f4; padding: 16px; border-radius: 8px; text-align: center; margin: 16px 0;">
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Password:</strong> 123456</p>
+        </div>
+
+        <p style="font-size: 14px; text-align: center; color: #777; margin-bottom: 24px;">
+          For security, please change this password after logging in by using the <strong>Forgot Password</strong> option.
+        </p>
+
+        <!-- Footer -->
+        <p style="text-align: center; font-size: 12px; color: #999; margin-top: 24px;">
+          This is an automated email. If you have questions, feel free to reach out to our support.
+        </p>
+      </div>
+    `;
+  }
+  else {
     // Normal email verification
     subject = "Action Required: Verify Your Email Address";
     htmlContent = `

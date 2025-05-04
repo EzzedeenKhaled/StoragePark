@@ -51,7 +51,7 @@ export const useUserStore = create((set, get) => ({
 			});
 
 			// Final update with server response
-			set({ wishlist: res.data.wishlist });
+			set({ wishlist: res.data.wishlist, loading: false });
 			toast.success("Removed from wishlist");
 			return res.data.wishlist;
 		} catch (error) {
@@ -78,12 +78,14 @@ export const useUserStore = create((set, get) => ({
 			set({ loading: false });
 		}
 	},
-	signup_Done: async ({ certificateFile, businessLicenseFile, taxComplianceFile }) => {
+	signup_Done: async (formdata, email) => {
+		const { certificateFile, businessLicenseFile, taxComplianceFile } = formdata;
 		const formData = new FormData();
 
 		formData.append("certificateFile", certificateFile);
 		formData.append("businessLicenseFile", businessLicenseFile);
 		formData.append("taxComplianceFile", taxComplianceFile);
+		formData.append("email", email);
 
 		set({ loading: true });
 
@@ -99,6 +101,7 @@ export const useUserStore = create((set, get) => ({
 			} else {
 				toast.error(response.data.message);
 			}
+			set({ loading: false });
 			return response;
 		} catch (error) {
 			console.error("Error uploading files:", error);
@@ -108,7 +111,7 @@ export const useUserStore = create((set, get) => ({
 		}
 	},
 
-	updateUserCustomer: async (formData) => {
+	updateUserCustomer: async (formData, isPartner) => {
 		set({ loading: true });
 
 		try {
@@ -162,18 +165,17 @@ export const useUserStore = create((set, get) => ({
 	},
 	login: async (email, password) => {
 		set({ loading: true });
-
+	  
 		try {
-			const res = await axios.post("/auth/login", { email, password });
-			if (res.status !== 200) {
-				toast.error("Invalid credentials");
-			}
-			set({ user: res.data, loading: false });
+		  const res = await axios.post("/auth/login", { email, password });
+		  set({ user: res.data, loading: false });
+		  return res.status;
 		} catch (error) {
-			set({ loading: false });
-			toast.error(error.response?.data?.message || "An error occurred during login");
+		  set({ loading: false });
+		  toast.error(error.response?.data?.message || "An error occurred during login");
+		  return error.response?.status;
 		}
-	},
+	  },
 	resetPassword: async (password, confirmPassword, email) => {
 		set({ loading: true });
 		if (password !== confirmPassword) {
@@ -250,7 +252,7 @@ export const useUserStore = create((set, get) => ({
 		try {
 			await axios.post("/auth/logout");
 
-			const user = useUserStore.getState().user;
+			// const user = useUserStore.getState().user;	
 
 			//   if (user) {
 			// 	// Optional: you can also clear temporary in-memory wishlist if you have one
@@ -266,14 +268,13 @@ export const useUserStore = create((set, get) => ({
 	checkAuth: async () => {
 		set({ checkingAuth: true });
 		try {
-			const response = await axios.get("/auth/profile");
-			console.log("checkAuth: ", response.data)
-			set({ user: response.data, checkingAuth: false });
+		  const response = await axios.get("/auth/profile");
+		  set({ user: response.data, checkingAuth: false});
 		} catch (error) {
-			console.log(error.message);
-			set({ checkingAuth: false, user: null });
+		  console.log("checkAuth error:", error.message);
+		  set({ user: null, checkingAuth: false });
 		}
-	},
+	  },	  
 
 	forgotPassword: async (email) => {
 		try {

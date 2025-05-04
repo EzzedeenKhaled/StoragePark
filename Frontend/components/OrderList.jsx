@@ -3,11 +3,12 @@ import axios from '../lib/axios';
 import {LoadingSpinner} from './LoadingSpinner';
 export function OrderList() {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
+        setLoading(true);
         const res = await axios.get('/orders/user-orders');
         setOrders(res.data.orders);
       } catch (err) {

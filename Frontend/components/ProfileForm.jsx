@@ -42,7 +42,7 @@ export function ProfileForm({ initialData = {} }) {
       updatedData.image = selectedImageFile;
     }
   
-    const res = await updateUserCustomer(updatedData);
+    const res = await updateUserCustomer(updatedData, false);
     if (res === 200) {
       toast.success('Profile updated successfully!');
     } else {

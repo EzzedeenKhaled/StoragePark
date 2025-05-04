@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import Admin from "../models/admin.model.js";
+import Item from "../models/item.model.js";
 import sendVerificationEmail from "../lib/mail.js";
 import crypto from "crypto";
 import multer from "multer";
@@ -8,7 +9,8 @@ import { imagekit } from "../lib/imageKit.js";
 
 export const getPartnerProfile = async (req, res) => {
     try {
-        const partner = await User.findOne({ role: "partner" });
+        const email = req.user.email;
+        const partner = await User.findOne({ email, role: "partner" });
         res.status(200).json(partner);
     } catch (error) {
         console.error("Error fetching partner profile:", error);
@@ -17,6 +19,85 @@ export const getPartnerProfile = async (req, res) => {
 };
 
 
+export const changeIsActive = async (req, res) => {
+    try {
+      const { productId } = req.body;
+      
+      if (!productId) {
+        return res.status(400).json({ success: false, message: "Product ID is required" });
+      }
+      
+      // Find the item in the database
+      const item = await Item.findById(productId);
+      
+      if (!item) {
+        return res.status(404).json({ success: false, message: "Product not found" });
+      }
+      
+      // Toggle the isActive status
+      item.isActive = !item.isActive;
+      
+      // Save the updated item
+      await item.save();
+      
+      return res.status(200).json({ 
+        success: true, 
+        message: `Product ${item.isActive ? 'activated' : 'deactivated'} successfully`,
+        isActive: item.isActive
+      });
+      
+    } catch (error) {
+      console.error("Error toggling product status:", error);
+      return res.status(500).json({ 
+        success: false, 
+        message: "Failed to update product status", 
+        error: error.message 
+      });
+    }
+  };
+
+export const getPartnerItems = async (req, res) => {
+	try {
+		const partnerId = req.user._id; 
+
+		const items = await Item.find({ partner: partnerId }).sort({ createdAt: -1 });
+
+		res.json(items);
+	} catch (err) {
+		console.error("Failed to fetch partner items:", err);
+		res.status(500).json({ message: "Internal Server Error" });
+	}
+};
+
+export const updatePartner = async (req, res) => {
+	try {
+		const { email } = req.body;
+		const file = req.file;
+		const updateFields = {};
+		// If image is provided, upload to ImageKit
+		if (file) {
+			const base64Img = file.buffer.toString("base64");
+			const imgName =file.originalname;
+			const uploadResult = await UploadImage(base64Img, imgName);
+			updateFields.profileImage = uploadResult.url;
+		}
+
+		const updatedPartner = await User.findOneAndUpdate(
+			{ email },
+			updateFields,
+			{ new: true, runValidators: true }
+		);
+
+		if (!updatedPartner) {
+			return res.status(404).json({ message: "Partner not found with this email" });
+		}
+
+		res.status(200).json({ message: "Partner updated", data: updatedPartner });
+	} catch (error) {
+		console.error("Error updating Partner:", error.message);
+		res.status(500).json({ message: "Internal server error" });
+	}
+};
 export const signup_Partner = async (req, res) => {
     const { firstName, lastName, email, phoneNumber, address, websiteURL, companyName, companyEmail } = req.body;
     try {
@@ -72,13 +153,16 @@ export const uploadDocument = async (req, res) => {
                 return res.status(400).json({ message: "Error uploading files", error: err.message });
             }
 
-            // Find the most recent partner
-            const partner = await User.findOne({ role: "partner" })
-                .sort({ createdAt: -1 })
-                .exec();
+            const { email } = req.body;
+
+            if (!email) {
+                return res.status(400).json({ message: "Email is required" });
+            }
+
+            const partner = await User.findOne({ email, role: "partner" });
 
             if (!partner) {
-                return res.status(404).json({ message: "No partner found" });
+                return res.status(404).json({ message: "Partner not found with provided email" });
             }
 
             const { certificateFile, businessLicenseFile, taxComplianceFile } = req.files;
@@ -100,7 +184,7 @@ export const uploadDocument = async (req, res) => {
 
             await partner.save();
 
-            await sendVerificationEmail(partner.email, partner.verificationToken);
+            await sendVerificationEmail(partner.email, partner.verificationToken, false, false);
 
             return res.status(200).json({
                 message: "Files uploaded and partner updated successfully",

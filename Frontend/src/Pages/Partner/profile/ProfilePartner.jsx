@@ -4,7 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { usePartnerStore } from '../../../stores/usePartnerStore';
 import { toast } from 'react-toastify';
-
+import { LoadingSpinner } from '../../../../components/LoadingSpinner'
 // Replace with your Mapbox access token
 mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
 
@@ -12,7 +12,7 @@ const ProfilePartner = () => {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [loading, setLoading] = useState(false);
-  const { partner, setPartner, getPartner } = usePartnerStore();
+  const { partner, setPartner, getPartner, updateUserPartner, loading: load } = usePartnerStore();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -20,7 +20,8 @@ const ProfilePartner = () => {
     country: 'Lebanon',
     address: '',
     language: 'English',
-    location: { lat: 33.5731, lng: 35.3728 } // Default to Saida, Lebanon coordinates
+    location: { lat: 33.5731, lng: 35.3728 },
+    profileImage: '' // Default to Saida, Lebanon coordinates
   });
 
   // Fetch partner data on component mount
@@ -30,11 +31,11 @@ const ProfilePartner = () => {
         setLoading(true);
         const response = await getPartner();
         const partnerData = response.data;
-        
+
         // Set partner data in store
         setPartner(partnerData);
         console.log(partnerData);
-        
+
         // Update form data with fetched data
         setFormData({
           fullName: partnerData.partner?.companyName || '',
@@ -43,7 +44,8 @@ const ProfilePartner = () => {
           country: 'Lebanon',
           address: partnerData.partner?.address || '',
           language: 'English',
-          location: partnerData.location || { lat: 33.5731, lng: 35.3728 } // Default if not provided
+          location: partnerData.location || { lat: 33.5731, lng: 35.3728 },// Default if not provided
+          profileImage: partnerData.profileImage
         });
       } catch (error) {
         console.error('Error fetching partner data:', error);
@@ -59,20 +61,20 @@ const ProfilePartner = () => {
   useEffect(() => {
     if (map.current) return; // Initialize map only once
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [formData.location.lng, formData.location.lat],
-      zoom: 12
-    });
+    // map.current = new mapboxgl.Map({
+    //   container: mapContainer.current,
+    //   style: 'mapbox://styles/mapbox/streets-v12',
+    //   center: [formData.location.lng, formData.location.lat],
+    //   zoom: 12
+    // });
 
     // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.current?.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
     // Add marker
-    new mapboxgl.Marker()
-      .setLngLat([formData.location.lng, formData.location.lat])
-      .addTo(map.current);
+    // new mapboxgl.Marker()
+    //   .setLngLat([formData.location.lng, formData.location.lat])
+    //   .addTo(map.current);
   }, [formData.location]);
 
   const handleInputChange = (e) => {
@@ -82,10 +84,25 @@ const ProfilePartner = () => {
       [name]: value
     }));
   };
+  const [previewImage, setPreviewImage] = useState(null);
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImageFile(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
 
   const handleSaveProfile = async () => {
     try {
-      
+      const updatedData = { ...formData };
+      if (selectedImageFile) {
+        updatedData.image = selectedImageFile;
+      }
+
+      const res = await updateUserPartner(updatedData);
+      // console.log("sijf: ",res)
       toast.success('Profile updated successfully');
       // Update partner store
       setPartner(prev => ({
@@ -126,7 +143,7 @@ const ProfilePartner = () => {
 
             // Remove existing markers
             const markers = document.getElementsByClassName('mapboxgl-marker');
-            while(markers[0]) {
+            while (markers[0]) {
               markers[0].parentNode.removeChild(markers[0]);
             }
 
@@ -150,21 +167,21 @@ const ProfilePartner = () => {
       toast.error('Geolocation is not supported by your browser');
     }
   };
-
+  if (load) return <LoadingSpinner />;
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      
+
       <div className="flex-1">
         {/* Header */}
-        <div className="bg-gradient-to-r from-black to-orange-500 text-white p-6">
+        <div className="bg-gradient-to-r from-black to-orange-500 text-white p-6 ml-[250px]">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold">{formData.fullName}&apos;s Information</h1>
               <p className="text-sm text-gray-200">{new Date().toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'long', year: 'numeric' })}</p>
             </div>
-            <button 
-              className="bg-black text-white px-4 py-2 rounded-lg hover:bg-black/90 transition-colors"
+            <button
+              className="bg-black text-white px-4 py-2 rounded-lg hover:bg-black/90 transition-colors cursor-pointer"
               onClick={handleSaveProfile}
               disabled={loading}
             >
@@ -174,22 +191,28 @@ const ProfilePartner = () => {
         </div>
 
         {/* Profile Form */}
-        <div className="p-6">
+        <div className="p-6 ml-[250px]">
           <div className="bg-white rounded-lg shadow-sm p-6">
             {/* Shop Logo and Name Section */}
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
-                {partner?.profileImage || partner?.partner?.profileImage ? (
-                  <img 
-                    src={partner.profileImage || partner.partner.profileImage} 
-                    alt="Shop Logo" 
-                    className="w-12 h-12 rounded-full object-cover"
+              <div className="mb-8">
+                <label htmlFor="profileImage" className="cursor-pointer group relative block w-24 h-24 rounded-full overflow-hidden">
+                  <img
+                    src={previewImage || formData.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzcsHv578aOlNW5kDRZ5Lc5AZQowEd-fojyQ&s"}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
                   />
-                ) : (
-                  <svg className="w-12 h-12 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                  </svg>
-                )}
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span className="text-white text-sm font-medium ml-6">Change Picture</span>
+                  </div>
+                </label>
+                <input
+                  type="file"
+                  id="profileImage"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
               </div>
               <div>
                 <h2 className="text-xl font-semibold">{formData.fullName}</h2>
@@ -300,7 +323,7 @@ const ProfilePartner = () => {
                   <button
                     type="button"
                     onClick={handleGetLocation}
-                    className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
+                    className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 cursor-pointer"
                     disabled={loading}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -309,8 +332,8 @@ const ProfilePartner = () => {
                     </svg>
                     Get Current Location
                   </button>
-                  <div 
-                    ref={mapContainer} 
+                  <div
+                    ref={mapContainer}
                     className="w-full h-64 rounded-lg overflow-hidden border border-gray-200"
                   />
                 </div>
@@ -325,13 +348,13 @@ const ProfilePartner = () => {
                       <div className="border border-gray-200 rounded-lg p-4">
                         <h4 className="text-sm font-medium text-gray-700 mb-2">Certificate</h4>
                         <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
-                          <img 
-                            src={partner.partner.certificateFile} 
-                            alt="Certificate" 
+                          <img
+                            src={partner.partner.certificateFile}
+                            alt="Certificate"
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <a 
+                        <a
                           href={partner.partner.certificateFile}
                           target="_blank"
                           rel="noreferrer"
@@ -346,13 +369,13 @@ const ProfilePartner = () => {
                       <div className="border border-gray-200 rounded-lg p-4">
                         <h4 className="text-sm font-medium text-gray-700 mb-2">Business License</h4>
                         <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
-                          <img 
-                            src={partner.partner.businessLicenseFile} 
-                            alt="Business License" 
+                          <img
+                            src={partner.partner.businessLicenseFile}
+                            alt="Business License"
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <a 
+                        <a
                           href={partner.partner.businessLicenseFile}
                           target="_blank"
                           rel="noreferrer"
@@ -367,13 +390,13 @@ const ProfilePartner = () => {
                       <div className="border border-gray-200 rounded-lg p-4">
                         <h4 className="text-sm font-medium text-gray-700 mb-2">Tax Compliance</h4>
                         <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
-                          <img 
-                            src={partner.partner.taxComplianceFile} 
-                            alt="Tax Compliance" 
+                          <img
+                            src={partner.partner.taxComplianceFile}
+                            alt="Tax Compliance"
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <a 
+                        <a
                           href={partner.partner.taxComplianceFile}
                           target="_blank"
                           rel="noreferrer"

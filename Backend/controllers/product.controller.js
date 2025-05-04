@@ -108,7 +108,7 @@ export const getItemsByCategory = async (req, res) => {
 	try {
 		const { category } = req.params;
 
-		const items = await Item.find({ category });
+		const items = await Item.find({ category, isActive: true });
 		
 		if (items.length === 0) {
 			return res.status(404).json({ message: 'No items found in this category' });

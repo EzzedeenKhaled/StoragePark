@@ -38,7 +38,8 @@ function App() {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
-
+  console.log("User:", user);
+  console.log("Checking Auth:", checkingAuth);
   useEffect(() => {
     if (!user) return;
 
@@ -89,7 +90,7 @@ function App() {
 
         <Route path="/admin/*" element={<AdminDashboard />} />
         
-        <Route path="/partner/*" element={<PartnerDashboard />} />
+        <Route path="/partner/dashboard" element={<PartnerDashboard />} />
         <Route path="/partner/analytics" element={<PartnerAnalytics />} />
         <Route path="/partner/orders" element={<Orders />} />
         <Route path="/partner/products" element={<ProductList />} />

@@ -143,7 +143,7 @@ const PartnerAnalytics = () => {
         <Sidebar />
       </div>
       <div className="flex-1 overflow-y-auto">
-        <div className="bg-orange-500 p-8 sticky top-0 z-10">
+        <div className="bg-orange-500 p-8 sticky top-0 z-10 ml-[256px]">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-semibold text-white">Analytics</h1>
@@ -158,7 +158,7 @@ const PartnerAnalytics = () => {
           </div>
         </div>
 
-        <div className="p-8">
+        <div className="p-8 ml-[250px]">
           <div className="grid grid-cols-4 gap-6 mb-8">
             <StatCard 
               title="Total Orders" 

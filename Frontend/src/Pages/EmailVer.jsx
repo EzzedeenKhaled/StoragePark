@@ -65,6 +65,10 @@ const EmailVerification = () => {
         navigate("/ecommerce");
       } else if (response.data.data.role === "partner") {
         navigate("/partner-dashboard");
+        /**
+                 toast.success("Your documents have been submitted. Please wait while we review them. You will receive an email once the review is complete.");
+        navigate("/");
+         */
       }
 
       setIsVerified(true); // Set the email as verified when successful
@@ -76,15 +80,15 @@ const EmailVerification = () => {
 
   return (
     <div className="email-verification-container">
-      
+
       <div className="container4">
         {/* Main Content */}
-        {!isVerified && 
-        <div className="header">
-          <h2>{email ? "Verify the Code Sent to Your Email" : "Verify Your Email"}</h2>
-          <p>Enter the 6-digit code {email ? `sent to ${email}` : "sent to your email address"}.</p>
-        </div>
-    }
+        {!isVerified &&
+          <div className="header">
+            <h2>{email ? "Verify the Code Sent to Your Email" : "Verify Your Email"}</h2>
+            <p>Enter the 6-digit code {email ? `sent to ${email}` : "sent to your email address"}.</p>
+          </div>
+        }
         {!isVerified ? (
           <form className="form" onSubmit={handleSubmit}>
             {/* Input Fields for the 6-Digit Code */}
