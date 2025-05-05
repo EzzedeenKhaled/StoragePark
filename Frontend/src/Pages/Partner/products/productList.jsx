@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import { usePartnerStore } from '../../../stores/usePartnerStore';
 import { LoadingSpinner } from '../../../../components/LoadingSpinner';
+import { useNavigate } from 'react-router-dom';
 
 const ProductList = () => {
   const { loading, partnerItems, getPartnerItems, toggleProductStatus } = usePartnerStore();
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
   
   useEffect(() => {
     const fetchData = async () => {
@@ -57,7 +59,10 @@ const ProductList = () => {
                   />
                 </svg>
               </div>
-              <button className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-black/90">
+              <button
+                className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-black/90"
+                onClick={() => navigate('/partner/products/productForm')}
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>

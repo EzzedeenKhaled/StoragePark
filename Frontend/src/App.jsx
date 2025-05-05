@@ -8,7 +8,7 @@ import PartnerHome from "./Pages/PartnerHome";
 import { Toaster } from 'react-hot-toast';
 import EmailVer from "./Pages/EmailVer"
 import Ecommerce from "./Pages/Ecommerce";
-import ProductForm from "./Pages/ProductForm";
+import ProductForm from "./Pages/Partner/products/ProductForm";
 import Profile from './Pages/Profile';
 import PurchaseSuccessPage from './Pages/PurchaseSuccessPage';
 import { useUserStore } from "./stores/useUserStore";
@@ -94,6 +94,7 @@ function App() {
         <Route path="/partner/analytics" element={<PartnerAnalytics />} />
         <Route path="/partner/orders" element={<Orders />} />
         <Route path="/partner/products" element={<ProductList />} />
+        <Route path="/partner/products/productForm" element={<ProductForm />} />
         <Route path="/partner/profile" element={<ProfilePartner />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
