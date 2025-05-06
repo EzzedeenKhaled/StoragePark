@@ -59,6 +59,16 @@ export const updateQuantity = async (req, res) => {
 		const user = req.user;
 		const existingItem = user.cartItems.find((item) => item.id === productId);
 
+		const item = await Item.findById(productId);
+		if (!item) {
+			return res.status(404).json({ message: "Item does not exist" });
+		}
+
+		if (quantity > item.quantity) {
+			return res.status(400).json({
+				message: `Only ${item.quantity} unit(s) available in stock`,
+			});
+		}
 		if (existingItem) {
 			if (quantity === 0) {
 				user.cartItems = user.cartItems.filter((item) => item.id !== productId);

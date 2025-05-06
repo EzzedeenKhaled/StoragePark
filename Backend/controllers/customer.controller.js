@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Item from "../models/item.model.js";
 import {imagekit} from "../lib/imageKit.js"; // Ensure correct path to imagekit instance
 
 const UploadImage = async (base64Img, imgName) => {
@@ -14,7 +15,21 @@ const UploadImage = async (base64Img, imgName) => {
 		throw error;
 	}
 };
-
+export const getItemStatus = async (req, res) => {
+	try {
+		const { productId } = req.params;
+		const product = await Item.findById(productId).select('isActive');
+	
+		if (!product) {
+		  return res.status(404).json({ message: 'Product not found' });
+		}
+	
+		res.json({ isActive: product.isActive });
+	  } catch (error) {
+		console.error("Error fetching product status:", error);
+		res.status(500).json({ message: 'Server error' });
+	  }
+}
 export const updateCustomer = async (req, res) => {
 	try {
 		const { email, firstName, lastName, phoneNumber } = req.body;

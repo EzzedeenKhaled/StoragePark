@@ -6,9 +6,9 @@ const StatCard = ({ title, value, percentChange, icon }) => {
       <div>
         <p className="text-gray-500 text-sm mb-1">{title}</p>
         <p className="text-xl font-semibold mb-1">{value}</p>
-        <div className={`text-sm ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+        {/* <div className={`text-sm ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
           {isPositive ? '+' : ''}{percentChange}%
-        </div>
+        </div> */}
       </div>
       <div className="bg-gray-50 p-3 rounded-lg">
         {icon}

@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
 import Sidebar from '../components/Sidebar';
 import { BarChart, Bar, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import axios from '../../../../lib/axios';
 
-const StatCard = ({ title, value, change, lastWeekValue }) => {
-  const isPositive = change.includes('+');
+import { useState, useEffect } from 'react';
+
+const StatCard = ({ title, value, image }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
@@ -14,78 +16,80 @@ const StatCard = ({ title, value, change, lastWeekValue }) => {
           </svg>
         </button>
       </div>
-      <div className="flex items-baseline">
-        <h2 className="text-3xl font-semibold">{value}</h2>
-        <span className={`ml-2 text-sm ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-          {change}
-        </span>
+      <div className="flex items-center space-x-4">
+        {image && (
+          <img src={image} alt="item" className="w-12 h-12 object-cover rounded-md" />
+        )}
+        <h2 className="text-xl font-semibold">{value}</h2>
       </div>
-      <p className="text-gray-500 text-sm mt-2">Last week {lastWeekValue}</p>
     </div>
   );
 };
 
 StatCard.propTypes = {
   title: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  change: PropTypes.string.isRequired,
-  lastWeekValue: PropTypes.string.isRequired
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]).isRequired,
+  image: PropTypes.string, // optional
 };
-const UserActivityChart = () => {
-  const data = [
-    { name: 'S', value: 9000 },
-    { name: 'M', value: 3000 },
-    { name: 'T', value: 5000 },
-    { name: 'W', value: 5500 },
-    { name: 'T', value: 4000 },
-    { name: 'F', value: 2000 },
-    { name: 'S', value: 6000 }
-  ];
-  
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-sm">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h3 className="text-gray-600">User Activity</h3>
-          <div className="flex items-center">
-            <span className="text-2xl font-semibold">10,320</span>
-            <span className="ml-2 text-red-500 text-sm">-20%</span>
-          </div>
-        </div>
-        <select className="bg-gray-50 border border-gray-200 rounded px-3 py-1 text-sm">
-          <option>This Week</option>
-          <option>Last Week</option>
-          <option>Last Month</option>
-        </select>
-      </div>
-      <div className="h-48">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-              {data.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`}
-                  fill={index === 0 ? '#f97316' : '#1f2937'}
-                />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-};
+// const UserActivityChart = () => {
+//   const data = [
+//     { name: 'S', value: 9000 },
+//     { name: 'M', value: 3000 },
+//     { name: 'T', value: 5000 },
+//     { name: 'W', value: 5500 },
+//     { name: 'T', value: 4000 },
+//     { name: 'F', value: 2000 },
+//     { name: 'S', value: 6000 }
+//   ];
 
-const CustomerRating = () => {
-  const total = 2574;
-  const positive = 274;
-  const negative = 2300;
-  
+//   return (
+//     <div className="bg-white p-6 rounded-lg shadow-sm">
+//       <div className="flex justify-between items-center mb-6">
+//         <div>
+//           <h3 className="text-gray-600">User Activity</h3>
+//           <div className="flex items-center">
+//             <span className="text-2xl font-semibold">10,320</span>
+//             <span className="ml-2 text-red-500 text-sm">-20%</span>
+//           </div>
+//         </div>
+//         <select className="bg-gray-50 border border-gray-200 rounded px-3 py-1 text-sm">
+//           <option>This Week</option>
+//           <option>Last Week</option>
+//           <option>Last Month</option>
+//         </select>
+//       </div>
+//       <div className="h-48">
+//         <ResponsiveContainer width="100%" height="100%">
+//           <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+//             <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+//               {data.map((entry, index) => (
+//                 <Cell
+//                   key={`cell-${index}`}
+//                   fill={index === 0 ? '#f97316' : '#1f2937'}
+//                 />
+//               ))}
+//             </Bar>
+//           </BarChart>
+//         </ResponsiveContainer>
+//       </div>
+//     </div>
+//   );
+// };
+
+const CustomerRating = ({ totalRating, positiveR, negativeR }) => {
+
+  const total = totalRating;
+  const positive = positiveR;
+  const negative = negativeR;
+
   const data = [
     { name: 'Positive', value: positive },
     { name: 'Negative', value: negative }
   ];
-  
+
   const COLORS = ['#22c55e', '#ef4444'];
 
   return (
@@ -137,6 +141,52 @@ const CustomerRating = () => {
 };
 
 const PartnerAnalytics = () => {
+  const [totalRating, setTotalRating] = useState(0);
+  const [positiveR, setPositiveR] = useState(0);
+  const [negativeR, setNegativeR] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [topSelling, setTopSelling] = useState({ data: [] });
+  const [topCategory, setTopCategory] = useState("");
+  
+  const [totalProductsSold, setTotalProductsSold] = useState(0);
+  useEffect(() => {
+    const fetchOrderStats = async () => {
+      try {
+        const response = await axios.get('/partners/orders');
+        const totalOrders = response.data.length;
+
+        const totalProductsSold = response.data.reduce((sum, order) => {
+          const orderTotal = order.items.reduce((itemSum, item) => itemSum + item.quantity, 0);
+          return sum + orderTotal;
+        }, 0);
+
+        // console.log('Total Orders:', totalOrders);
+        // console.log('Total Products Sold:', totalProductsSold);
+
+        // You can now set these in state if needed
+        setTotalOrders(totalOrders);
+        setTotalProductsSold(totalProductsSold);
+
+        const res = await axios.get('/reviews/partner-rating');
+        const { total, positive, negative } = res.data;
+        setTotalRating(total);
+        setPositiveR(positive);
+        setNegativeR(negative);
+
+        const topS = await axios.get('/partners/topSelling')
+        setTopSelling(topS);
+
+        const topC = await axios.get('/partners/topCategory')
+        setTopCategory(topC.data[0].category)
+      } catch (err) {
+        console.error('Error fetching order stats:', err);
+      }
+    };
+
+    fetchOrderStats();
+  }, []);
+console.log(totalRating, positiveR, negativeR)
+
   return (
     <div className="flex h-screen overflow-hidden">
       <div className="flex-shrink-0">
@@ -160,35 +210,40 @@ const PartnerAnalytics = () => {
 
         <div className="p-8 ml-[250px]">
           <div className="grid grid-cols-4 gap-6 mb-8">
-            <StatCard 
-              title="Total Orders" 
-              value="837" 
-              change="-59%" 
-              lastWeekValue="2041"
+            <StatCard
+              title="Total Orders"
+              value={totalOrders}
+            // change="-59%" 
+            // lastWeekValue="2041"
             />
-            <StatCard 
-              title="Stock Turnover Rate" 
-              value="%7.5" 
-              change="-0.5%" 
-              lastWeekValue="%15"
+            <StatCard
+              title="Top Selling Item"
+              value={topSelling.data[0]?.productName}
+              image={topSelling.data[0]?.imageProduct}
+              // change="-0.5%"
+              // lastWeekValue="%15"
             />
-            <StatCard 
-              title="Total Returns" 
-              value="200" 
-              change="+1.0%" 
-              lastWeekValue="100"
+            <StatCard
+              title="Top Category"
+              value={topCategory}
+              // change="+1.0%"
+              // lastWeekValue="100"
             />
-            <StatCard 
-              title="Products Sold" 
-              value="531" 
-              change="-30%" 
-              lastWeekValue="707"
+            <StatCard
+              title="Products Sold"
+              value={totalProductsSold}
+            // change="-30%" 
+            // lastWeekValue="707"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <UserActivityChart />
-            <CustomerRating />
+          <div className="">
+            {/* <UserActivityChart /> */}
+            <CustomerRating
+              totalRating={totalRating}
+              positiveR={positiveR}
+              negativeR={negativeR}
+            />
           </div>
         </div>
       </div>

@@ -25,6 +25,40 @@ export const addReview = async (req, res) => {
     }
 };
 
+export const getPartnerRatingsSummary = async (req,res) => {
+    try {
+        const partnerId = req.user._id;
+        // Step 1: Get all items posted by this partner
+        const partnerItems = await Item.find({ partner: partnerId }).select('_id');
+        const itemIds = partnerItems.map(item => item._id);
+        
+        // Step 2: Get all reviews for these items
+        const reviews = await Review.find({ item: { $in: itemIds } });
+        
+        // Step 3: Classify reviews
+        let positive = 0;
+        let negative = 0;
+        let total = reviews.length;
+        
+        reviews.forEach(review => {
+            if (review.rating >= 3) {
+                positive++;
+            } else {
+                negative++;
+            }
+        });
+        
+        res.status(200).json({
+            total,
+            positive,
+            negative
+        });
+    } catch (error) {
+      console.error("Error fetching partner ratings:", error);
+      throw error;
+    }
+  };
+
 export const getReviewsByItemId = async (req, res) => {
     const { itemId } = req.params;
 

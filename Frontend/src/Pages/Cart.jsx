@@ -14,6 +14,7 @@ const Cart = () => {
 
     fetchCart();
   }, [getCartItems]);
+  console.log("cajiofjaipfa: ",cart)
   if (loading) return <LoadingSpinner />;
   // const item = cart?.[0];
   // console.log(item); // safely access it
@@ -106,7 +107,7 @@ const Cart = () => {
             <div className="bg-white p-4 rounded-lg shadow-md">
               <div className="flex justify-between py-2 border-b">
                 <span>Subtotal</span>
-                <span className="font-bold">${subtotal}</span>
+                <span className="font-bold">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between py-2 border-b">
                 <span>Shipping</span>
@@ -117,11 +118,11 @@ const Cart = () => {
                 <span className="font-bold">${(parseFloat(subtotal) + 3).toFixed(2)}</span>
               </div>
             </div>
-
             <Link
               to="/payment-form"
               state={{
                 cartItems: cart.map(item => ({
+                  _id: item._id,
                   name: item.productName,
                   category: item.category, // Make sure your cart items have a category field
                   price: item.pricePerUnit,

@@ -26,9 +26,9 @@ const Sidebar = () => {
       {/* Navigation */}
       <nav className="mt-8">
       <NavLink 
-  to="/partner/dashboard" 
+  to="/partner-dashboard" 
   className={({ isActive }) => {
-    console.log('Overview active:', isActive); // debug
+    // console.log('Overview active:', isActive); // debug
     return `flex items-center py-3 px-4 ${
       isActive ? 'text-orange-500 bg-gray-800' : 'text-gray-400 hover:text-white'
     }`
@@ -62,9 +62,9 @@ const Sidebar = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
           Orders
-          <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-auto">
+          {/* <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-auto">
             10
-          </span>
+          </span> */}
         </NavLink>
 
         <NavLink to="/partner/products" className={({ isActive }) =>

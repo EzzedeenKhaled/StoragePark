@@ -4,7 +4,7 @@ import { usePartnerStore } from '../../../stores/usePartnerStore';
 import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 
 const ProductList = () => {
-  const { loading, partnerItems, getPartnerItems, toggleProductStatus } = usePartnerStore();
+  const { partnerItems, getPartnerItems, toggleProductStatus } = usePartnerStore();
   const [searchQuery, setSearchQuery] = useState('');
   
   useEffect(() => {
@@ -20,7 +20,6 @@ const ProductList = () => {
     product.brand.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loading) return <LoadingSpinner />;
   
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -57,30 +56,13 @@ const ProductList = () => {
                   />
                 </svg>
               </div>
-              <button className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-black/90">
+              <button className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-black/90 cursor-pointer"
+              
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
                 New Product
-              </button>
-              <button className="p-2 rounded-lg hover:bg-white/10 relative">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5 text-white" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" 
-                  />
-                </svg>
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  2
-                </span>
               </button>
             </div>
           </div>
@@ -96,7 +78,7 @@ const ProductList = () => {
                   <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Product name</th>
                   <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Brand</th>
                   <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Stock</th>
-                  <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Sales</th>
+                  <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Units Sold</th>
                   <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Price</th>
                   <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Status</th>
                   <th className="py-4 px-6 text-left text-sm font-medium text-gray-500"></th>
@@ -113,7 +95,7 @@ const ProductList = () => {
                     </td>
                     <td className="py-4 px-6 text-gray-500">{product.brand}</td>
                     <td className="py-4 px-6 text-gray-500">{product.quantity}</td>
-                    <td className="py-4 px-6 text-gray-500">{product?.sales}</td>
+                    <td className="py-4 px-6 text-gray-500">{product?.timesBought}</td>
                     <td className="py-4 px-6 text-gray-500">${product.pricePerUnit.toFixed(2)}</td>
                     <td className="py-4 px-6">
                       <button

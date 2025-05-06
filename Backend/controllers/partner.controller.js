@@ -5,7 +5,7 @@ import sendVerificationEmail from "../lib/mail.js";
 import crypto from "crypto";
 import multer from "multer";
 import { imagekit } from "../lib/imageKit.js";
-
+import mongoose from "mongoose";
 
 export const getPartnerProfile = async (req, res) => {
     try {
@@ -18,85 +18,324 @@ export const getPartnerProfile = async (req, res) => {
     }
 };
 
+export const getMonthlySalesAndPurchases = async (req, res) => {
+    try {
+      const monthlyData = [];
+    
+      // Loop through each month (example: Jan, Feb, Mar, ...)
+      for (let month = 1; month <= 12; month++) {
+        const startOfMonth = new Date(2025, month - 1, 1);  // Start of the month (e.g., Jan 1, 2025)
+        const endOfMonth = new Date(2025, month, 0);  // End of the month (e.g., Jan 31, 2025)
+        
+        // Fetch sales data from orders made in the month
+        const salesData = await User.aggregate([
+          { $unwind: "$orders" },
+          { $match: { "orders.orderDate": { $gte: startOfMonth, $lte: endOfMonth } } },
+          { $group: { _id: null, totalSales: { $sum: "$orders.totalAmount" } } }
+        ]);
+    
+        // Fetch purchase data from the timesBought field in items
+        const purchaseData = await Item.aggregate([
+          { $match: { createdAt: { $gte: startOfMonth, $lte: endOfMonth } } },
+          { $group: { _id: null, totalPurchases: { $sum: "$timesBought" } } }
+        ]);
+    
+        // Add the data for the current month to the monthlyData array
+        monthlyData.push({
+          name: startOfMonth.toLocaleString("default", { month: "short" }),  // Display short month name (e.g., "Jan")
+          Purchase: purchaseData[0]?.totalPurchases || 0,  // If no purchase data, set to 0
+          Sales: salesData[0]?.totalSales || 0  // If no sales data, set to 0
+        });
+      }
+    
+      // Return the data as a response with status 200
+      return res.status(200).json({ data: monthlyData });
+    } catch (error) {
+      // Handle any errors and send an appropriate response
+      console.error("Error fetching monthly sales and purchases:", error);
+      return res.status(500).json({ error: "An error occurred while fetching monthly data." });
+    }
+  };
+  
+
+export const getStats = async (req, res) => {
+    try {
+      const partnerId = req.user._id;
+      const objectId = new mongoose.Types.ObjectId(partnerId);
+      console.log("stats");
+  
+      const result = await User.aggregate([
+        { $unwind: "$orders" },
+        { $unwind: "$orders.items" },
+        {
+          $lookup: {
+            from: "items",
+            localField: "orders.items.item",
+            foreignField: "_id",
+            as: "itemDetails",
+          },
+        },
+        { $unwind: "$itemDetails" },
+        {
+          $match: {
+            "itemDetails.partner": objectId,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: {
+              $sum: {
+                $multiply: ["$orders.items.quantity", "$orders.items.price"],
+              },
+            },
+            totalCost: {
+              $sum: {
+                $multiply: [
+                  "$orders.items.quantity",
+                  { $multiply: ["$orders.items.price", 0.7] }, // 70% cost of the item price
+                ],
+              },
+            },
+            totalProfit: {
+              $sum: {
+                $subtract: [
+                  {
+                    $multiply: ["$orders.items.quantity", "$orders.items.price"], // Revenue
+                  },
+                  {
+                    $multiply: [
+                      "$orders.items.quantity",
+                      { $multiply: ["$orders.items.price", 0.7] }, // Cost
+                    ],
+                  },
+                ],
+              },
+            },
+            totalSales: {
+              $sum: "$orders.items.quantity",
+            },
+          },
+        },
+      ]);
+  
+      const stats = result[0] || { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalSales: 0 };
+      res.status(200).json(stats);
+    } catch (error) {
+      console.error("Error fetching partner stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats", error: error.message });
+    }
+  };
+  
+
+
+// Function to get top selling categories for a specific partner
+export const getTopSellingCategoriesByPartner = async (req, res) => {
+    try {
+        const partnerId = req.user._id;
+      const topCategories = await Item.aggregate([
+        // Match items belonging to the specified partner
+        { $match: { partner: new mongoose.Types.ObjectId(partnerId) } },
+        
+        // Group items by category and sum up their timesBought
+        { $group: {
+            _id: "$category",
+            totalTimesBought: { $sum: "$timesBought" },
+            itemsCount: { $sum: 1 },
+            // Optional: get the top selling item in each category
+            topSellingItem: { $max: { 
+              productName: "$productName", 
+              timesBought: "$timesBought" 
+            }}
+        }},
+        
+        // Sort by totalTimesBought in descending order
+        { $sort: { totalTimesBought: -1 } },
+        
+        // Rename _id to category for clarity
+        { $project: {
+            category: "$_id",
+            totalTimesBought: 1,
+            itemsCount: 1,
+            topSellingItem: 1,
+            _id: 0
+        }}
+      ]);
+      
+      res.status(200).json(topCategories)
+    } catch (error) {
+        console.error("Error fetching partner top categories:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+// Function to get top selling items for a specific partner
+export const getTopSellingItemsByPartner = async (req, res) => {
+    try {
+        const limit = 3;
+        const partnerId  = req.user._id
+      // Query items with the specified partner ID
+      const topItems = await Item.find({ 
+        partner: partnerId, 
+        timesBought: { $gt: 0 } // Exclude items with 0 purchases
+    })
+    .sort({ timesBought: -1 })
+    .limit(limit)
+    .select('productName imageProduct pricePerUnit timesBought category quantity');
+      
+      res.status(200).json(topItems)
+    } catch (error) {
+        console.error("Error fetching partner top items:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
 
 export const changeIsActive = async (req, res) => {
     try {
-      const { productId } = req.body;
-      
-      if (!productId) {
-        return res.status(400).json({ success: false, message: "Product ID is required" });
-      }
-      
-      // Find the item in the database
-      const item = await Item.findById(productId);
-      
-      if (!item) {
-        return res.status(404).json({ success: false, message: "Product not found" });
-      }
-      
-      // Toggle the isActive status
-      item.isActive = !item.isActive;
-      
-      // Save the updated item
-      await item.save();
-      
-      return res.status(200).json({ 
-        success: true, 
-        message: `Product ${item.isActive ? 'activated' : 'deactivated'} successfully`,
-        isActive: item.isActive
-      });
-      
+        const { productId } = req.body;
+
+        if (!productId) {
+            return res.status(400).json({ success: false, message: "Product ID is required" });
+        }
+
+        // Find the item in the database
+        const item = await Item.findById(productId);
+
+        if (!item) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        // Toggle the isActive status
+        item.isActive = !item.isActive;
+
+        // Save the updated item
+        await item.save();
+
+        return res.status(200).json({
+            success: true,
+            message: `Product ${item.isActive ? 'activated' : 'deactivated'} successfully`,
+            isActive: item.isActive
+        });
+
     } catch (error) {
-      console.error("Error toggling product status:", error);
-      return res.status(500).json({ 
-        success: false, 
-        message: "Failed to update product status", 
-        error: error.message 
-      });
+        console.error("Error toggling product status:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update product status",
+            error: error.message
+        });
     }
-  };
+};
+
+export const getPartnerOrders = async (req, res) => {
+    try {
+        // Check if user is a partner
+        if (req.user.role !== 'partner') {
+            return res.status(403).json({ message: 'Access denied. Partner role required.' });
+        }
+        
+        const partnerId = req.user._id;
+
+        // Find all items belonging to this partner
+        const partnerItems = await Item.find({ partner: partnerId }).select('_id');
+        // Extract just the item IDs into an array
+        const partnerItemIds = partnerItems.map(item => item._id);
+        
+        // Find all users who have orders containing any of these items
+        const users = await User.find({
+            'orders.items.item': { $in: partnerItemIds }
+        }).select('firstName lastName email orders');
+        
+        console.log("items: ",users)
+        // Process users to extract only relevant orders 
+        const relevantOrders = [];
+
+        for (const user of users) {
+            // For each user, filter their orders to include only those with partner's items
+            for (const order of user.orders) {
+                // Check if this order contains any of the partner's items
+                const relevantItems = order.items.filter(item =>
+                    partnerItemIds.some(partnerItem =>
+                        partnerItem.equals(item.item)
+                    )
+                );
+
+                if (relevantItems.length > 0) {
+                    // Clone the order
+                    const orderData = order.toObject();
+
+                    // Replace the items array with only relevant items
+                    orderData.items = relevantItems;
+
+                    // Recalculate the total (only for partner's items)
+                    orderData.totalAmount = relevantItems.reduce(
+                        (sum, item) => sum + (item.price * item.quantity), 0
+                    );
+
+                    // Add user information
+                    orderData.user = {
+                        id: user._id,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        email: user.email
+                    };
+
+                    relevantOrders.push(orderData);
+                }
+            }
+        }
+
+        // Sort orders by date (newest first)
+        relevantOrders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+
+        res.json(relevantOrders);
+    } catch (error) {
+        console.error('Error fetching partner orders:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
 
 export const getPartnerItems = async (req, res) => {
-	try {
-		const partnerId = req.user._id; 
+    try {
+        const partnerId = req.user._id;
 
-		const items = await Item.find({ partner: partnerId }).sort({ createdAt: -1 });
+        const items = await Item.find({ partner: partnerId }).sort({ createdAt: -1 });
 
-		res.json(items);
-	} catch (err) {
-		console.error("Failed to fetch partner items:", err);
-		res.status(500).json({ message: "Internal Server Error" });
-	}
+        res.json(items);
+    } catch (err) {
+        console.error("Failed to fetch partner items:", err);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
 };
 
 export const updatePartner = async (req, res) => {
-	try {
-		const { email } = req.body;
-		const file = req.file;
-		const updateFields = {};
-		// If image is provided, upload to ImageKit
-		if (file) {
-			const base64Img = file.buffer.toString("base64");
-			const imgName =file.originalname;
-			const uploadResult = await UploadImage(base64Img, imgName);
-			updateFields.profileImage = uploadResult.url;
-		}
+    try {
+        const { email } = req.body;
+        const file = req.file;
+        const updateFields = {};
+        // If image is provided, upload to ImageKit
+        if (file) {
+            const base64Img = file.buffer.toString("base64");
+            const imgName = file.originalname;
+            const uploadResult = await UploadImage(base64Img, imgName);
+            updateFields.profileImage = uploadResult.url;
+        }
 
-		const updatedPartner = await User.findOneAndUpdate(
-			{ email },
-			updateFields,
-			{ new: true, runValidators: true }
-		);
+        const updatedPartner = await User.findOneAndUpdate(
+            { email },
+            updateFields,
+            { new: true, runValidators: true }
+        );
 
-		if (!updatedPartner) {
-			return res.status(404).json({ message: "Partner not found with this email" });
-		}
+        if (!updatedPartner) {
+            return res.status(404).json({ message: "Partner not found with this email" });
+        }
 
-		res.status(200).json({ message: "Partner updated", data: updatedPartner });
-	} catch (error) {
-		console.error("Error updating Partner:", error.message);
-		res.status(500).json({ message: "Internal server error" });
-	}
+        res.status(200).json({ message: "Partner updated", data: updatedPartner });
+    } catch (error) {
+        console.error("Error updating Partner:", error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
 };
 export const signup_Partner = async (req, res) => {
     const { firstName, lastName, email, phoneNumber, address, websiteURL, companyName, companyEmail } = req.body;

@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { useUserStore } from '../../src/stores/useUserStore';
 import { toast } from 'react-hot-toast';
 import '../../src/assets/Styles/ProductCard.css';
+import axios from '../../lib/axios';
 
 const ProductCard = ({ product }) => {
   const { user, addToWishlist, removeFromWishlist } = useUserStore();
   const [liked, setLiked] = useState(false);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     if (!user) {
@@ -53,6 +56,21 @@ const ProductCard = ({ product }) => {
     } catch (error) {
       console.error("Error updating wishlist:", error);
       // toast.error("Something went wrong");
+    }
+  };
+  const handleClick = async () => {
+    try {
+      const res = await axios.get(`/customers/${product._id}/status`);
+      const isActive = res.data?.isActive;
+
+      if (isActive) {
+        navigate(`/product-page/${product._id}`);
+      } else {
+        navigate("/notFound")
+      }
+    } catch (error) {
+      console.error("Error checking product status:", error);
+      toast.error("Failed to verify product status.");
     }
   };
 
@@ -108,7 +126,7 @@ const ProductCard = ({ product }) => {
         />
       </button>
 
-      <Link to={`/product-page/${product?._id}`} className="product-link">
+      <div onClick={handleClick} className="product-link cursor-pointer">
         <div className="product-image">
           <img src={product?.imageProduct} alt="Product" />
         </div>
@@ -150,7 +168,7 @@ const ProductCard = ({ product }) => {
           </div>
           <h3 className="product-name">{product?.productName}</h3>
         </div>
-      </Link>
+      </div>
     </div>
   );
 };

@@ -23,7 +23,7 @@ const Login = () => {
             } else if(user.role === "customer") {
                 navigate('/ecommerce');
             } else {
-                navigate('/partner/dashboard');
+                navigate('/partner-dashboard');
             }
         }
     }, [user, navigate, from, productId]);

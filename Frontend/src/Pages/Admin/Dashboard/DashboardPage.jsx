@@ -5,7 +5,7 @@ import InventorySummary from './components/InventorySummary';
 import ProductSummary from './components/ProductSummary';
 import TopSellingStock from './components/TopSellingStock';
 import LowQuantityStock from './components/LowQuantityStock';
-import SalesPurchaseChart from './components/SalesPurchaseChart';
+import SalesPurchaseChart from '../../Partner/components/SalesPurchaseChart';
 import OrderSummaryChart from './components/OrderSummaryChart';
 
 const DashboardPage = () => {

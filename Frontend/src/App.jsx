@@ -30,6 +30,7 @@ import Orders from "./Pages/Partner/Orders/orders";
 import ProductList from "./Pages/Partner/products/productList";
 import ProfilePartner from "./Pages/Partner/profile/ProfilePartner";
 import { ToastContainer } from 'react-toastify';
+import NotFound from './Pages/NotFound';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
@@ -38,8 +39,8 @@ function App() {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
-  console.log("User:", user);
-  console.log("Checking Auth:", checkingAuth);
+  // console.log("User:", user);
+  // console.log("Checking Auth:", checkingAuth);
   useEffect(() => {
     if (!user) return;
 
@@ -70,6 +71,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register-partner-1" element={<RegisterPartner />} />
         <Route path="/register-partner-2" element={<RegisterPartner2 />} />
+        <Route path='/notFound' element={<NotFound />} />
         <Route path="/product-page/:productId" element={<ProductPage />} />
         <Route path='empty-cart' element={<EmptyCart />} />
         <Route path="/register-customer" element={<Register />} />

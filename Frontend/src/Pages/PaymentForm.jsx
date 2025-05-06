@@ -35,11 +35,10 @@ const PaymentForm = () => {
           );
         });
       }
-
       // Prepare order data
       const orderData = {
         items: cartItems.map(item => ({
-          item: item._id || item.id, // This is the ObjectId reference to the Item model
+          _id: item._id, // This is the ObjectId reference to the Item model
           name: item.name || item.productName,
           quantity: item.quantity,
           price: item.price || item.pricePerUnit, // Price per unit
@@ -51,13 +50,12 @@ const PaymentForm = () => {
         deliveryDate: null,  // You can update this later when the order is delivered
         status: "pending"    // Initial status
       };
-      
+
 
       // Send to backend
       const res = await makeOrder(orderData);
-      console.log('Order response:', res);
-      // navigate('/order-confirmation', { state: { orderId: res.orderId } });
-    } catch (err) { 
+      navigate('/purchase-success', { state: { orderId: res.orderId } });
+    } catch (err) {
       console.error('Order submission error:', err);
       toast.error(err.message || 'Failed to process payment. Please try again.');
     }
@@ -79,11 +77,11 @@ const PaymentForm = () => {
           <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Payment Form Section */}
             <div className="bg-orange-50 p-6 border-b border-orange-200">
-            <h2 className="text-2xl font-semibold text-gray-800 text-center">Payment on Delivery</h2>
-            <p className="text-center text-gray-600 mt-2">
-              Your order will be delivered to your address and payment will be collected upon delivery
-            </p>
-          </div>
+              <h2 className="text-2xl font-semibold text-gray-800 text-center">Payment on Delivery</h2>
+              <p className="text-center text-gray-600 mt-2">
+                Your order will be delivered to your address and payment will be collected upon delivery
+              </p>
+            </div>
 
             {/* Order Summary Section */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -133,8 +131,11 @@ const PaymentForm = () => {
                 </div>
 
                 <button
-                  type="submit"
-                  className="w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 cursor-pointer"
+                  type='submit'
+                  className='w-full flex justify-center py-2 px-4 border border-transparent 
+							rounded-md shadow-sm text-sm font-medium text-white 
+							  focus:outline-none focus:ring-2 focus:ring-offset-2
+							   transition duration-150 ease-in-out disabled:opacity-50 bg-[#1a1a1a] cursor-pointer hover:bg-[#333]'
                   disabled={loading}
                 >
                   {loading ? (
@@ -144,7 +145,7 @@ const PaymentForm = () => {
                     </>
                   ) : (
                     <>
-
+                      
                       Place Order
                     </>
                   )}
