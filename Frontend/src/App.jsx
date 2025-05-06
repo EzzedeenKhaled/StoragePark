@@ -31,6 +31,7 @@ import ProductList from "./Pages/Partner/products/productList";
 import ProfilePartner from "./Pages/Partner/profile/ProfilePartner";
 import { ToastContainer } from 'react-toastify';
 import NotFound from './Pages/NotFound';
+import OrderStatus from './Pages/OrderStatus';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
@@ -98,6 +99,7 @@ function App() {
         <Route path="/partner/products" element={<ProductList />} />
         <Route path="/partner/products/productForm" element={<ProductForm />} />
         <Route path="/partner/profile" element={<ProfilePartner />} />
+        <Route path="/order-status" element={<OrderStatus />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 

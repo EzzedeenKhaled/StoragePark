@@ -198,7 +198,7 @@ const Sidebar = () => {
             onClick={() => {
               setExpandedMenu(null); // Collapse any open menus
               setActiveItem("Incoming Orders"); // Set Incoming Orders as active
-              navigate("/incoming-orders");
+              navigate("/admin/incoming-orders");
             }}
             className={`sidebar-item ${activeItem === "Incoming Orders" ? "active-component" : ""}`}
           >
@@ -215,7 +215,7 @@ const Sidebar = () => {
             onClick={() => {
               setExpandedMenu(null); // Collapse any open menus
               setActiveItem("Outgoing Orders"); // Set Outgoing Orders as active
-              navigate("/outgoing-orders");
+              navigate("/admin/outgoing-orders");
             }}
             className={`sidebar-item ${activeItem === "Outgoing Orders" ? "active-component" : ""}`}
           >
