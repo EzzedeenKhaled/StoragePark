@@ -7,6 +7,8 @@ import Store from './Store/Store';
 import Customers from './Customers';
 import Employees from './Employees';
 import Rows from './Store/Rows';
+import Outgoing from './outgoing/OutgoingOrders';
+import Incoming from './incoming/IncomingOrders';
 function AdminDashboard() {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -25,7 +27,9 @@ function AdminDashboard() {
             <Route path="/store" element={<Store />} />
             <Route path="/customer" element={<Customers />} />
             <Route path="/employees" element={<Employees />} />
-            <Route path="/rows" element={<Rows />} />
+            <Route path="/store/aisle/:aisleId/:side" element={<Rows />} />
+            <Route path="/outgoing-orders" element={<Outgoing />} />
+            <Route path="/incoming-orders" element={<Incoming />} />
           </Routes>
         </div>
       </main>

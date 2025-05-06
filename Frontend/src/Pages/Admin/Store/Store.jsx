@@ -5,12 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 const aisles = [
-  { id: 1, title: 'Aisle 1', Lreserved: false, Rreserved: false },
-  { id: 2, title: 'Aisle 2', Lreserved: true, Rreserved: true },
+  { id: 1, title: 'Aisle 1', Lreserved: true, Rreserved: false },
+  { id: 2, title: 'Aisle 2', Lreserved: false, Rreserved: false },
   { id: 3, title: 'Aisle 3', Lreserved: false, Rreserved: false },
-  { id: 4, title: 'Aisle 4', Lreserved: true, Rreserved: true },
+  { id: 4, title: 'Aisle 4', Lreserved: false, Rreserved: false },
   { id: 5, title: 'Aisle 5', Lreserved: false, Rreserved: false },
-  { id: 6, title: 'Aisle 6', Lreserved: true, Rreserved: true },
+  { id: 6, title: 'Aisle 6', Lreserved: false, Rreserved: false },
 ];
 
 const Store = () => {
@@ -57,13 +57,6 @@ const Store = () => {
       <div className="store-content">
         <div className="content-header">
           <h2>Store</h2>
-          <div className="search-container">
-            <input 
-              type="text" 
-              placeholder="Search" 
-              className="search-input"
-            />
-          </div>
         </div>
         <div className="aisles-grid">
           {aisles.map((aisle) => (
