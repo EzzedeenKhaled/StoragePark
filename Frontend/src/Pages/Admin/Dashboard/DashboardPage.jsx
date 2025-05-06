@@ -1,4 +1,3 @@
-import React from 'react';
 import SalesOverview from './components/SalesOverview';
 import PurchaseOverview from './components/PurchaseOverview';
 import InventorySummary from './components/InventorySummary';
