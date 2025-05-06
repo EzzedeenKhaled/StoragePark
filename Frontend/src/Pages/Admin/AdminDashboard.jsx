@@ -6,7 +6,7 @@ import Partners from './Partner/partners';
 import Store from './Store/Store';
 import Customers from './Customers';
 import Employees from './Employees';
-
+import Rows from './Store/Rows';
 function AdminDashboard() {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -25,6 +25,7 @@ function AdminDashboard() {
             <Route path="/store" element={<Store />} />
             <Route path="/customer" element={<Customers />} />
             <Route path="/employees" element={<Employees />} />
+            <Route path="/rows" element={<Rows />} />
           </Routes>
         </div>
       </main>
