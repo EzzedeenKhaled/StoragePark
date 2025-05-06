@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Bell, TrendingUp, DollarSign, CheckCircle  } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import StatCard from './components/StatCard';
-import RevenueChart from './components/RevenueChart';
 import BestSelling from './components/BestSelling';
 import SalesPurchaseChart from './components/SalesPurchaseChart';
 // import TransactionHistory from './components/TransactionHistory';

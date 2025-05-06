@@ -14,6 +14,7 @@
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.0.14",
     "axios": "^1.8.3",
+    "dotenv": "^16.5.0",
     "framer-motion": "^12.5.0",
     "frontend": "file:",
     "lucide-react": "^0.473.0",

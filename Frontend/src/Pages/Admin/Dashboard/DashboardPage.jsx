@@ -6,7 +6,7 @@ import TopSellingStock from './components/TopSellingStock';
 import LowQuantityStock from './components/LowQuantityStock';
 import SalesPurchaseChart from '../../Partner/components/SalesPurchaseChart';
 import OrderSummaryChart from './components/OrderSummaryChart';
-
+import RevenueChart from './components/RevenueChart';
 const DashboardPage = () => {
   return (
     <div className="p-6 w-full">
@@ -29,7 +29,7 @@ const DashboardPage = () => {
                 <option>Yearly</option>
               </select>
             </div>
-            <SalesPurchaseChart />
+            <RevenueChart />
           </div>
 
           {/* Top Selling Stock */}
