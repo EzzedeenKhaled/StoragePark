@@ -14,9 +14,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send verification email
-async function sendVerificationEmail(email, token, isCode, isPartner) {
-  const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-
+async function sendVerificationEmail(email, token, isCode, isPartner, noPartner) {
   let subject = "";
   let htmlContent = "";
 
@@ -67,7 +65,7 @@ async function sendVerificationEmail(email, token, isCode, isPartner) {
         <!-- Credentials -->
         <div style="background-color: #f4f4f4; padding: 16px; border-radius: 8px; text-align: center; margin: 16px 0;">
           <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Password:</strong> 123456</p>
+          <p><strong>Password:</strong> ${token}</p>
         </div>
 
         <p style="font-size: 14px; text-align: center; color: #777; margin-bottom: 24px;">
@@ -80,8 +78,31 @@ async function sendVerificationEmail(email, token, isCode, isPartner) {
         </p>
       </div>
     `;
-  }
-  else {
+  } else if (noPartner) {
+    // Rejection email for no partner status
+    subject = "Partner Request Denied";
+    htmlContent = `
+      <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 24px;">
+          <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
+        </div>
+
+        <!-- Header -->
+        <h1 style="font-size: 26px; font-weight: bold; text-align: center; color: #f44336; margin-bottom: 16px;">Partner Request Denied</h1>
+
+        <!-- Message -->
+        <p style="font-size: 16px; text-align: center; color: #555; margin-bottom: 24px;">
+          We regret to inform you that your partner application has been rejected. If you have any questions, feel free to contact us for further clarification.
+        </p>
+
+        <!-- Footer -->
+        <p style="text-align: center; font-size: 12px; color: #999; margin-top: 24px;">
+          This is an automated email. If you have any questions, feel free to reach out to our support team.
+        </p>
+      </div>
+    `;
+  } else {
     // Normal email verification
     subject = "Action Required: Verify Your Email Address";
     htmlContent = `

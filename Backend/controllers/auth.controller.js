@@ -240,7 +240,7 @@ export const verifyEmail = async (req, res) => {
 		}
 
 		// Mark the user as verified
-		// if(user.role !== "partner")
+		if(user.role !== "partner")
 		user.isVerified = true;
 		user.verificationToken = undefined; // Clear the token after verification
 		await user.save();

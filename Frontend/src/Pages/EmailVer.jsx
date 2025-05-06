@@ -64,11 +64,9 @@ const EmailVerification = () => {
       if (response.data.data.role === "customer") {
         navigate("/ecommerce");
       } else if (response.data.data.role === "partner") {
-        navigate("/partner-dashboard");
-        /**
-                 toast.success("Your documents have been submitted. Please wait while we review them. You will receive an email once the review is complete.");
+        toast.success("Your documents have been submitted. Please wait while we review them. You will receive an email once the review is complete.");
         navigate("/");
-         */
+
       }
 
       setIsVerified(true); // Set the email as verified when successful

@@ -19,43 +19,61 @@ export const getPartnerProfile = async (req, res) => {
 };
 
 export const getMonthlySalesAndPurchases = async (req, res) => {
-    try {
-      const monthlyData = [];
-    
-      // Loop through each month (example: Jan, Feb, Mar, ...)
-      for (let month = 1; month <= 12; month++) {
-        const startOfMonth = new Date(2025, month - 1, 1);  // Start of the month (e.g., Jan 1, 2025)
-        const endOfMonth = new Date(2025, month, 0);  // End of the month (e.g., Jan 31, 2025)
-        
-        // Fetch sales data from orders made in the month
-        const salesData = await User.aggregate([
-          { $unwind: "$orders" },
-          { $match: { "orders.orderDate": { $gte: startOfMonth, $lte: endOfMonth } } },
-          { $group: { _id: null, totalSales: { $sum: "$orders.totalAmount" } } }
-        ]);
-    
-        // Fetch purchase data from the timesBought field in items
-        const purchaseData = await Item.aggregate([
-          { $match: { createdAt: { $gte: startOfMonth, $lte: endOfMonth } } },
-          { $group: { _id: null, totalPurchases: { $sum: "$timesBought" } } }
-        ]);
-    
-        // Add the data for the current month to the monthlyData array
-        monthlyData.push({
-          name: startOfMonth.toLocaleString("default", { month: "short" }),  // Display short month name (e.g., "Jan")
-          Purchase: purchaseData[0]?.totalPurchases || 0,  // If no purchase data, set to 0
-          Sales: salesData[0]?.totalSales || 0  // If no sales data, set to 0
-        });
-      }
-    
-      // Return the data as a response with status 200
-      return res.status(200).json({ data: monthlyData });
-    } catch (error) {
-      // Handle any errors and send an appropriate response
-      console.error("Error fetching monthly sales and purchases:", error);
-      return res.status(500).json({ error: "An error occurred while fetching monthly data." });
+  try {
+    const partnerId = req.user._id; // Ensure authentication middleware sets req.user
+
+    const monthlyData = [];
+
+    for (let month = 1; month <= 12; month++) {
+      const startOfMonth = new Date(2025, month - 1, 1);
+      const endOfMonth = new Date(2025, month, 0);
+
+      // Sales: from orders of the partner
+      const salesData = await User.aggregate([
+        { $match: { _id: partnerId } },
+        { $unwind: "$orders" },
+        {
+          $match: {
+            "orders.orderDate": { $gte: startOfMonth, $lte: endOfMonth }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalSales: { $sum: "$orders.totalAmount" }
+          }
+        }
+      ]);
+
+      // Purchases: items created by the partner within the month
+      const purchaseData = await Item.aggregate([
+        {
+          $match: {
+            partner: partnerId, // assumes `Item` has a `partner` field (ObjectId)
+            createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalPurchases: { $sum: "$timesBought" }
+          }
+        }
+      ]);
+
+      monthlyData.push({
+        name: startOfMonth.toLocaleString("default", { month: "short" }),
+        Purchase: purchaseData[0]?.totalPurchases || 0,
+        Sales: salesData[0]?.totalSales || 0
+      });
     }
-  };
+
+    return res.status(200).json({ data: monthlyData });
+  } catch (error) {
+    console.error("Error fetching monthly sales and purchases:", error);
+    return res.status(500).json({ error: "An error occurred while fetching monthly data." });
+  }
+};
   
 
 export const getStats = async (req, res) => {

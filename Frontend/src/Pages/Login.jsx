@@ -22,8 +22,10 @@ const Login = () => {
                 navigate(`/product-page/${productId}`);
             } else if(user.role === "customer") {
                 navigate('/ecommerce');
-            } else {
+            } else if(user.role === "partner"){
                 navigate('/partner-dashboard');
+            } else {
+                navigate('/admin')
             }
         }
     }, [user, navigate, from, productId]);

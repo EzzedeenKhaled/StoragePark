@@ -1,89 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../../../../components/Admin/Header';
 import RequestCard from './RequestCard';
 import "./request.css";
-import axios from 'axios';
-
-// Sample data with all possible fields
-const requestsData = [
-  {
-    id: 1,
-    name: "FearlessPeak",
-    email: "fearlessspeak@gmail.com",
-    address: "Saida, Lebanon",
-    authorizedRepresentative: "Adhan Saoudi",
-    phoneNumber: "81543712",
-    legalDocumentation: {
-      certificateOfIncorporation: "Available",
-      businessLicense: "Available",
-      taxComplianceCertificate: "Available",
-    },
-    uploadedFiles: ["Document 1", "Document 2"],
-  },
-  {
-    id: 2,
-    name: "TimeQuest",
-    email: "timequest@gmail.com",
-    address: "Byblos, Lebanon",
-    authorizedRepresentative: null,
-    phoneNumber: null,
-    legalDocumentation: null,
-    uploadedFiles: [],
-  },
-  {
-    id: 3,
-    name: "DreamTide",
-    email: "dreamtide@gmail.com",
-    address: "Tripoli, Lebanon",
-    authorizedRepresentative: "Jane Smith",
-    phoneNumber: "70123456",
-    legalDocumentation: {
-      certificateOfIncorporation: "Not Available",
-      businessLicense: "Available",
-      taxComplianceCertificate: "Not Available",
-    },
-    uploadedFiles: ["File A", "File B"],
-  },
-  {
-    id: 4,
-    name: "SwiftBuy",
-    email: "swiftbuy@gmail.com",
-    address: "Beirut, Lebanon",
-    authorizedRepresentative: null,
-    phoneNumber: null,
-    legalDocumentation: null,
-    uploadedFiles: [],
-  },
-  {
-    id: 5,
-    name: "OnlineShop",
-    email: "onlineshop@gmail.com",
-    address: "Saida, Lebanon",
-    authorizedRepresentative: "John Doe",
-    phoneNumber: "71234567",
-    legalDocumentation: {
-      certificateOfIncorporation: "Available",
-      businessLicense: "Not Available",
-      taxComplianceCertificate: "Available",
-    },
-    uploadedFiles: ["Invoice.pdf", "Contract.docx"],
-  },
-  {
-    id: 6,
-    name: "AllBrand",
-    email: "allbrand@gmail.com",
-    address: "Saida, Lebanon",
-    authorizedRepresentative: null,
-    phoneNumber: null,
-    legalDocumentation: null,
-    uploadedFiles: [],
-  },
-];
-
+import axios from '../../../../lib/axios';
+import toast from 'react-hot-toast';
 const RequestsList = () => {
+  const [partners, setPartners] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUnverifiedPartners = async () => {
+      try {
+        setLoading(true);
+        const { data } = await axios.get("/admins/partners/unverified");
+        console.log(data)
+        setPartners(data);
+      } catch (err) {
+        setError(err.response?.data?.message || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUnverifiedPartners();
+  }, []);
 
   // Handle request card click
   const handleRequestClick = (request) => {
@@ -99,39 +43,38 @@ const RequestsList = () => {
   // Confirm Request (✓ Button)
   const confirmRequest = async () => {
     try {
-      await axios.post('/api/confirm-request', { id: selectedRequest.id });
-      alert('Request confirmed successfully!');
+      await axios.post('/admins/confirm-request', { email: selectedRequest.email });
+      toast.success('Request confirmed successfully!');
       closeModal();
     } catch {
-      alert('An error occurred while confirming the request.');
+      toast.error('An error occurred while confirming the request.');
     }
   };
 
   // Cancel Request (✘ Button)
   const cancelRequest = async () => {
     try {
-      await axios.post('/api/cancel-request', { id: selectedRequest.id });
-      alert('Request canceled successfully!');
+      await axios.post('/admins/cancel-request', { email: selectedRequest.email });
+      toast.success('Request canceled successfully!');
       closeModal();
     } catch {
-      alert('An error occurred while canceling the request.');
+      toast.success('An error occurred while canceling the request.');
     }
   };
 
   // Filter requests based on search query
-  const filteredRequests = requestsData.filter((request) => {
+  const filteredRequests = partners.filter((request) => {
     if (!searchQuery.trim()) return true;
-    
+
     const query = searchQuery.toLowerCase().trim();
     const searchableFields = [
-      request.name,
       request.email,
       request.address,
       request.authorizedRepresentative,
       request.phoneNumber
     ].filter(Boolean); // Remove null/undefined values
 
-    return searchableFields.some(field => 
+    return searchableFields.some(field =>
       field.toLowerCase().includes(query)
     );
   });
@@ -145,10 +88,9 @@ const RequestsList = () => {
       <div className="header-actions">
         <h3 className="title">Requests</h3>
         <div className="search-bar">
-          
           <input
             type="text"
-            placeholder="Search by name, email, address, or phone"
+            placeholder="Search by email, address, or phone"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
@@ -158,10 +100,14 @@ const RequestsList = () => {
 
       {/* Render filtered request cards */}
       <div className="requests-list">
-        {filteredRequests.length > 0 ? (
-          filteredRequests.map((request) => (
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>{error}</p>
+        ) : filteredRequests.length > 0 ? (
+          filteredRequests.map((request, index) => (
             <RequestCard
-              key={request.id}
+              key={index}
               {...request}
               onClick={() => handleRequestClick(request)}
             />
@@ -172,17 +118,13 @@ const RequestsList = () => {
       </div>
 
       {/* Modal for displaying detailed information */}
-      {showModal && (
+      {showModal && selectedRequest && (
         <div className="modal-overlay">
           <div className="modal">
             <button className="closes-button" onClick={closeModal}>×</button>
-            <h3>{selectedRequest?.name}</h3>
+            <h3>{selectedRequest?.authorizedRepresentative || "N/A"}</h3>
             <p>Email: {selectedRequest?.email}</p>
             <p>Address: {selectedRequest?.address}</p>
-            {/* Authorized Representative */}
-            {selectedRequest?.authorizedRepresentative && (
-              <p>Authorized Representative: {selectedRequest?.authorizedRepresentative}</p>
-            )}
 
             {/* Phone Number */}
             {selectedRequest?.phoneNumber && (
@@ -190,30 +132,38 @@ const RequestsList = () => {
             )}
 
             {/* Legal Documentation */}
-            {selectedRequest?.legalDocumentation && (
-              <div className='legal-documentation'>
-                <h4>Legal Documentation</h4>
-                <p>Certificate of Incorporation: {selectedRequest?.legalDocumentation.certificateOfIncorporation}</p>
-                <p>Business License: {selectedRequest?.legalDocumentation.businessLicense}</p>
-                <p>Tax Compliance Certificate: {selectedRequest?.legalDocumentation.taxComplianceCertificate}</p>
-              </div>
-            )}
-            {/* Uploaded Files */}
-            {selectedRequest?.uploadedFiles && selectedRequest.uploadedFiles.length > 0 && (
-              <div className='legal-documentation'>
-                <h4>Uploaded Documents:</h4>
-                <ul>
-                  {selectedRequest.uploadedFiles.map((file, index) => (
-                    <li key={index}>{file}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <div className='legal-documentation'>
+              <h4>Legal Documentation</h4>
+              <p>
+                Certificate of Incorporation: 
+                {selectedRequest?.certificateFileURL ? (
+                  <a href={selectedRequest?.certificateFileURL} target="_blank" rel="noopener noreferrer">
+                    <img src={selectedRequest?.certificateFileURL} alt="Certificate of Incorporation" className="w-24 h-24 object-cover" />
+                  </a>
+                ) : "Not Provided"}
+              </p>
+              <p>
+                Business License: 
+                {selectedRequest?.businessLicenseFileURL ? (
+                  <a href={selectedRequest?.businessLicenseFileURL} target="_blank" rel="noopener noreferrer">
+                    <img src={selectedRequest?.businessLicenseFileURL} alt="Business License" className="w-24 h-24 object-cover" />
+                  </a>
+                ) : "Not Provided"}
+              </p>
+              <p>
+                Tax Compliance Certificate: 
+                {selectedRequest?.taxComplianceFileURL ? (
+                  <a href={selectedRequest?.taxComplianceFileURL} target="_blank" rel="noopener noreferrer">
+                    <img src={selectedRequest?.taxComplianceFileURL} alt="Tax Compliance Certificate" className="w-24 h-24 object-cover" />
+                  </a>
+                ) : "Not Provided"}
+              </p>
+            </div>
 
             {/* Buttons at the bottom */}
             <div className="modal-buttons">
-              <button className="cancel-button" onClick={cancelRequest}>✘ </button>
-              <button className="confirm-button" onClick={confirmRequest}>✓ </button>
+              <button className="cancel-button" onClick={cancelRequest}>✘</button>
+              <button className="confirm-button" onClick={confirmRequest}>✓</button>
             </div>
           </div>
         </div>
