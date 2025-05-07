@@ -72,7 +72,6 @@ function App() {
         <Route path="/register-partner-2" element={<RegisterPartner2 />} />
         <Route path='/notFound' element={<NotFound />} />
         <Route path="/product-page/:productId" element={<ProductPage />} />
-        <Route path='empty-cart' element={<EmptyCart />} />
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />
         <Route path="/partner-dashboard" element={<PartnerDashboard />} />

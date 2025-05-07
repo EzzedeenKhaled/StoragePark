@@ -336,7 +336,7 @@ export const updatePartner = async (req, res) => {
             const base64Img = file.buffer.toString("base64");
             const imgName = file.originalname;
             const uploadResult = await UploadImage(base64Img, imgName);
-            updateFields.profileImage = uploadResult.url;
+            updateFields["partner.profileImage"] = uploadResult.url;
         }
 
         const updatedPartner = await User.findOneAndUpdate(

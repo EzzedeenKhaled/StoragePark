@@ -10,8 +10,10 @@ import outgoing from "/outgoing.png";
 import reports from "/reports.png";
 import logout from "/logout.png";
 import { useNavigate } from 'react-router-dom';
+import {useUserStore} from '../../src/stores/useUserStore'
 
 const Sidebar = () => {
+  const {logout: logOut} = useUserStore();
   const navigate = useNavigate();
 
   // State for expanded parent and active item
@@ -42,7 +44,10 @@ const Sidebar = () => {
       setActiveItem(menu); // Highlight the parent item as active
     }
   };
-
+  const handleLogout = () => {
+    logOut();
+    navigate('/')
+  }
   // Handle child item click
   const handleChildClick = (child, route) => {
     setActiveItem(child); // Set the clicked child as active
@@ -249,7 +254,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Logout Button */}
-      <div className="logout-section">
+      <div className="logout-section" onClick={handleLogout}>
         <img src={logout} alt="Logout" className="icon" />
         <span>Logout</span>
       </div>

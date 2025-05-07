@@ -17,12 +17,12 @@ const DashboardPage = () => {
           <SalesOverview />
           
           {/* Purchase Overview */}
-          <PurchaseOverview />
+          {/* <PurchaseOverview /> */}
           
           {/* Sales & Purchase Chart */}
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Sales & Purchase</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Overall Revenue</h2>
               <select className="px-3 py-1 border rounded-md text-gray-600">
                 <option>Weekly</option>
                 <option>Monthly</option>

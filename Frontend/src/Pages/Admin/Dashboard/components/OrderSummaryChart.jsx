@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   LineChart,
   Line,
@@ -7,18 +7,43 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from 'recharts';
-
-const data = [
-  { name: 'Jan', Ordered: 3800, Delivered: 3200 },
-  { name: 'Feb', Ordered: 2000, Delivered: 2800 },
-  { name: 'Mar', Ordered: 2800, Delivered: 3500 },
-  { name: 'Apr', Ordered: 2600, Delivered: 3200 },
-  { name: 'May', Ordered: 2200, Delivered: 3000 }
-];
+import axios from '../../../../../lib/axios';
 
 const OrderSummaryChart = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOrderSummary = async () => {
+      try {
+        const response = await axios.get('/admins/orderSummary');
+        setData(response.data);
+      } catch (err) {
+        console.error('Error fetching order summary:', err);
+        setError('Failed to fetch order summary');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderSummary();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <div className="w-8 h-8 border-4 border-[#ff9800] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center">{error}</div>;
+  }
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
@@ -27,7 +52,7 @@ const OrderSummaryChart = () => {
           top: 5,
           right: 30,
           left: 20,
-          bottom: 5
+          bottom: 5,
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
@@ -56,4 +81,4 @@ const OrderSummaryChart = () => {
   );
 };
 
-export default OrderSummaryChart; 
+export default OrderSummaryChart;

@@ -62,11 +62,14 @@
 }
 
 .logout-section {
+  position: absolute; /* Position it relative to the sidebar */
+  bottom: 20px; /* Place it 20px above the bottom of the sidebar */
+  left: -53px; /* Align it to the left */
+  width: 100%; /* Make it span the full width of the sidebar */
   display: flex;
   align-items: center;
-  margin-top: 500px; /* Push logout button to the bottom */
+  justify-content: center; /* Center the content horizontally */
   cursor: pointer;
-  margin-left: 10px;
 }
 
 .logout-section:hover {

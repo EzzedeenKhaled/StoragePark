@@ -27,6 +27,7 @@ const Partners = () => {
     fetchAcceptedPartners();
   }, []);
 
+  console.log("diajd: ",partners)
   const filteredPartners = partners.filter((partner) => {
     const query = searchQuery.trim().toLowerCase();
     return query === '' || partner.name.toLowerCase().startsWith(query);

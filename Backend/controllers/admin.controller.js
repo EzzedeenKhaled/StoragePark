@@ -1,9 +1,117 @@
-import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { sendCustomerCredentials, sendEmployeeCredentials,sendVerificationEmail } from "../lib/mail.js";
+import Item from "../models/item.model.js";
 
+export const getOrderSummary = async (req, res) => {
+  try {
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // First day of the current month
+    const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0); // Last day of the current month
+
+    // Aggregate orders to calculate daily ordered and delivered counts
+    const orderSummary = await User.aggregate([
+      { $unwind: "$orders" }, // Unwind orders array
+      {
+        $match: {
+          "orders.orderDate": { $gte: startOfMonth, $lte: endOfMonth }, // Filter orders for the current month
+        },
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: "$orders.orderDate" }, // Group by day of the month
+          ordered: { $sum: 1 }, // Count all orders
+          delivered: {
+            $sum: {
+              $cond: [{ $eq: ["$orders.status", "delivered"] }, 1, 0], // Count only delivered orders
+            },
+          },
+        },
+      },
+      { $sort: { _id: 1 } }, // Sort by day
+    ]);
+
+    // Format the result to include day numbers
+    const formattedData = orderSummary.map((entry) => ({
+      name: `Day ${entry._id}`, // Format day as "Day X"
+      Ordered: entry.ordered,
+      Delivered: entry.delivered,
+    }));
+
+    res.status(200).json(formattedData);
+  } catch (error) {
+    console.error("Error fetching daily order summary:", error);
+    res.status(500).json({ message: "Failed to fetch daily order summary", error: error.message });
+  }
+};
+
+export const getLowQuantityStock = async (req, res) => {
+  try {
+    // Fetch items with quantity less than 10, limit to 3
+    const lowQuantityItems = await Item.find({ quantity: { $lt: 10 } })
+      .sort({ quantity: 1 }) // Sort by quantity in ascending order
+      .limit(3) // Limit to 3 items
+      .select("productName quantity imageProduct"); // Select relevant fields
+
+    res.status(200).json(lowQuantityItems);
+  } catch (error) {
+    console.error("Error fetching low quantity stock:", error);
+    res.status(500).json({ message: "Failed to fetch low quantity stock", error: error.message });
+  }
+};
+
+export const getHighestSellingProducts = async (req, res) => {
+  try {
+    // Fetch the top 5 highest-selling products based on `timesBought`
+    const highestSellingProducts = await Item.find({ timesBought: { $gt: 0 } })
+      .sort({ timesBought: -1 }) // Sort by timesBought in descending order
+      .limit(4) // Limit to top 5 products
+      .select("productName timesBought quantity pricePerUnit imageProduct"); // Select relevant fields
+
+    res.status(200).json(highestSellingProducts);
+  } catch (error) {
+    console.error("Error fetching highest-selling products:", error);
+    res.status(500).json({ message: "Failed to fetch highest-selling products", error: error.message });
+  }
+};
+
+export const getPartnersAndCategories = async (req, res) => {
+  try {
+    // Count the number of partners
+    const numberOfPartners = await User.countDocuments({ role: "partner" });
+
+    // Get the distinct categories from the Item model
+    const categories = await Item.distinct("category");
+    const numberOfCategories = categories.length;
+
+    res.status(200).json({
+      numberOfPartners,
+      numberOfCategories,
+    });
+  } catch (error) {
+    console.error("Error fetching partners and categories:", error);
+    res.status(500).json({ message: "Failed to fetch data", error: error.message });
+  }
+};
+
+export const getAllQuantity = async (req, res) => {
+  try {
+    // Aggregate the total quantity of all items
+    const totalQuantity = await Item.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalQuantity: { $sum: "$quantity" }, // Sum up the quantity field
+        },
+      },
+    ]);
+
+    const quantity = totalQuantity[0]?.totalQuantity || 0; // Handle case where no items exist
+    res.status(200).json({ totalQuantity: quantity });
+  } catch (error) {
+    console.error("Error fetching total quantity:", error);
+    res.status(500).json({ message: "Failed to fetch total quantity", error: error.message });
+  }
+};
 
 export const getCustomers = async (req, res) => {
   try {
@@ -497,12 +605,12 @@ export const getAcceptedPartners = async (req, res) => {
       role: "partner",
       isVerified: true,
     });
-
+    
     const formattedPartners = acceptedPartners.map((user) => ({
       id: user._id,
       name: `${user.firstName} ${user.lastName}`,
       email: user.email,
-      logo: user.partner.logo || null, // Assuming logo is stored in the partner object
+      logo: user.partner.profileImage || null, // Assuming logo is stored in the partner object
     }));
 
     res.json(formattedPartners);
