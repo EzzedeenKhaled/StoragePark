@@ -1,10 +1,8 @@
 import SalesOverview from './components/SalesOverview';
-import PurchaseOverview from './components/PurchaseOverview';
 import InventorySummary from './components/InventorySummary';
 import ProductSummary from './components/ProductSummary';
 import TopSellingStock from './components/TopSellingStock';
 import LowQuantityStock from './components/LowQuantityStock';
-import SalesPurchaseChart from '../../Partner/components/SalesPurchaseChart';
 import OrderSummaryChart from './components/OrderSummaryChart';
 import RevenueChart from './components/RevenueChart';
 const DashboardPage = () => {
