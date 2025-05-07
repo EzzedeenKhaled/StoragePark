@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './partner.css';
 import Header from '../../../../components/Admin/Header';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../../../lib/axios';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 const Partners = () => {
   const navigate = useNavigate();
@@ -48,16 +49,15 @@ const Partners = () => {
           {/* Header Row */}
           <div className="header-actionsP">
             <h2 className="title">Partners</h2>
-            <div className="search-container">
-              <div className="search-bar">
-                <input
-                  type="text"
-                  placeholder="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="search-input"
-                />
-              </div>
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Search by name or email"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+              />
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
             </div>
           </div>
 
