@@ -1,5 +1,6 @@
 import Review from "../models/review.model.js";
 import Item from "../models/item.model.js";
+import User from "../models/user.model.js";
 export const addReview = async (req, res) => {
     try {
         const { itemId, rating, comment } = req.body;
@@ -8,15 +9,26 @@ export const addReview = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
+        const userId = req.user._id;
+
+        // Check if the user has bought this item in any of their orders
+        const hasPurchased = await User.findOne({
+            _id: userId,
+            "orders.items.item": itemId
+        });
+
+        // Create review with verified flag based on purchase
         let review = await Review.create({
             item: itemId,
             rating,
             comment,
-            user: req.user._id,
+            user: userId,
             date: new Date(),
+            verified: !!hasPurchased // will be true if found, otherwise false
         });
 
         review = await review.populate("user", "firstName");
+
         console.log("Review added successfully:", review);
         res.status(201).json(review);
     } catch (error) {

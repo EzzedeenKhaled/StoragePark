@@ -64,7 +64,7 @@
 .logout-section {
   display: flex;
   align-items: center;
-  margin-top: 150px; /* Push logout button to the bottom */
+  margin-top: 500px; /* Push logout button to the bottom */
   cursor: pointer;
   margin-left: 10px;
 }
