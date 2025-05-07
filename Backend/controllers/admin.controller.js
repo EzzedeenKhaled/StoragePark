@@ -1,10 +1,8 @@
-
 import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { sendCustomerCredentials, sendEmployeeCredentials,sendVerificationEmail } from "../lib/mail.js";
-
 
 
 export const getCustomers = async (req, res) => {
@@ -95,7 +93,12 @@ export const addCustomer = async (req, res) => {
     await newUser.save();
 
     // Send credentials email
-    const emailSent = await sendCustomerCredentials(email, firstName, password);
+    let emailSent = false;
+    try {
+      emailSent = await sendCustomerCredentials(email, firstName, password);
+    } catch (emailError) {
+      console.error('Error sending credentials email:', emailError);
+    }
     
     if (!emailSent) {
       console.warn(`Failed to send credentials email to ${email}. User was still created.`);
@@ -398,6 +401,38 @@ export const partnersUnverified = async (req, res) => {
       }
 };
 
+// Password generator function
+const generateStrongPassword = () => {
+  const length = 12;
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+  let password = "";
+  
+  // Ensure at least one of each required character type
+  password += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)]; // Uppercase
+  password += "abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 26)]; // Lowercase
+  password += "0123456789"[Math.floor(Math.random() * 10)]; // Number
+  password += "!@#$%^&*()_+"[Math.floor(Math.random() * 12)]; // Special char
+  
+  // Fill the rest randomly
+  for (let i = password.length; i < length; i++) {
+    password += charset[Math.floor(Math.random() * charset.length)];
+  }
+  
+  // Shuffle the password
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+};
+
+// Password strength checker
+const checkPasswordStrength = (password) => {
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumbers = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*()_+]/.test(password);
+  const isLongEnough = password.length >= 8;
+
+  return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar && isLongEnough;
+};
+
 // Confirm Partner Request
 export const confirmPartnerRequest = async (req, res) => {
   const { email } = req.body;
@@ -415,18 +450,15 @@ export const confirmPartnerRequest = async (req, res) => {
       return res.status(400).json({ message: "User is already verified" });
     }
 
-    // Generate a default password
-    const defaultPassword = "storagePark@2025";
-
-    // // Hash the default password before saving
-    // const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+    // Generate a strong password
+    const generatedPassword = generateStrongPassword();
 
     // Update the user
     user.isVerified = true;
-    user.password = defaultPassword;
+    user.password = generatedPassword;
 
     // Send verification email
-    await sendVerificationEmail(email, defaultPassword, false, true, false);
+    await sendVerificationEmail(email, generatedPassword, false, true, false);
 
     // Save the updated user
     await user.save();

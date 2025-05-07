@@ -2,6 +2,16 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 dotenv.config();
+
+// Common logo HTML that will be used in all email templates
+const logoHtml = `
+  <img src="https://i.imgur.com/TT4mQph.png" 
+             alt="StoragePark Logo" 
+             width="180" 
+             style="display: block; max-width: 180px; height: auto; margin: 0 auto;" 
+             border="0" />
+`;
+
 // Configure Mailtrap transporter
 const transporter = nodemailer.createTransport({
   secure: true,
@@ -23,11 +33,7 @@ async function sendVerificationEmail(email, token, isCode, isPartner, noPartner)
     subject = "Password Reset Request - Action Required";
     htmlContent = `
       <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <!-- Logo -->
-        <div style="text-align: center; margin-bottom: 24px;">
-          <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
-        </div>
-
+        ${logoHtml}
         <!-- Header -->
         <h1 style="font-size: 28px; font-weight: 700; text-align: center; color: #2196f3; margin-bottom: 16px;">Reset Your Password</h1>
         <p style="font-size: 16px; text-align: center; color: #555; margin-bottom: 24px;">Use the following 6-digit code to reset your password:</p>
@@ -49,11 +55,7 @@ async function sendVerificationEmail(email, token, isCode, isPartner, noPartner)
     subject = "You're Approved! Partner Access Granted";
     htmlContent = `
       <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <!-- Logo -->
-        <div style="text-align: center; margin-bottom: 24px;">
-          <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
-        </div>
-
+        ${logoHtml}
         <!-- Header -->
         <h1 style="font-size: 26px; font-weight: bold; text-align: center; color: #4caf50; margin-bottom: 16px;">Documents Reviewed – Welcome Onboard!</h1>
 
@@ -83,11 +85,7 @@ async function sendVerificationEmail(email, token, isCode, isPartner, noPartner)
     subject = "Partner Request Denied";
     htmlContent = `
       <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <!-- Logo -->
-        <div style="text-align: center; margin-bottom: 24px;">
-          <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
-        </div>
-
+        ${logoHtml}
         <!-- Header -->
         <h1 style="font-size: 26px; font-weight: bold; text-align: center; color: #f44336; margin-bottom: 16px;">Partner Request Denied</h1>
 
@@ -107,11 +105,7 @@ async function sendVerificationEmail(email, token, isCode, isPartner, noPartner)
     subject = "Action Required: Verify Your Email Address";
     htmlContent = `
       <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <!-- Logo -->
-        <div style="text-align: center; margin-bottom: 24px;">
-          <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
-        </div>
-
+        ${logoHtml}
         <!-- Header -->
         <h1 style="font-size: 28px; font-weight: 700; text-align: center; color: #ff9800; margin-bottom: 16px;">Thank You for Registering!</h1>
         <p style="font-size: 16px; text-align: center; color: #555; margin-bottom: 24px;">To complete your registration, please enter the following 6-digit verification code:</p>
@@ -150,11 +144,7 @@ async function sendCustomerCredentials(email, firstName, password) {
   const subject = "Welcome to StoragePark - Your Account Details";
   const htmlContent = `
     <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-      <!-- Logo -->
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
-      </div>
-
+      ${logoHtml}
       <!-- Header -->
       <h1 style="font-size: 28px; font-weight: 700; text-align: center; color: #ff9800; margin-bottom: 16px;">Welcome to StoragePark!</h1>
       <p style="font-size: 16px; text-align: center; color: #555; margin-bottom: 24px;">
@@ -219,11 +209,7 @@ async function sendEmployeeCredentials(email, firstName, password, role) {
   const subject = "Welcome to StoragePark - Your Employee Account Details";
   const htmlContent = `
     <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-      <!-- Logo -->
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="${process.env.LOGO_URL}" alt="Company Logo" style="max-width: 180px; height: auto;" />
-      </div>
-
+      ${logoHtml}
       <!-- Header -->
       <h1 style="font-size: 28px; font-weight: 700; text-align: center; color: #ff9800; margin-bottom: 16px;">Welcome to StoragePark!</h1>
       <p style="font-size: 16px; text-align: center; color: #555; margin-bottom: 24px;">
