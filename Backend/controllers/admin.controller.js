@@ -86,3 +86,24 @@ export const rejectPartnerRequest = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getAcceptedPartners = async (req, res) => {
+  try {
+    const acceptedPartners = await User.find({
+      role: "partner",
+      isVerified: true,
+    });
+
+    const formattedPartners = acceptedPartners.map((user) => ({
+      id: user._id,
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      logo: user.partner.logo || null, // Assuming logo is stored in the partner object
+    }));
+
+    res.json(formattedPartners);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

@@ -9,7 +9,8 @@ import mongoose from "mongoose";
 
 export const getPartnerProfile = async (req, res) => {
     try {
-        const email = req.user.email;
+        const email = req.query.email || req.user.email;
+        console.log(req.query.email)
         const partner = await User.findOne({ email, role: "partner" });
         res.status(200).json(partner);
     } catch (error) {
@@ -20,8 +21,8 @@ export const getPartnerProfile = async (req, res) => {
 
 export const getMonthlySalesAndPurchases = async (req, res) => {
   try {
-    const partnerId = req.user._id; // Ensure authentication middleware sets req.user
-
+    const partnerId = new mongoose.Types.ObjectId(req.query.partnerId || req.user._id);
+ // Ensure authentication middleware sets req.user
     const monthlyData = [];
 
     for (let month = 1; month <= 12; month++) {
@@ -41,7 +42,7 @@ export const getMonthlySalesAndPurchases = async (req, res) => {
           $group: {
             _id: null,
             totalSales: { $sum: "$orders.totalAmount" }
-          }
+          }//680f8e0d1ffc35b4d134c82f
         }
       ]);
 
@@ -78,9 +79,8 @@ export const getMonthlySalesAndPurchases = async (req, res) => {
 
 export const getStats = async (req, res) => {
     try {
-      const partnerId = req.user._id;
+      const partnerId = req.query.partnerId || req.user._id;
       const objectId = new mongoose.Types.ObjectId(partnerId);
-      console.log("stats");
   
       const result = await User.aggregate([
         { $unwind: "$orders" },
@@ -150,7 +150,7 @@ export const getStats = async (req, res) => {
 // Function to get top selling categories for a specific partner
 export const getTopSellingCategoriesByPartner = async (req, res) => {
     try {
-        const partnerId = req.user._id;
+        const partnerId = new mongoose.Types.ObjectId(req.query.partnerId || req.user._id);
       const topCategories = await Item.aggregate([
         // Match items belonging to the specified partner
         { $match: { partner: new mongoose.Types.ObjectId(partnerId) } },
@@ -191,7 +191,7 @@ export const getTopSellingCategoriesByPartner = async (req, res) => {
 export const getTopSellingItemsByPartner = async (req, res) => {
     try {
         const limit = 3;
-        const partnerId  = req.user._id
+        const partnerId  = new mongoose.Types.ObjectId(req.query.partnerId || req.user._id);
       // Query items with the specified partner ID
       const topItems = await Item.find({ 
         partner: partnerId, 
@@ -248,11 +248,11 @@ export const changeIsActive = async (req, res) => {
 export const getPartnerOrders = async (req, res) => {
     try {
         // Check if user is a partner
-        if (req.user.role !== 'partner') {
+        if (req.user.role !== 'partner' && req.user.role !== "admin") {
             return res.status(403).json({ message: 'Access denied. Partner role required.' });
         }
         
-        const partnerId = req.user._id;
+        const partnerId = new mongoose.Types.ObjectId(req.query.partnerId || req.user._id);
 
         // Find all items belonging to this partner
         const partnerItems = await Item.find({ partner: partnerId }).select('_id');
@@ -315,7 +315,7 @@ export const getPartnerOrders = async (req, res) => {
 
 export const getPartnerItems = async (req, res) => {
     try {
-        const partnerId = req.user._id;
+        const partnerId = new mongoose.Types.ObjectId(req.query.partnerId || req.user._id);
 
         const items = await Item.find({ partner: partnerId }).sort({ createdAt: -1 });
 
@@ -465,37 +465,5 @@ const UploadImage = async (base64Img, imgName) => {
     } catch (error) {
         console.error(error);
         throw error;
-    }
-};
-
-export const partnetInfoSignup = async (req, res) => {
-    try {
-        // Step 1: Query all admin documents
-        const admins = await Admin.find().select("partners"); // Only retrieve the "partners" field
-
-        // Step 2: Extract and flatten the partners array
-        const allPartnerRequests = admins.flatMap((admin) => admin.partners);
-
-        // Step 3: Return the list of partner requests to the frontend
-        res.status(200).json(allPartnerRequests);
-    } catch (error) {
-        console.error("Error fetching partner requests:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-};
-
-export const acceptedPartners = async (req, res) => {
-    try {
-        // Step 1: Query all admin documents
-        const admins = await Admin.find().select("partners"); // Only retrieve the "partners" field
-
-        // Step 2: Extract and flatten the partners array
-        const allAcceptedPartners = admins.flatMap((admin) => admin.partners.filter((partner) => partner.status === "approved"));
-
-        // Step 3: Return the list of partner requests to the frontend
-        res.status(200).json(allAcceptedPartners);
-    } catch (error) {
-        console.error("Error fetching partner requests:", error);
-        res.status(500).json({ error: "Internal Server Error" });
     }
 };

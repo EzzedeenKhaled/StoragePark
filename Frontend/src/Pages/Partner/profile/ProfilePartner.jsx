@@ -9,6 +9,7 @@ import { LoadingSpinner } from '../../../../components/LoadingSpinner'
 mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
 
 const ProfilePartner = () => {
+  const email = localStorage.getItem('email');
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ const ProfilePartner = () => {
     const fetchPartnerData = async () => {
       try {
         setLoading(true);
-        const response = await getPartner();
+        const response = await getPartner(email);
         const partnerData = response.data;
 
         // Set partner data in store

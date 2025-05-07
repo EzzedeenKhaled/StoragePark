@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 
 const SalesPurchaseChart = () => {
+  const partnerId = localStorage.getItem('partnerId');
   const [data, setData] = useState([]); // Store the fetched data
   const [loading, setLoading] = useState(true); // Track loading state
   const [error, setError] = useState(null); // Track error state
@@ -20,7 +21,9 @@ const SalesPurchaseChart = () => {
     // Fetch sales and purchase data from the API
     const fetchData = async () => {
       try {
-        const response = await axios.get('/partners/salesAndPurchase'); // Assuming the API is running locally
+        const response = await axios.get('/partners/salesAndPurchase', {
+          params: { partnerId }
+        }); // Assuming the API is running locally
         setData(response.data.data); // Set the fetched data into state
         setLoading(false); // Set loading to false once data is fetched
       } catch (err) {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import axios from '../../../../lib/axios';
-
 const Orders = () => {
+  const partnerId = localStorage.getItem('partnerId');
   const [selectedTab, setSelectedTab] = useState('All Orders');
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,7 +15,9 @@ const Orders = () => {
       try {
         setLoading(true);
 
-        const response = await axios.get('/partners/orders');
+        const response = await axios.get('/partners/orders', {
+          params: { partnerId }
+        });
         console.log(response.data.length)
         // Transform the API response to match our table structure
         const formattedOrders = response?.data?.map(order => ({

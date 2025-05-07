@@ -3,6 +3,7 @@ import { EllipsisVertical } from 'lucide-react';
 import axios from '../../../../lib/axios';
 
 const BestSelling = () => {
+  const partnerId = localStorage.getItem('partnerId');
   // const [dateRange] = useState('Dec 20 - Dec 31');
   const [products, setProducts] = useState([]); // Store the fetched products
   const [loading, setLoading] = useState(true); // Loading state
@@ -11,7 +12,9 @@ const BestSelling = () => {
   useEffect(() => {
     const fetchTopSelling = async () => {
       try {
-        const response = await axios.get('/partners/topSelling'); // Fetch data from API
+        const response = await axios.get('/partners/topSelling', {
+          params: { partnerId }
+        }); // Fetch data from API
         setProducts(response.data); // Set the fetched data to the products state
       } catch (error) {
         console.error('Error fetching top-selling products:', error);

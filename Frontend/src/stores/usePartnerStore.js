@@ -8,11 +8,13 @@ export const usePartnerStore = create((set, get) => ({
   loading: false,
   partnerItems: [],
   setPartner: (partnerData) => set({ partner: partnerData }),
-  getPartner: async () => {
+  getPartner: async (email) => {
     try {
       set({ loading: true });
 
-      const response = await axios.get("/partners/profile");
+      const response = await axios.get("/partners/profile", {
+        params: { email: email } // or just { email } if variable name is the same
+      });
       set({ partner: response.data, loading: false });
       return response;
     } catch (error) {
@@ -41,10 +43,12 @@ export const usePartnerStore = create((set, get) => ({
       throw error;
     }
   },
-  getPartnerItems: async () => {
+  getPartnerItems: async (partnerId) => {
     try {
       set({ loading: true });
-      const response = await axios.get('/partners/items');
+      const response = await axios.get('/partners/items', {
+        params: { partnerId }
+      });
       set({ partnerItems: response.data, loading: false });
       return response.data;
     } catch (error) {

@@ -1,13 +1,22 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useUserStore } from '../../../stores/useUserStore'
+import { useUserStore } from '../../../stores/useUserStore';
 
 const Sidebar = () => {
   const { logout } = useUserStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();         // Call the logout function
-    navigate('/');    // Redirect to homepage or login page
+    logout(); // Call the logout function
+    navigate('/'); // Redirect to homepage or login page
+  };
+
+  const isAdmin = localStorage.getItem('role') === 'admin'; // Check if the role is admin
+
+  const handleAdminNavigate = () => {
+    localStorage.removeItem('partnerId');
+    localStorage.removeItem('email');
+    localStorage.removeItem('role');
+    navigate('/admin/partners'); // Navigate to the admin partners page
   };
 
   return (
@@ -25,15 +34,14 @@ const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="mt-8">
-      <NavLink 
-  to="/partner-dashboard" 
-  className={({ isActive }) => {
-    // console.log('Overview active:', isActive); // debug
-    return `flex items-center py-3 px-4 ${
-      isActive ? 'text-orange-500 bg-gray-800' : 'text-gray-400 hover:text-white'
-    }`
-  }}
->
+        <NavLink 
+          to="/partner-dashboard" 
+          className={({ isActive }) =>
+            `flex items-center py-3 px-4 ${
+              isActive ? 'text-orange-500 bg-gray-800' : 'text-gray-400 hover:text-white'
+            }`
+          }
+        >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
@@ -62,9 +70,6 @@ const Sidebar = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
           Orders
-          {/* <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-auto">
-            10
-          </span> */}
         </NavLink>
 
         <NavLink to="/partner/products" className={({ isActive }) =>
@@ -90,17 +95,29 @@ const Sidebar = () => {
         </NavLink>
       </nav>
 
-      {/* Logout Button */}
+      {/* Logout or Admin Navigation */}
       <div className="absolute bottom-0 w-64 p-4">
-        <button 
-          onClick={handleLogout} 
-          className="flex items-center text-gray-400 hover:text-white w-full cursor-pointer"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          Logout
-        </button>
+        {isAdmin ? (
+          <button 
+            onClick={handleAdminNavigate} 
+            className="flex items-center text-gray-400 hover:text-white w-full cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Admin
+          </button>
+        ) : (
+          <button 
+            onClick={handleLogout} 
+            className="flex items-center text-gray-400 hover:text-white w-full cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
+        )}
       </div>
     </div>
   );

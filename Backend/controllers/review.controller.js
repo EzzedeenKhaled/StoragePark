@@ -39,7 +39,7 @@ export const addReview = async (req, res) => {
 
 export const getPartnerRatingsSummary = async (req,res) => {
     try {
-        const partnerId = req.user._id;
+        const partnerId = req.query.partnerId || req.user._id;
         // Step 1: Get all items posted by this partner
         const partnerItems = await Item.find({ partner: partnerId }).select('_id');
         const itemIds = partnerItems.map(item => item._id);

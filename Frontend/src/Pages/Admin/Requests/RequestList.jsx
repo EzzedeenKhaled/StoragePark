@@ -45,6 +45,7 @@ const RequestsList = () => {
     try {
       await axios.post('/admins/confirm-request', { email: selectedRequest.email });
       toast.success('Request confirmed successfully!');
+      setPartners((prevPartners) => prevPartners.filter((partner) => partner.email !== selectedRequest.email));
       closeModal();
     } catch {
       toast.error('An error occurred while confirming the request.');
@@ -56,6 +57,8 @@ const RequestsList = () => {
     try {
       await axios.post('/admins/cancel-request', { email: selectedRequest.email });
       toast.success('Request canceled successfully!');
+      // Remove the canceled request from the partners list
+    setPartners((prevPartners) => prevPartners.filter((partner) => partner.email !== selectedRequest.email));
       closeModal();
     } catch {
       toast.success('An error occurred while canceling the request.');

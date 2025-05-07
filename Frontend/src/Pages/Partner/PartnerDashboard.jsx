@@ -8,6 +8,7 @@ import SalesPurchaseChart from './components/SalesPurchaseChart';
 import axios from '../../../lib/axios';
 
 const PartnerDashboard = () => {
+  const partnerId = localStorage.getItem('partnerId');
   const [year] = useState('This Year');
   const [stats, setStats] = useState({
     totalSales: 0,
@@ -19,7 +20,13 @@ const PartnerDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get('/partners/stats'); // assuming token is sent by axios instance
+        let res;
+        if(!partnerId)
+        res = await axios.get('/partners/stats');
+        else
+        res = await axios.get('/partners/stats', {
+          params: { partnerId }
+        });
         setStats(res.data);
       } catch (err) {
         console.error('Error fetching stats:', err);
@@ -33,7 +40,7 @@ const PartnerDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar/>
 
       <div className="flex-1">
         <div className="bg-orange-500 text-white p-6 ml-[250px]">
@@ -92,7 +99,7 @@ const PartnerDashboard = () => {
                 </button>
               </div>
             </div>
-            <SalesPurchaseChart />
+            <SalesPurchaseChart/>
           </div>
 
           <div className="">

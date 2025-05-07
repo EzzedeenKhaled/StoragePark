@@ -141,6 +141,7 @@ const CustomerRating = ({ totalRating, positiveR, negativeR }) => {
 };
 
 const PartnerAnalytics = () => {
+  const partnerId = localStorage.getItem('partnerId');
   const [totalRating, setTotalRating] = useState(0);
   const [positiveR, setPositiveR] = useState(0);
   const [negativeR, setNegativeR] = useState(0);
@@ -152,7 +153,9 @@ const PartnerAnalytics = () => {
   useEffect(() => {
     const fetchOrderStats = async () => {
       try {
-        const response = await axios.get('/partners/orders');
+        const response = await axios.get('/partners/orders', {
+          params: { partnerId }
+        });
         const totalOrders = response.data.length;
 
         const totalProductsSold = response.data.reduce((sum, order) => {
@@ -167,16 +170,22 @@ const PartnerAnalytics = () => {
         setTotalOrders(totalOrders);
         setTotalProductsSold(totalProductsSold);
 
-        const res = await axios.get('/reviews/partner-rating');
+        const res = await axios.get('/reviews/partner-rating', {
+          params: { partnerId }
+        });
         const { total, positive, negative } = res.data;
         setTotalRating(total);
         setPositiveR(positive);
         setNegativeR(negative);
 
-        const topS = await axios.get('/partners/topSelling')
+        const topS = await axios.get('/partners/topSelling', {
+          params: { partnerId }
+        })
         setTopSelling(topS);
 
-        const topC = await axios.get('/partners/topCategory')
+        const topC = await axios.get('/partners/topCategory', {
+          params: { partnerId }
+        })
         setTopCategory(topC.data[0].category)
       } catch (err) {
         console.error('Error fetching order stats:', err);

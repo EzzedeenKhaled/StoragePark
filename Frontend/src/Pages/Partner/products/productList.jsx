@@ -3,15 +3,15 @@ import Sidebar from '../components/Sidebar';
 import { usePartnerStore } from '../../../stores/usePartnerStore';
 import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
-
 const ProductList = () => {
+  const partnerId = localStorage.getItem('partnerId');
   const { partnerItems, getPartnerItems, toggleProductStatus } = usePartnerStore();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   
   useEffect(() => {
     const fetchData = async () => {
-      await getPartnerItems();
+      await getPartnerItems(partnerId);
     };
     fetchData();
   }, []);
