@@ -3,8 +3,11 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCartStore } from "../stores/useCartStore";
 import Confetti from "react-confetti";
+import { useLocation } from "react-router-dom";
 
 const PurchaseSuccessPage = () => {
+	const location = useLocation();
+const orderId = location.state?.orderId || "N/A";
 	const { clearCart } = useCartStore();
 
 	useEffect(() => {
@@ -40,7 +43,7 @@ const PurchaseSuccessPage = () => {
 					<div className='bg-[#1D2126] rounded-lg p-4 mb-6 border border-[#FF8B13]'>
 						<div className='flex items-center justify-between mb-2'>
 							<span className='text-sm text-gray-400'>Order number</span>
-							<span className='text-sm font-semibold text-[#FF8B13]'>#12345</span>
+							<span className='text-sm font-semibold text-[#FF8B13]'>#{orderId}</span>
 						</div>
 						<div className='flex items-center justify-between'>
 							<span className='text-sm text-gray-400'>Estimated delivery</span>
