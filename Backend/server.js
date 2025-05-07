@@ -26,7 +26,7 @@ app.use(
   })
 );
 
-
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/partners", partnerRoutes);
 app.use("/api/products", productRoutes);

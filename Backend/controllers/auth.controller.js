@@ -1,7 +1,7 @@
 import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import sendVerificationEmail from "../lib/mail.js";
+import {sendVerificationEmail} from "../lib/mail.js";
 import crypto from "crypto";
 
 const generateTokens = (userId) => {
