@@ -9,6 +9,7 @@ import wishlistRoutes from "./routes/wishlist.route.js";
 import orderRoutes from "./routes/order.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import reviewRoutes from "./routes/review.route.js";
+import adminRoutes from "./routes/admin.routes.js";
 import cookieParser from 'cookie-parser';
 
 const app = express();
@@ -25,7 +26,7 @@ app.use(
   })
 );
 
-
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/partners", partnerRoutes);
 app.use("/api/products", productRoutes);
@@ -33,7 +34,8 @@ app.use("/api/customers", customerRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/reviews", reviewRoutes);
-app.use("/api/orders", orderRoutes); 
+app.use("/api/orders", orderRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on http://localhost:" + PORT);

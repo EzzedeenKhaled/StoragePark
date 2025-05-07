@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import Admin from "../models/admin.model.js";
 import Item from "../models/item.model.js";
-import sendVerificationEmail from "../lib/mail.js";
+import {sendVerificationEmail} from "../lib/mail.js";
 import crypto from "crypto";
 import multer from "multer";
 import { imagekit } from "../lib/imageKit.js";
