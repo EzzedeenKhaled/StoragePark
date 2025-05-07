@@ -6,12 +6,11 @@ import {
   PencilIcon,
   TrashIcon,
   KeyIcon,
-  FunnelIcon
+  FunnelIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import Header from '../../../components/Admin/Header';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 // Debounce function
 const debounce = (func, wait) => {
@@ -66,7 +65,9 @@ const Customers = () => {
   const [verificationFilter, setVerificationFilter] = useState('all'); // 'all', 'verified', 'pending'
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
 
   const fetchCustomers = useCallback(async (search = '', filter = 'all') => {
     try {
@@ -74,7 +75,7 @@ const Customers = () => {
       setError(null);
       console.log('Fetching customers with params:', { search, filter });
       
-      const response = await axios.get(`${API_BASE_URL}/api/admin/customers`, {
+      const response = await axios.get(`/admins/customers`, {
         params: { 
           search,
           verificationStatus: filter !== 'all' ? filter : undefined
@@ -97,7 +98,6 @@ const Customers = () => {
     } catch (error) {
       console.error('Error fetching customers:', error);
       if (error.response?.status === 404) {
-        toast.info('No customers found matching your criteria.');
         setCustomers([]);
       } else if (error.response?.status === 401) {
         toast.error('Please log in again to continue.');
@@ -171,7 +171,7 @@ const Customers = () => {
         return;
       }
 
-      const response = await axios.post(`${API_BASE_URL}/api/admin/customers`, customerData);
+      const response = await axios.post(`/admins/customers`, customerData);
 
       if (response.data) {
         toast.success('Customer added successfully!');
@@ -216,23 +216,14 @@ const Customers = () => {
         password: formData.get('password') || undefined
       };
 
-      const response = await axios.put(
-        `${API_BASE_URL}/api/admin/customers/${selectedCustomer._id}`,
-        customerData,
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const response = await axios.put(`/admins/customers/${selectedCustomer._id}`,customerData);
 
       if (response.data) {
         toast.success('Customer updated successfully!');
         setShowEditModal(false);
         setSelectedCustomer(null);
         // Refresh the customer list
-        const fetchResponse = await axios.get(`${API_BASE_URL}/api/admin/customers`, {
+        const fetchResponse = await axios.get(`/admins/customers`, {
           params: { search: searchTerm },
           withCredentials: true
         });
@@ -248,21 +239,19 @@ const Customers = () => {
   };
 
   const handleDeleteCustomer = async (customerId) => {
-    if (!window.confirm('Are you sure you want to delete this customer?')) {
-      return;
-    }
+    setCustomerToDelete(customerId);
+    setShowDeleteModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/api/admin/customers/${customerId}`, {
-        withCredentials: true
-      });
+      const response = await axios.delete(`/admins/customers/${customerToDelete}`);
 
       if (response.data) {
         toast.success('Customer deleted successfully!');
         // Refresh the customer list
-        const fetchResponse = await axios.get(`${API_BASE_URL}/api/admin/customers`, {
-          params: { search: searchTerm },
-          withCredentials: true
+        const fetchResponse = await axios.get(`/admins/customers`, {
+          params: { search: searchTerm }
         });
         if (fetchResponse.data && Array.isArray(fetchResponse.data)) {
           setCustomers(fetchResponse.data);
@@ -272,6 +261,9 @@ const Customers = () => {
       console.error('Error deleting customer:', error.response || error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to delete customer. Please try again.';
       toast.error(`Failed to delete customer: ${errorMessage}`);
+    } finally {
+      setShowDeleteModal(false);
+      setCustomerToDelete(null);
     }
   };
 
@@ -288,7 +280,11 @@ const Customers = () => {
 
   return (
     <>
-      <Header />
+      <div className="fixed top-0 left-0 right-0 z-30">
+        <div className={`${showAddModal || showEditModal || showDeleteModal ? 'backdrop-blur-md' : ''}`}>
+          <Header />
+        </div>
+      </div>
       <div className="min-h-screen flex flex-col mt-16">
         {/* Title Section */}
         <div className="bg-white">
@@ -401,173 +397,246 @@ const Customers = () => {
 
         {/* Add Customer Modal */}
         {showAddModal && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h2 className="text-xl font-semibold mb-4">Add New Customer</h2>
-              <form onSubmit={handleAddCustomer}>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">First Name</label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Password</label>
-                    <div className="mt-1 flex rounded-md shadow-sm">
-                      <input
-                        type="text"
-                        name="password"
-                        required
-                        minLength={8}
-                        onChange={(e) => {
-                          const isValid = checkPasswordStrength(e.target.value);
-                          if (!isValid) {
-                            e.target.setCustomValidity('Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character');
-                          } else {
-                            e.target.setCustomValidity('');
-                          }
-                        }}
-                        className="block w-full border border-gray-300 rounded-l-md py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                      />
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-40">
+            <div className="relative w-full max-w-md mx-4">
+              {/* Blurred background layer */}
+              <div className="absolute inset-0 bg-white/40 backdrop-blur-xl rounded-lg"></div>
+              
+              {/* Content layer */}
+              <div className="relative">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
+                  <h2 className="text-xl font-semibold text-orange-800">Add New Customer</h2>
+                </div>
+                
+                {/* Body */}
+                <div className="bg-white/80 backdrop-blur-xl px-6 py-6 rounded-b-lg">
+                  <form onSubmit={handleAddCustomer}>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">First Name</label>
+                        <input
+                          type="text"
+                          name="firstName"
+                          required
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input
+                          type="text"
+                          name="lastName"
+                          required
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Email</label>
+                        <input
+                          type="email"
+                          name="email"
+                          required
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Password</label>
+                        <div className="mt-1 flex rounded-md shadow-sm">
+                          <input
+                            type="text"
+                            name="password"
+                            required
+                            minLength={8}
+                            onChange={(e) => {
+                              const isValid = checkPasswordStrength(e.target.value);
+                              if (!isValid) {
+                                e.target.setCustomValidity('Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character');
+                              } else {
+                                e.target.setCustomValidity('');
+                              }
+                            }}
+                            className="block w-full border border-gray-300 rounded-l-md py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleGeneratePassword}
+                            className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                          >
+                            <KeyIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                        <p className="mt-1 text-sm text-gray-500">
+                          Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <input
+                          type="tel"
+                          name="phoneNumber"
+                          required
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-6 flex justify-end space-x-3">
                       <button
                         type="button"
-                        onClick={handleGeneratePassword}
-                        className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                        onClick={() => setShowAddModal(false)}
+                        className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                       >
-                        <KeyIcon className="h-5 w-5" />
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600"
+                      >
+                        Add Customer
                       </button>
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                    <input
-                      type="tel"
-                      name="phoneNumber"
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
+                  </form>
                 </div>
-                <div className="mt-6 flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600"
-                  >
-                    Add Customer
-                  </button>
-                </div>
-              </form>
+              </div>
             </div>
           </div>
         )}
 
         {/* Edit Customer Modal */}
         {showEditModal && selectedCustomer && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h2 className="text-xl font-semibold mb-4">Edit Customer</h2>
-              <form onSubmit={handleEditCustomer}>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">First Name</label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      defaultValue={selectedCustomer.firstName}
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      defaultValue={selectedCustomer.lastName}
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      defaultValue={selectedCustomer.email}
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Password (leave blank to keep current)</label>
-                    <input
-                      type="password"
-                      name="password"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                    <input
-                      type="tel"
-                      name="phoneNumber"
-                      defaultValue={selectedCustomer.phoneNumber}
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                    />
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-40">
+            <div className="relative w-full max-w-md mx-4">
+              {/* Blurred background layer */}
+              <div className="absolute inset-0 bg-white/40 backdrop-blur-xl rounded-lg"></div>
+              
+              {/* Content layer */}
+              <div className="relative">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
+                  <h2 className="text-xl font-semibold text-orange-800">Edit Customer</h2>
+                </div>
+                
+                {/* Body */}
+                <div className="bg-white/80 backdrop-blur-xl px-6 py-6 rounded-b-lg">
+                  <form onSubmit={handleEditCustomer}>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">First Name</label>
+                        <input
+                          type="text"
+                          name="firstName"
+                          defaultValue={selectedCustomer.firstName}
+                          required
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input
+                          type="text"
+                          name="lastName"
+                          defaultValue={selectedCustomer.lastName}
+                          required
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Email</label>
+                        <input
+                          type="email"
+                          name="email"
+                          defaultValue={selectedCustomer.email}
+                          required
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Password (leave blank to keep current)</label>
+                        <input
+                          type="password"
+                          name="password"
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <input
+                          type="tel"
+                          name="phoneNumber"
+                          defaultValue={selectedCustomer.phoneNumber}
+                          required
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white/90"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-6 flex justify-end space-x-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowEditModal(false);
+                          setSelectedCustomer(null);
+                        }}
+                        className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600"
+                      >
+                        Update Customer
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-40">
+            <div className="relative w-full max-w-md mx-4">
+              {/* Blurred background layer */}
+              <div className="absolute inset-0 bg-white/40 backdrop-blur-xl rounded-lg"></div>
+              
+              {/* Content layer */}
+              <div className="relative">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
+                  <div className="flex items-center justify-center">
+                    <ExclamationTriangleIcon className="h-6 w-6 text-orange-500 mr-2" />
+                    <h3 className="text-lg font-medium text-orange-800">Delete Customer</h3>
                   </div>
                 </div>
-                <div className="mt-6 flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowEditModal(false);
-                      setSelectedCustomer(null);
-                    }}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600"
-                  >
-                    Update Customer
-                  </button>
+                
+                {/* Body */}
+                <div className="bg-white/80 backdrop-blur-xl px-6 py-6 rounded-b-lg">
+                  <p className="text-sm text-gray-600 mb-6 text-center">
+                    Are you sure you want to delete this customer? This action cannot be undone.
+                  </p>
+                  <div className="flex justify-center space-x-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowDeleteModal(false);
+                        setCustomerToDelete(null);
+                      }}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={confirmDelete}
+                      className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         )}

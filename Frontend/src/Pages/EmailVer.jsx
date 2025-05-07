@@ -12,6 +12,7 @@ const EmailVerification = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // State for storing the code
   const inputRefs = useRef([]); // Refs for managing focus between input fields
   const [isVerified, setIsVerified] = useState(false); // State to track verification status
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate(); // Hook for navigation
 
   // Handle input changes
@@ -64,9 +65,7 @@ const EmailVerification = () => {
       if (response.data.data.role === "customer") {
         navigate("/ecommerce");
       } else if (response.data.data.role === "partner") {
-        toast.success("Your documents have been submitted. Please wait while we review them. You will receive an email once the review is complete.");
-        navigate("/");
-
+        setShowModal(true);
       }
 
       setIsVerified(true); // Set the email as verified when successful
@@ -76,8 +75,29 @@ const EmailVerification = () => {
     }
   };
 
+  const handleModalClose = () => {
+    setShowModal(false);
+    navigate("/");
+  };
+
   return (
     <div className="email-verification-container">
+      {showModal && (
+        <div className="fixed inset-0 bg-[#f4f4f4] bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl border border-orange-200">
+            <h3 className="text-2xl font-semibold text-orange-600 mb-4">Registration Submitted</h3>
+            <p className="text-gray-600 mb-6">
+              Thank you for placing your trust in us. We will review your registration and send you your acceptance via email.
+            </p>
+            <button
+              onClick={handleModalClose}
+              className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors duration-200"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="container4">
         {/* Main Content */}
