@@ -19,42 +19,35 @@ const PaymentForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-
+  
     try {
-      // Get user's location (you'll need proper geolocation implementation)
       let userLocation = {};
       if (navigator.geolocation) {
         userLocation = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(
             (position) => resolve({
               latitude: position.coords.latitude,
-              longitude: position.coords.longitude
+              longitude: position.coords.longitude,
             }),
             (error) => reject(error)
           );
         });
       }
-      // Prepare order data
+  
       const orderData = {
         items: cartItems.map(item => ({
-          _id: item._id, // This is the ObjectId reference to the Item model
+          _id: item._id,
           name: item.name || item.productName,
           quantity: item.quantity,
-          price: item.price || item.pricePerUnit, // Price per unit
+          price: item.price || item.pricePerUnit,
         })),
         totalAmount: finalTotal,
-        deliveryAddress: "", // Assuming you collected this from formData
-        mapLink: userLocation?.mapLink || null,  // Optional map link if available
-        shippingDate: null,  // You can update this later when the order is shipped
-        deliveryDate: null,  // You can update this later when the order is delivered
-        status: "pending"    // Initial status
+        deliveryAddress: "", // Add delivery address if needed
+        userLocation,
       };
-
-
-      // Send to backend
       const res = await makeOrder(orderData);
-      navigate('/purchase-success', { state: { orderId: res.orderId } });
+      console.log("f: ",res)
+      navigate('/purchase-success', { state: { orderId: res.data.orderId } });
     } catch (err) {
       console.error('Order submission error:', err);
       toast.error(err.message || 'Failed to process payment. Please try again.');

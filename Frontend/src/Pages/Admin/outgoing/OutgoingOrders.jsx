@@ -1,41 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from '../../../../lib/axios';
 import './OutgoingOrders.css';
-
-const mockOutgoingOrders = [
-  {
-    id: 101,
-    company: 'Office Supplies Ltd.',
-    phone: '022334455',
-    price: 150,
-    status: 'Pending',
-    date: '2024-03-10',
-  },
-  {
-    id: 102,
-    company: 'Warehouse Central',
-    phone: '033445566',
-    price: 420,
-    status: 'Delivered',
-    date: '2024-03-12',
-  },
-  {
-    id: 103,
-    company: 'Retail Partners',
-    phone: '044556677',
-    price: 300,
-    status: 'Pending',
-    date: '2024-03-14',
-  },
-];
 
 const OutgoingOrders = () => {
   const [search, setSearch] = useState('');
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    deliveredOrders: 0,
+    pendingOrders: 0,
+    totalAmount: '$0'
+  });
+  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState([]);
+  const [dataOrders, setDataOrders] = useState([]);
   const navigate = useNavigate();
-  const filteredOrders = mockOutgoingOrders.filter(order =>
-    order.company.toLowerCase().includes(search.toLowerCase())
+
+  useEffect(() => {
+    // Fetch order statistics from the API
+    const fetchOrderStats = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('/admins/order-stats');
+        setStats(response.data);
+        setOrders(response.data.orders || mockOutgoingOrders); // Use mock data as fallback if orders aren't included
+      } catch (error) {
+        console.error('Error fetching order statistics:', error);
+        // Keep using mock data if the API call fails
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderStats();
+  }, []);
+
+  useEffect(() => {
+    // Fetch order data from the API
+    const fetchDataOrders = async () => {
+      try {
+        const response = await axios.get("/admins/getDataOrders");
+        console.log("dl: ",response)
+        setDataOrders(response.data); // Store the fetched data in the state
+      } catch (error) {
+        console.error("Error fetching data orders:", error);
+      }
+    };
+
+    fetchDataOrders();
+  }, []);
+
+  const filteredOrders = dataOrders.filter(order =>
+    order.company?.toLowerCase().includes(search.toLowerCase())
   );
-  const totalAmount = mockOutgoingOrders.reduce((sum, o) => sum + o.price, 0);
 
   return (
     <div className="outgoing-orders-content">
@@ -77,7 +94,9 @@ const OutgoingOrders = () => {
           </div>
           <div>
             <div className="stat-label">Total Orders</div>
-            <div className="stat-value">{mockOutgoingOrders.length}</div>
+            <div className="stat-value">
+              {loading ? 'Loading...' : stats.totalOrders}
+            </div>
           </div>
         </div>
 
@@ -89,7 +108,9 @@ const OutgoingOrders = () => {
           </div>
           <div>
             <div className="stat-label">Delivered</div>
-            <div className="stat-value">{mockOutgoingOrders.filter(o => o.status === 'Delivered').length}</div>
+            <div className="stat-value">
+              {loading ? 'Loading...' : stats.deliveredOrders}
+            </div>
           </div>
         </div>
 
@@ -101,7 +122,9 @@ const OutgoingOrders = () => {
           </div>
           <div>
             <div className="stat-label">Pending</div>
-            <div className="stat-value">{mockOutgoingOrders.filter(o => o.status === 'Pending').length}</div>
+            <div className="stat-value">
+              {loading ? 'Loading...' : stats.pendingOrders}
+            </div>
           </div>
         </div>
 
@@ -113,7 +136,9 @@ const OutgoingOrders = () => {
           </div>
           <div>
             <div className="stat-label">Total Amount</div>
-            <div className="stat-value">${totalAmount}</div>
+            <div className="stat-value">
+              {loading ? 'Loading...' : stats.totalAmount}
+            </div>
           </div>
         </div>
       </div>
@@ -128,56 +153,50 @@ const OutgoingOrders = () => {
               <th>TOTAL PRICE</th>
               <th>STATUS</th>
               <th>DATE</th>
-              <th>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
-            {filteredOrders.map(order => (
-              <tr key={order.id}>
-                <td className="order-id">#{order.id}</td>
-                <td className="company-name">{order.company}</td>
-                <td className="partner-phone">
-                  <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  {order.phone}
-                </td>
-                <td className="total-price">${order.price}</td>
-                <td>
-                  <span className={`status ${order.status.toLowerCase()}`}>
-                    {order.status === 'Delivered' ? (
-                      <svg className="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    ) : (
-                      <svg className="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    )}
-                    {order.status}
-                  </span>
-                </td>
-                <td className="date">{order.date}</td>
-                <td className="actions">
-                  <button
-                    className="view-icon"
-                    title={`View order #${order.id}`}
-                    aria-label={`View order #${order.id}`}
-                    onClick={() => navigate(`/admin/outgoing-orders/${order.id}`)}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {filteredOrders.map((order) => (
+    <tr key={order.orderId}>
+      <td className="order-id">
+        <button
+          className="text-orange-500 hover:underline"
+          onClick={() => navigate(`/order-status/${order.orderId}`)}
+        >
+          #{order.orderId}
+        </button>
+      </td>
+      <td className="company-name">{order.company}</td>
+      <td className="partner-phone">
+        <svg
+          className="w-4 h-4 inline-block mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+          />
+        </svg>
+        {order.phone}
+      </td>
+      <td className="total-price">${order.price}</td>
+      <td>
+        <span className={`status ${order.status.toLowerCase()}`}>
+          {order.status}
+        </span>
+      </td>
+      <td className="date">{order.date}</td>
+    </tr>
+  ))}
+</tbody>
         </table>
       </div>
     </div>
   );
 };
 
-export default OutgoingOrders; 
+export default OutgoingOrders;

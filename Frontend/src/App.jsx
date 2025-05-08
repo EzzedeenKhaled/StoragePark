@@ -14,7 +14,6 @@ import PurchaseSuccessPage from './Pages/PurchaseSuccessPage';
 import { useUserStore } from "./stores/useUserStore";
 import { useEffect } from "react";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import OrderHistory from "./Pages/OrderHistory";
 import Wishlist from "./Pages/Wishlist";
 import Cart from "./Pages/Cart";
 import Category from './Pages/Category';
@@ -32,6 +31,8 @@ import ProfilePartner from "./Pages/Partner/profile/ProfilePartner";
 import { ToastContainer } from 'react-toastify';
 import NotFound from './Pages/NotFound';
 import 'react-toastify/dist/ReactToastify.css';
+import OrderHistory from './Pages/OrderHistory';
+import OrderStatus from './Pages/OrderStatus';
 function App() {
   const { checkAuth, checkingAuth, user } = useUserStore();
   const { getCartItems } = useCartStore();
@@ -71,6 +72,7 @@ function App() {
         <Route path="/register-partner-1" element={<RegisterPartner />} />
         <Route path="/register-partner-2" element={<RegisterPartner2 />} />
         <Route path='/notFound' element={<NotFound />} />
+        <Route path="/order-status/:orderId" element={<OrderStatus />} />
         <Route path="/product-page/:productId" element={<ProductPage />} />
         <Route path="/register-customer" element={<Register />} />
         <Route path="/partner" element={<PartnerHome />} />

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
-import base62 from "base62/lib/ascii.js";
+import base62 from 'base62';
 const userSchema = new mongoose.Schema(
 	{
 		firstName: {
@@ -73,36 +73,44 @@ const userSchema = new mongoose.Schema(
 		  ],
 		  orders: [
 			{
-				orderId: {
-					type: String,
-					default: () => base62.encode(Buffer.from(uuidv4().replace(/-/g, ''), 'hex')), // Generates a unique order ID for each order Shortened UUID
-					unique: true, // Ensure each order ID is unique
+			  orderId: {
+				type: String,
+				default: () => base62.encode(Buffer.from(uuidv4().replace(/-/g, ''), 'hex')), // Generates a unique order ID for each order
+				unique: true, // Ensure each order ID is unique
+			  },
+			  orderDate: { type: Date, default: Date.now },
+			  items: [
+				{
+				  item: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: "Item", // Assuming an Item model exists
+				  },
+				  name: { type: String },
+				  quantity: { type: Number, required: true },
+				  price: { type: Number, required: true }, // Price of each item
 				},
-				orderDate: { type: Date, default: Date.now },
-				items: [
-					{
-						item: {
-							type: mongoose.Schema.Types.ObjectId,
-							ref: "Item", // Assuming an Item model exists
-						},
-						name: { type: String },
-						quantity: { type: Number, required: true },
-						price: { type: Number, required: true }, // Price of each item
-					}
-				],
-				totalAmount: { type: Number, required: true }, // Total price for the order
-				status: {
-					type: String,
-					enum: ["pending", "shipped", "delivered", "cancelled"],
-					default: "pending",
-				},
-				deliveryAddress: { type: String }, // Address where the order was delivered
-				shippingDate: { type: Date },
-				deliveryDate: { type: Date },
-				timeOfBuy: { type: Date, default: Date.now }, // Time when the order was placed
-				mapLink: { type: String, default: null }, // Link to the delivery map (e.g., Google Maps)
-			}
-		],	  
+			  ],
+			  totalAmount: { type: Number, required: true }, // Total price for the order
+			  status: {
+				type: String,
+				enum: ["pending", "shipped", "delivered", "cancelled"],
+				default: "pending",
+			  },
+			  deliveryAddress: { type: String }, // Address where the order was delivered
+			  shippingDate: { type: Date },
+			  deliveryDate: { type: Date },
+			  timeOfBuy: { type: Date, default: Date.now }, // Time when the order was placed
+			  mapLink: { type: String, default: null }, // Link to the delivery map (e.g., Google Maps)
+			  userLocation: {
+				latitude: { type: Number, required: true }, // Latitude of the user's location
+				longitude: { type: Number, required: true }, // Longitude of the user's location
+			  },
+			  deliveryGuyLocation: {
+				latitude: { type: Number, required: true }, // Latitude of the delivery guy's location
+				longitude: { type: Number, required: true }, // Longitude of the delivery guy's location
+			  },
+			},
+		  ], 
 		resetPasswordCode: {
 			type: String,
 		},

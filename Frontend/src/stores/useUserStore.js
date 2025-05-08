@@ -29,7 +29,7 @@ export const useUserStore = create((set, get) => ({
 			set({ loading: false });
 			toast.success("Order placed successfully!");
 
-			return res.status;
+			return res;
 		} catch (error) {
 			console.error("Error placing order:", error);
 			toast.error(error.response?.data?.message || "Failed to place order");
