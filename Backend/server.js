@@ -11,6 +11,7 @@ import cartRoutes from "./routes/cart.route.js";
 import reviewRoutes from "./routes/review.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import cookieParser from 'cookie-parser';
+import warehouseRoutes from "./routes/warehouse.route.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,6 +37,7 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/orders", orderRoutes); 
 app.use("/api/admins", adminRoutes); 
+app.use("/api/warehouse", warehouseRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on http://localhost:" + PORT);
