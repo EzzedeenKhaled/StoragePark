@@ -21,7 +21,7 @@ export const useCartStore = create((set, get) => ({
 			});
 			get().calculateTotals();
 		} catch (error) {
-			toast.error(error.response.data.message || "An error occurred");
+			toast.error("An error occurred in Add to Cart");
 		}
 	},
 	clearCart: async () => {
@@ -47,7 +47,7 @@ export const useCartStore = create((set, get) => ({
 		}));
 		get().calculateTotals();
 	} catch (err) {
-		toast.error(err.response.data.message)
+		toast.error("Error Updating Quantity")
 		console.log(err)
 	}
 	},
@@ -68,7 +68,7 @@ export const useCartStore = create((set, get) => ({
 			get().calculateTotals();
 		} catch (error) {
 			set({ cart: [], loading: false });
-			toast.error(error.response.data.message || "An error occurred");
+			toast.error("An error occurred in cart items");
 		}
 	},
 }));

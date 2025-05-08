@@ -68,7 +68,6 @@ const UploadImage = async (base64Img, imgName) => {
 export const getActiveItems = async (req, res) => {
 	try {
 		const items = await Item.find({ isActive: true }).populate('partner', 'name');
-		console.log("Active items:", items);
 		res.json(items);
 	} catch (error) {
 		res.status(500).json({ message: 'Server error', error: error.message });

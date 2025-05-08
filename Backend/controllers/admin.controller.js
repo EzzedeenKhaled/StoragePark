@@ -285,6 +285,20 @@ export const addCustomer = async (req, res) => {
   }
 };
 
+export const getAllProducts = async (req, res) => {
+  try {
+    // Fetch all products and populate the partner details
+    const products = await Item.find({})
+      .populate("partner", "firstName lastName email phoneNumber partner.companyName") // Populate partner details
+      .exec();
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error fetching all products:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const getDataOrders = async (req, res) => {
   try {
     // Find all users with customer or partner roles who have orders

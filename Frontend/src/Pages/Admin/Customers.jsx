@@ -103,7 +103,7 @@ const Customers = () => {
         toast.error('Please log in again to continue.');
         setCustomers([]);
       } else {
-        const errorMessage = error.response?.data?.message || 'Failed to fetch customers. Please try again later.';
+        const errorMessage = 'Failed to fetch customers. Please try again later.';
         toast.error(errorMessage);
         setError(errorMessage);
         setCustomers([]);
@@ -197,7 +197,7 @@ const Customers = () => {
       } else if (error.response?.status === 401) {
         toast.error('Please log in again to continue.');
       } else {
-        const errorMessage = error.response?.data?.message || error.message || 'Failed to add customer. Please try again.';
+        const errorMessage = 'Failed to add customer. Please try again.';
         toast.error(errorMessage);
       }
     }
@@ -233,7 +233,7 @@ const Customers = () => {
       }
     } catch (error) {
       console.error('Error updating customer:', error.response || error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to update customer. Please try again.';
+      const errorMessage = 'Failed to update customer. Please try again.';
       toast.error(`Failed to update customer: ${errorMessage}`);
     }
   };
@@ -259,7 +259,7 @@ const Customers = () => {
       }
     } catch (error) {
       console.error('Error deleting customer:', error.response || error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete customer. Please try again.';
+      const errorMessage = 'Failed to delete customer. Please try again.';
       toast.error(`Failed to delete customer: ${errorMessage}`);
     } finally {
       setShowDeleteModal(false);

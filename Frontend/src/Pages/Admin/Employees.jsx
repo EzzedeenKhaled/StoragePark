@@ -92,7 +92,7 @@ const Employees = () => {
       } else if (error.response?.status === 401) {
         toast.error('Please log in again to continue.');
       } else {
-        toast.error(`Failed to fetch employees: ${error.response?.data?.message || 'Please try again later.'}`);
+        toast.error(`Failed to fetch employees: 'Please try again later.'}`);
       }
       setEmployees([]);
     } finally {
@@ -179,7 +179,7 @@ const Employees = () => {
       } else if (error.response?.status === 401) {
         toast.error('Please log in again to continue.');
       } else {
-        const errorMessage = error.response?.data?.message || error.message || 'Failed to add employee. Please try again.';
+        const errorMessage = 'Failed to add employee. Please try again.';
         toast.error(errorMessage);
       }
     }
@@ -209,7 +209,7 @@ const Employees = () => {
       }
     } catch (error) {
       console.error('Error updating employee:', error.response || error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to update employee. Please try again.';
+      const errorMessage = 'Failed to update employee. Please try again.';
       toast.error(`Failed to update employee: ${errorMessage}`);
     }
   };
@@ -231,7 +231,7 @@ const Employees = () => {
       }
     } catch (error) {
       console.error('Error deleting employee:', error.response || error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete employee. Please try again.';
+      const errorMessage = 'Failed to delete employee. Please try again.';
       toast.error(`Failed to delete employee: ${errorMessage}`);
     } finally {
       setShowDeleteModal(false);

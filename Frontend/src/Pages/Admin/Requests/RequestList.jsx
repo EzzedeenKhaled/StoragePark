@@ -22,7 +22,7 @@ const RequestsList = () => {
         console.log(data)
         setPartners(data);
       } catch (err) {
-        setError(err.response?.data?.message || "Something went wrong");
+        setError("Something went wrong");
       } finally {
         setLoading(false);
       }

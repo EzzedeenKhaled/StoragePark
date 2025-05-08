@@ -36,12 +36,10 @@ function OrderStatus() {
     const fetchOrderDetails = async () => {
       try {
         const response = await axios.get(`/orders/status/${orderId}`);
-        console.log("dad: ",response)
         const order = response.data;
         setUserLocation(order.userLocation);
         setDeliveryGuyLocation(order.deliveryGuyLocation);
         setOrderDetails(order);
-        console.log("da: ",response)
       } catch (error) {
         console.error('Error fetching order details:', error);
       }

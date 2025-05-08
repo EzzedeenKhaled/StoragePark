@@ -19,7 +19,7 @@ export const useUserStore = create((set, get) => ({
 			toast.success("Item added to wishlist");
 		} catch (error) {
 			console.error("Error adding to wishlist:", error);
-			toast.error(error.response?.data?.message || "Failed to add item to wishlist");
+			toast.error("Failed to add item to wishlist");
 		}
 	},
 	makeOrder: async (orderData) => {
@@ -32,7 +32,7 @@ export const useUserStore = create((set, get) => ({
 			return res;
 		} catch (error) {
 			console.error("Error placing order:", error);
-			toast.error(error.response?.data?.message || "Failed to place order");
+			toast.error("Failed to place order");
 			set({ loading: false });
 		}
 	},
@@ -61,7 +61,7 @@ export const useUserStore = create((set, get) => ({
 				loading: false
 			}));
 			console.error("Error removing from wishlist:", error);
-			toast.error(error.response?.data?.message || "Failed to remove from wishlist");
+			toast.error("Failed to remove from wishlist");
 			throw error;
 		}
 	},
@@ -74,7 +74,7 @@ export const useUserStore = create((set, get) => ({
 			return res;
 		} catch (error) {
 			console.error("Error fetching wishlist:", error);
-			toast.error(error.response?.data?.message || "Failed to fetch wishlist");
+			toast.error("Failed to fetch wishlist");
 			set({ loading: false });
 		}
 	},
@@ -99,7 +99,7 @@ export const useUserStore = create((set, get) => ({
 			if (response.data.message) {
 				toast.success("Files uploaded successfully!");
 			} else {
-				toast.error(response.data.message);
+				toast.error("Error uploading files");
 			}
 			set({ loading: false });
 			return response;
@@ -133,7 +133,7 @@ export const useUserStore = create((set, get) => ({
 			return res.status;
 		} catch (error) {
 			set({ loading: false });
-			toast.error(error.response?.data?.message || "An error occurred");
+			toast.error("An error occurred in updating user customer");
 		}
 	},
 
@@ -146,7 +146,7 @@ export const useUserStore = create((set, get) => ({
 			return res.data
 		} catch (error) {
 			set({ loading: false });
-			toast.error(error.response.data.message || "An error occurred");
+			toast.error("An error occurred in signUp next");
 		}
 	},
 	signup: async (formData) => {
@@ -172,7 +172,7 @@ export const useUserStore = create((set, get) => ({
 		  return res.status;
 		} catch (error) {
 		  set({ loading: false });
-		  toast.error(error.response?.data?.message || "An error occurred during login");
+		  toast.error("An error occurred during login");
 		  return error.response?.status;
 		}
 	  },
@@ -190,7 +190,7 @@ export const useUserStore = create((set, get) => ({
 			return res.status;
 		} catch (error) {
 			set({ loading: false });
-			toast.error(error.response?.data?.message || "An error occurred during password reset");
+			toast.error("An error occurred during password reset");
 		}
 	},
 	productFormSubmit: async (data) => {
@@ -219,7 +219,7 @@ export const useUserStore = create((set, get) => ({
 			if (response.data.message) {
 				toast.success("Product created successfully!");
 			} else {
-				toast.error(response.data.message);
+				toast.error("Error submitting form");
 			}
 		} catch (error) {
 			console.error("Error creating product:", error);

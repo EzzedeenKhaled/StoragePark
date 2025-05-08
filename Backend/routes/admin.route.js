@@ -1,5 +1,5 @@
 import express from "express";
-import { partnersUnverified, confirmPartnerRequest,rejectPartnerRequest, getAcceptedPartners, getAllQuantity, getPartnersAndCategories, getHighestSellingProducts, getLowQuantityStock, getOrderSummary, getOrderStatistics, getDataOrders } from "../controllers/admin.controller.js";
+import { partnersUnverified, confirmPartnerRequest,rejectPartnerRequest, getAcceptedPartners, getAllQuantity, getPartnersAndCategories, getHighestSellingProducts, getLowQuantityStock, getOrderSummary, getOrderStatistics, getDataOrders, getAllProducts } from "../controllers/admin.controller.js";
 import { protectRoute, adminRoute } from "../middleware/auth.middleware.js";
 import {
     getCustomers,
@@ -40,5 +40,6 @@ router.get("/orderSummary", protectRoute, adminRoute, getOrderSummary);
 // Order routes
 router.get('/order-stats', protectRoute, adminRoute, getOrderStatistics);
 router.get("/getDataOrders", protectRoute, adminRoute, getDataOrders);
+router.get("/allProducts", protectRoute, adminRoute, getAllProducts);
 
 export default router;

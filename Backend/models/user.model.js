@@ -102,12 +102,12 @@ const userSchema = new mongoose.Schema(
 			  timeOfBuy: { type: Date, default: Date.now }, // Time when the order was placed
 			  mapLink: { type: String, default: null }, // Link to the delivery map (e.g., Google Maps)
 			  userLocation: {
-				latitude: { type: Number, required: true }, // Latitude of the user's location
-				longitude: { type: Number, required: true }, // Longitude of the user's location
+				latitude: { type: Number, required: false }, // Latitude of the user's location
+				longitude: { type: Number, required: false }, // Longitude of the user's location
 			  },
 			  deliveryGuyLocation: {
-				latitude: { type: Number, required: true }, // Latitude of the delivery guy's location
-				longitude: { type: Number, required: true }, // Longitude of the delivery guy's location
+				latitude: { type: Number, required: false }, // Latitude of the delivery guy's location
+				longitude: { type: Number, required: false }, // Longitude of the delivery guy's location
 			  },
 			},
 		  ], 
