@@ -36,6 +36,7 @@ function OrderStatus() {
     const fetchOrderDetails = async () => {
       try {
         const response = await axios.get(`/orders/status/${orderId}`);
+        console.log("dad: ",response)
         const order = response.data;
         setUserLocation(order.userLocation);
         setDeliveryGuyLocation(order.deliveryGuyLocation);
@@ -78,7 +79,7 @@ function OrderStatus() {
     );
   }, [userLocation, deliveryGuyLocation]);
 
-  // Simulate delivery guy movement
+// Simulate delivery guy movement
 useEffect(() => {
   if (routeSteps.length === 0 || status === 'Delivered') return;
 
@@ -95,7 +96,7 @@ useEffect(() => {
         // Final step: mark delivered and show modal
         (async () => {
           try {
-            await axios.delete(`/orders/delete/${orderId}`);
+            await axios.put(`/orders/markDelivered/${orderId}`); // Call the new endpoint
             setStatus('Delivered');
             setShowModal(true);
           } catch (err) {
@@ -150,6 +151,7 @@ useEffect(() => {
         <h2 className="text-2xl font-bold mb-4">Order ID: {orderDetails?.orderId}</h2>
         <div className="flex justify-between items-center text-sm text-gray-500 mb-6">
           <p>Order Date: {new Date(orderDetails?.orderDate).toLocaleDateString()}</p>
+          <p className="font-medium text-gray-800">Total Amount: ${orderDetails?.totalAmount.toFixed(2)}</p>
         </div>
 
         {/* Status Timeline */}

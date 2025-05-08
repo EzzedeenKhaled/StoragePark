@@ -97,6 +97,21 @@ export const getUserOrders = async (req, res) => {
   }
 };
 
+export const checkOrderIdExists = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    const userWithOrder = await User.findOne({ "orders.orderId": orderId });
+    if (userWithOrder) {
+      return res.status(200).json({ exists: true });
+    } else {
+      return res.status(404).json({ exists: false, message: "Order ID not found" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 export const getOrderStatus = async (req, res) => {
   const { orderId } = req.params;
 
@@ -167,27 +182,29 @@ export const updateDeliveryGuyLocation = async (req, res) => {
   }
 };
 
-export const deleteOrder = async (req, res) => {
+export const markOrderAsDelivered = async (req, res) => {
   const { orderId } = req.params;
 
   try {
-    // Find the user with the order
+    // Find the user with the specified orderId
     const user = await User.findOne({ "orders.orderId": orderId });
-
     if (!user) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // Remove the order from the user's orders array
-    user.orders = user.orders.filter((order) => order.orderId !== orderId);
+    // Find the specific order and update its status
+    const order = user.orders.find(order => order.orderId === orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found in user's orders" });
+    }
 
-    // Save the updated user document
-    await user.save();
+    order.status = "delivered"; // Update the status to "delivered"
+    await user.save(); // Save the updated user document
 
-    res.status(200).json({ message: "Order deleted successfully" });
+    res.status(200).json({ message: "Order marked as delivered", order });
   } catch (error) {
-    console.error("Error deleting order:", error);
-    res.status(500).json({ message: "Failed to delete order", error: error.message });
+    console.error("Error marking order as delivered:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 

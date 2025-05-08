@@ -44,6 +44,50 @@ export const getOrderSummary = async (req, res) => {
   }
 };
 
+export const getOrderStatistics = async (req,res) => {
+  try {
+    // Find all users with customer or partner role who have orders
+    const users = await User.find({
+      role: { $in: ["customer", "partner"] },
+      "orders.0": { $exists: true } // Only users who have at least one order
+    });
+    let totalOrders = 0;
+    let deliveredOrders = 0;
+    let pendingOrders = 0;
+    let totalAmount = 0;
+
+    // Process each user's orders
+    users.forEach(user => {
+      if (user.orders && user.orders.length > 0) {
+        // Count all orders (already filtered for customers and partners)
+        totalOrders += user.orders.length;
+        
+        // Count delivered orders
+        const delivered = user.orders.filter(order => order.status === "delivered").length;
+        deliveredOrders += delivered;
+        
+        // Count pending orders
+        const pending = user.orders.filter(order => order.status === "pending").length;
+        pendingOrders += pending;
+        
+        // Sum total amount
+        const amount = user.orders.reduce((sum, order) => sum + order.totalAmount, 0);
+        totalAmount += amount;
+      }
+    });
+    res.status(200).json({
+      totalOrders,
+      deliveredOrders,
+      pendingOrders,
+      totalAmount: `$${totalAmount.toFixed(2)}`
+    });
+    
+  } catch (error) {
+    console.error("Error fetching order statistics:", error);
+    throw error;
+  }
+};
+
 export const getLowQuantityStock = async (req, res) => {
   try {
     // Fetch items with quantity less than 10, limit to 3
@@ -238,6 +282,36 @@ export const addCustomer = async (req, res) => {
       message: "Error adding customer",
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
+  }
+};
+
+export const getDataOrders = async (req, res) => {
+  try {
+    // Find all users with customer or partner roles who have orders
+    const users = await User.find({
+      role: { $in: ["customer", "partner"] },
+      "orders.0": { $exists: true }, // Ensure they have at least one order
+    }).populate("orders.items.item", "name imageProduct price"); // Populate item details
+
+    // Combine all orders into a single array with the required fields
+    const orders = users.flatMap(user =>
+      user.orders.map(order => ({
+        orderId: order.orderId,
+        name:user.firstName,
+        company: user.partner?.companyName, // Use company name for partners or full name for customers
+        phone: user.phoneNumber,
+        companyPhone:user.partner.phoneNumber,
+        price: order.totalAmount,
+        status: order.status,
+        date: order.orderDate.toISOString().split("T")[0], // Format date as YYYY-MM-DD
+        role:user.role
+      }))
+    );
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
