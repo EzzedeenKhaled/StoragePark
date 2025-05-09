@@ -10,16 +10,16 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const location = useLocation();
-    const productId = location.state?.productId;
+    const product = location.state?.product;
     const from = location.state?.from; // Default to '/' if no 'from' is present
     const { login, loading, user } = useUserStore();
     const { addToCart } = useCartStore();
     useEffect(() => {
         if (user) {
             console.log("Userr: ",user)
-            if (productId) {
-                addToCart(productId);
-                navigate(`/product-page/${productId}`);
+            if (product) {
+                addToCart(product);
+                navigate(`/product-page/${product._id}`);
             } else if(user.role === "customer") {
                 navigate('/ecommerce');
             } else if(user.role === "partner"){
@@ -28,7 +28,7 @@ const Login = () => {
                 navigate('/admin')
             }
         }
-    }, [user, navigate, from, productId]);
+    }, [user, navigate, from, product]);
     const handleSubmit = async (e) => {
         e.preventDefault();
         const res = await login(email, password);

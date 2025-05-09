@@ -11,4 +11,4 @@ password: m#P52s@ap$V
     
 customer:
 email: ttt242111@gmail.com
-password: m#P52s@ap$V
+password: 123456

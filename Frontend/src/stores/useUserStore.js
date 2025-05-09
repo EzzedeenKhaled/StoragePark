@@ -74,7 +74,7 @@ export const useUserStore = create((set, get) => ({
 			return res;
 		} catch (error) {
 			console.error("Error fetching wishlist:", error);
-			toast.error("Failed to fetch wishlist");
+			// toast.error("Failed to fetch wishlist");
 			set({ loading: false });
 		}
 	},
@@ -133,7 +133,7 @@ export const useUserStore = create((set, get) => ({
 			return res.status;
 		} catch (error) {
 			set({ loading: false });
-			toast.error("An error occurred in updating user customer");
+			// toast.error("An error occurred in updating user customer");
 		}
 	},
 

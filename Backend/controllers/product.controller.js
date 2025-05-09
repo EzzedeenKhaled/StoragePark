@@ -73,6 +73,27 @@ export const getActiveItems = async (req, res) => {
 		res.status(500).json({ message: 'Server error', error: error.message });
 	}
 };
+
+export const getOnSaleItems = async (req, res) => {
+	try {
+		const { cartItemIds, limit = 4 } = req.body; // Receive cart item IDs and limit from the frontend
+
+		// Fetch items that are active, on sale, and not in the cart
+		const onSaleItems = await Item.find({
+			isActive: true,
+			discount: { $gt: 0 }, // Items with a discount greater than 0
+			_id: { $nin: cartItemIds }, // Exclude items already in the cart
+		})
+			.limit(parseInt(limit)) // Limit the number of items returned
+			.exec();
+
+		res.status(200).json(onSaleItems);
+	} catch (error) {
+		console.error("Error fetching on-sale items:", error);
+		res.status(500).json({ message: "Internal server error" });
+	}
+};
+
 export const getProductById = async (req, res) => {
 	try {
 		const { productId } = req.params;
@@ -91,6 +112,7 @@ export const getProductById = async (req, res) => {
 		}
 
 		res.status(200).json({
+			_id: item._id,
 			name: item.productName,
 			price: item.pricePerUnit,
 			description: item.description,
@@ -108,7 +130,7 @@ export const getItemsByCategory = async (req, res) => {
 		const { category } = req.params;
 
 		const items = await Item.find({ category, isActive: true });
-		
+
 		if (items.length === 0) {
 			return res.status(404).json({ message: 'No items found in this category' });
 		}
@@ -122,37 +144,37 @@ export const getItemsByCategory = async (req, res) => {
 
 export const getRelatedItems = async (req, res) => {
 	try {
-	  const { category, itemId } = req.body.params;
+		const { category, itemId } = req.body.params;
 		console.log(req.body)
-	  if (!category) {
-		return res.status(400).json({
-		  success: false,
-		  message: 'Category is required'
-		});
-	  }
-	  const query = { category };
-	  if (itemId) {
-		if (!mongoose.Types.ObjectId.isValid(itemId)) {
-		  return res.status(400).json({
-			success: false,
-			message: 'Invalid product ID1'
-		  });
+		if (!category) {
+			return res.status(400).json({
+				success: false,
+				message: 'Category is required'
+			});
 		}
-		query._id = { $ne: new mongoose.Types.ObjectId(itemId) };
-	  }
-	  const relatedItems = await Item.find(query).limit(4);
-  
-	  return res.status(200).json({
-		success: true,
-		count: relatedItems.length,
-		items: relatedItems
-	  });
-  
+		const query = { category };
+		if (itemId) {
+			if (!mongoose.Types.ObjectId.isValid(itemId)) {
+				return res.status(400).json({
+					success: false,
+					message: 'Invalid product ID1'
+				});
+			}
+			query._id = { $ne: new mongoose.Types.ObjectId(itemId) };
+		}
+		const relatedItems = await Item.find(query).limit(4);
+
+		return res.status(200).json({
+			success: true,
+			count: relatedItems.length,
+			items: relatedItems
+		});
+
 	} catch (error) {
-	  console.error('Error fetching related items:', error);
-	  res.status(500).json({
-		success: false,
-		message: 'Server error'
-	  });
+		console.error('Error fetching related items:', error);
+		res.status(500).json({
+			success: false,
+			message: 'Server error'
+		});
 	}
-  };
+};

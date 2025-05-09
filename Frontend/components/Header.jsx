@@ -8,15 +8,21 @@ import { useCartStore } from '../src/stores/useCartStore';
 const Header = () => {
   const navigate = useNavigate();
   const { cart } = useCartStore();
-  const { user } = useUserStore();
-React.useEffect(() => {
-  console.log("StoragePark")
-}, [user]);
+  const { user, logout } = useUserStore(); // Add logout function
+
   const handleCartClick = () => {
     if (cart.length === 0) {
       navigate('/empty-cart');
     } else {
       navigate('/cart');
+    }
+  };
+
+  const handleRoleNavigation = () => {
+    if (user.role === 'partner') {
+      navigate('/partner-dashboard');
+    } else if (user.role === 'admin') {
+      navigate('/admin');
     }
   };
 
@@ -44,15 +50,34 @@ React.useEffect(() => {
         <div className="flex items-center gap-6">
           {user ? (
             <>
-              <ProfileMenu />
-              <button onClick={handleCartClick} className="relative text-gray-700 hover:text-orange-500 transition-colors cursor-pointer">
-                <ShoppingCart size={20} color='orange' />
-                {cart.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] font-semibold px-1 py-[1px] rounded-full">
-                    {cart.length}
-                  </span>
-                )}
-              </button>
+              {user.role === 'customer' ? (
+                <>
+                  <ProfileMenu />
+                  <button onClick={handleCartClick} className="relative text-gray-700 hover:text-orange-500 transition-colors cursor-pointer">
+                    <ShoppingCart size={20} color="orange" />
+                    {cart.length > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] font-semibold px-1 py-[1px] rounded-full">
+                        {cart.length}
+                      </span>
+                    )}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleRoleNavigation}
+                    className="text-gray-700 hover:text-orange-500 transition-colors cursor-pointer"
+                  >
+                    {user.role === 'partner' ? 'Partner' : 'Admin'}
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="text-gray-700 hover:text-orange-500 transition-colors cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
             </>
           ) : (
             <>
@@ -63,7 +88,7 @@ React.useEffect(() => {
                 Login
               </Link>
               <button onClick={handleCartClick} className="relative text-gray-700 hover:text-orange-500 transition-colors cursor-pointer">
-                <ShoppingCart size={20} color='orange' />
+                <ShoppingCart size={20} color="orange" />
               </button>
             </>
           )}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../lib/axios';
-import {LoadingSpinner} from './LoadingSpinner';
+import { LoadingSpinner } from './LoadingSpinner';
+
 export function OrderList() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -9,8 +10,8 @@ export function OrderList() {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('/orders/user-orders');
-        setOrders(res.data.orders);
+        const res = await axios.get('/orders/user-orders'); // Fetch orders from the endpoint
+        setOrders(res.data.orders); // Set the orders in state
       } catch (err) {
         console.error('Error fetching orders:', err);
       } finally {
@@ -23,19 +24,26 @@ export function OrderList() {
 
   if (loading) return <LoadingSpinner />;
   if (orders.length === 0) return <p>No orders found.</p>;
+
   return (
     <div className="space-y-6">
-      {orders.map((order, i) => (
-        <div key={i} className="border border-orange-200 rounded-lg p-6">
+      {orders.map((order) => (
+        <div key={order.orderId} className="border border-orange-200 rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h3 className="text-lg font-semibold">Order #{i+1}</h3>
-              <p className="text-gray-600">{new Date(order.orderDate).toLocaleDateString()}</p>
+              <h3 className="text-lg font-semibold">Order #{order.orderId}</h3> {/* Display orderId */}
+              <p className="text-gray-600">
+                {new Date(order.orderDate).toLocaleDateString()}
+              </p>
             </div>
             <div className="text-right">
-              <span className={`px-3 py-1 rounded-full text-sm ${
-                order.status === 'delivered' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-              }`}>
+              <span
+                className={`px-3 py-1 rounded-full text-sm ${
+                  order.status === 'delivered'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}
+              >
                 {order.status}
               </span>
             </div>
@@ -43,7 +51,10 @@ export function OrderList() {
 
           <div className="space-y-4">
             {order.items.map((item, idx) => (
-              <div key={idx} className="flex justify-between items-center border-t border-gray-100 pt-4">
+              <div
+                key={idx}
+                className="flex justify-between items-center border-t border-gray-100 pt-4"
+              >
                 <div>
                   <p className="font-medium">{item.name || 'Item'}</p>
                   <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>

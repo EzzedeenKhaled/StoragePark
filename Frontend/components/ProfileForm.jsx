@@ -105,7 +105,7 @@ export function ProfileForm({ initialData = {} }) {
               name="email"
               disabled
               value={formData.email}
-              onChange={handleChange}
+              // onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 cursor-not-allowed rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             />
           </div>

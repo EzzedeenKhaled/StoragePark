@@ -23,7 +23,7 @@ const OutgoingOrders = () => {
         setLoading(true);
         const response = await axios.get('/admins/order-stats');
         setStats(response.data);
-        setOrders(response.data.orders || mockOutgoingOrders); // Use mock data as fallback if orders aren't included
+        setOrders(response.data.orders); // Use mock data as fallback if orders aren't included
       } catch (error) {
         console.error('Error fetching order statistics:', error);
         // Keep using mock data if the API call fails
@@ -40,7 +40,7 @@ const OutgoingOrders = () => {
     const fetchDataOrders = async () => {
       try {
         const response = await axios.get("/admins/getDataOrders");
-        console.log("dl: ",response)
+        console.log("dl: ", response)
         setDataOrders(response.data); // Store the fetched data in the state
       } catch (error) {
         console.error("Error fetching data orders:", error);
@@ -148,8 +148,8 @@ const OutgoingOrders = () => {
           <thead>
             <tr>
               <th>ORDER ID</th>
-              <th>COMPANY NAME</th>
-              <th>CUSTOMER PHONE</th>
+              <th>USER NAME</th>
+              <th>USER PHONE</th>
               <th>TOTAL PRICE</th>
               <th>STATUS</th>
               <th>DATE</th>
@@ -159,14 +159,20 @@ const OutgoingOrders = () => {
   {filteredOrders.map((order) => (
     <tr key={order.orderId}>
       <td className="order-id">
-        <button
-          className="text-orange-500 hover:underline"
-          onClick={() => navigate(`/order-status/${order.orderId}`)}
-        >
-          #{order.orderId}
-        </button>
+        {order.status === 'Delivered' ? (
+          <span className="text-gray-400 cursor-not-allowed">#{order.orderId}</span>
+        ) : (
+          <button
+            className="text-orange-500 hover:underline"
+            onClick={() => navigate(`/order-status/${order.orderId}`)}
+          >
+            #{order.orderId}
+          </button>
+        )}
       </td>
-      <td className="company-name">{order.company}</td>
+      <td className="company-name">
+        {order.company} {order.role === 'customer' ? '(c)' : order.role === 'partner' ? '(p)' : ''}
+      </td>
       <td className="partner-phone">
         <svg
           className="w-4 h-4 inline-block mr-2"
@@ -181,7 +187,7 @@ const OutgoingOrders = () => {
             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
           />
         </svg>
-        {order.phone}
+        {order.phone} {order.role === 'customer' ? '(c)' : order.role === 'partner' ? '(p)' : ''}
       </td>
       <td className="total-price">${order.price}</td>
       <td>

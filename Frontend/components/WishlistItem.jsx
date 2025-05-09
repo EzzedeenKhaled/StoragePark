@@ -2,7 +2,7 @@ import React from 'react';
 import { useCartStore } from '../src/stores/useCartStore';
 import { useUserStore } from '../src/stores/useUserStore';
 import { LoadingSpinner } from './LoadingSpinner';
-import { toast } from 'react-hot-toast';
+import axios from '../lib/axios';
 
 export function WishlistItem({ wishlist }) {
   const { addToCart } = useCartStore();
@@ -60,7 +60,15 @@ export function WishlistItem({ wishlist }) {
           <div className="mt-4 space-y-2">
             <button
               className="w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition-colors cursor-pointer"
-              onClick={() => addToCart(item._id)} 
+              onClick={async () => {
+                try {
+                  const res = await axios.get(`/products/${item._id}`);
+                  const product = res.data;
+                  addToCart(product); // Now pass the whole product, not just ID
+                } catch (error) {
+                  console.error("Failed to fetch product", error.message);
+                }
+              }}
             >
               Add to Cart
             </button>

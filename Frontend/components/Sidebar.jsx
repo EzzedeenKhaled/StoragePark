@@ -52,7 +52,7 @@ export function Sidebar() {
             <Heart size={20} /> Wishlist
           </Link>
           <Link to="/profile" className={linkClasses('/profile')}>
-            <Pencil size={20} /> Update Profile
+            <Pencil size={20} /> Profile
           </Link>
         </nav>
       </div>

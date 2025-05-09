@@ -69,13 +69,13 @@ const ProductDetails = ({ product }) => {
   const handleAddToCart = () => {
     if (user) {
       // User is logged in, add item to the cart
-      addToCart(productId); // Assuming this function updates the cart
+      addToCart(product); // Assuming this function updates the cart
     } else {
       // User is not logged in, redirect to login page with state
       navigate("/login", {
         state: {
           from: location.pathname, // current page
-          productId: productId     // product you're trying to interact with
+          product: product     // product you're trying to interact with
         }
       });
     }

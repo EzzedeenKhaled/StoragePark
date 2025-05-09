@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../../components/Header';
-import ProductCardCart from '../../components/ProductCardCart';
-import { ArrowRight, Trash2, Minus, Plus } from 'lucide-react';
-import { useCartStore } from '../stores/useCartStore';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import Header from "../../components/Header";
+import ProductCardCart from "../../components/ProductCardCart";
+import { ArrowRight, Trash2, Minus, Plus } from "lucide-react";
+import { useCartStore } from "../stores/useCartStore";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
+import axios from "../../lib/axios";
+
 const Cart = () => {
-  const { cart, total, subtotal, removeFromCart, updateQuantity, getCartItems,loading } = useCartStore();
+  const { cart, total, subtotal, removeFromCart, updateQuantity, getCartItems, loading } = useCartStore();
+  const [onSaleItems, setOnSaleItems] = useState([]); // State for on-sale items
+
   useEffect(() => {
     async function fetchCart() {
       await getCartItems();
@@ -14,44 +18,26 @@ const Cart = () => {
 
     fetchCart();
   }, [getCartItems]);
-  console.log("cajiofjaipfa: ",cart)
-  if (loading) return <LoadingSpinner />;
-  // const item = cart?.[0];
-  // console.log(item); // safely access it
-  const saleItems = [
-    {
-      id: 3,
-      title: 'Raycon Earbuds',
-      price: '25.34',
-      originalPrice: '35.25',
-      discount: '28',
-      image: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3'
-    },
-    {
-      id: 4,
-      title: 'Essentials 4 Pack: Men\'s Dry-Fit',
-      price: '22.34',
-      originalPrice: '32.99',
-      discount: '32',
-      image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&q=80&w=2127&ixlib=rb-4.0.3'
-    },
-    {
-      id: 5,
-      title: 'Oral-B IO Deep Clean',
-      price: '99.99',
-      originalPrice: '139.42',
-      discount: '28',
-      image: 'https://images.unsplash.com/photo-1559591937-ffe1193d0a53?auto=format&fit=crop&q=80&w=1974&ixlib=rb-4.0.3'
-    },
-    {
-      id: 6,
-      title: 'Espresso Machine With Auto Milk Frother',
-      price: '399.95',
-      originalPrice: '548.62',
-      discount: '27',
-      image: 'https://images.unsplash.com/photo-1517150140803-a7c235de31dd?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3'
+
+  useEffect(() => {
+    const fetchOnSaleItems = async () => {
+      try {
+        const cartItemIds = cart.map((item) => item._id); // Get IDs of items in the cart
+        const response = await axios.post("/products/onSale", { cartItemIds }); // Fetch on-sale items
+        setOnSaleItems(response.data); // Set on-sale items
+        console.log(onSaleItems)
+      } catch (error) {
+        console.error("Error fetching on-sale items:", error);
+      }
+    };
+
+    if (cart.length > 0) {
+      fetchOnSaleItems();
     }
-  ];
+  }, [cart]);
+
+  if (loading) return <LoadingSpinner />;
+
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -69,7 +55,7 @@ const Cart = () => {
 
         {cart.length > 0 ? (
           <div className="space-y-6 mb-8">
-            {cart.map(item => (
+            {cart.map((item) => (
               <div key={item._id} className="bg-white p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-center gap-4">
                 <img
                   src={item.imageProduct}
@@ -85,14 +71,14 @@ const Cart = () => {
                     className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded flex items-center justify-center transition-colors cursor-pointer"
                     onClick={() => updateQuantity(item._id, item.quantity - 1)}
                   >
-                    <Minus className='text-gray-600' />
+                    <Minus className="text-gray-600" />
                   </button>
                   <span className="mx-2">{item.quantity}</span>
                   <button
                     className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded flex items-center justify-center transition-colors cursor-pointer"
                     onClick={() => updateQuantity(item._id, item.quantity + 1)}
                   >
-                    <Plus className='text-gray-600' />
+                    <Plus className="text-gray-600" />
                   </button>
                 </div>
                 <button
@@ -121,16 +107,16 @@ const Cart = () => {
             <Link
               to="/payment-form"
               state={{
-                cartItems: cart.map(item => ({
+                cartItems: cart.map((item) => ({
                   _id: item._id,
                   name: item.productName,
-                  category: item.category, // Make sure your cart items have a category field
+                  category: item.category,
                   price: item.pricePerUnit,
                   quantity: item.quantity,
-                  image: item.imageProduct
+                  image: item.imageProduct,
                 })),
                 subtotal: subtotal,
-                total: (parseFloat(subtotal) + 3).toFixed(2)
+                total: (parseFloat(subtotal) + 3).toFixed(2),
               }}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 w-full transition-colors"
             >
@@ -151,11 +137,11 @@ const Cart = () => {
           </div>
         )}
 
-        <h2 className="text-2xl font-bold mb-4">More On Sale Items To Add</h2>
+        <h2 className="text-2xl font-bold mb-4">On Sale Items To Add</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {saleItems.map(item => (
-            <ProductCardCart key={item.id} product={item} onSale={true} />
+          {onSaleItems.map((item) => (
+            <ProductCardCart key={item._id} product={item} onSale={true} />
           ))}
         </div>
       </main>

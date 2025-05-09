@@ -301,24 +301,21 @@ export const getAllProducts = async (req, res) => {
 
 export const getDataOrders = async (req, res) => {
   try {
-    // Find all users with customer or partner roles who have orders
     const users = await User.find({
       role: { $in: ["customer", "partner"] },
-      "orders.0": { $exists: true }, // Ensure they have at least one order
-    }).populate("orders.items.item", "name imageProduct price"); // Populate item details
+      "orders.0": { $exists: true },
+    }).populate("orders.items.item", "name imageProduct price");
 
-    // Combine all orders into a single array with the required fields
     const orders = users.flatMap(user =>
       user.orders.map(order => ({
         orderId: order.orderId,
-        name:user.firstName,
-        company: user.partner?.companyName, // Use company name for partners or full name for customers
-        phone: user.phoneNumber,
-        companyPhone:user.partner.phoneNumber,
+        name: user.firstName,
+        company: user.role === "partner" ? user.partner?.companyName : `${user.firstName} ${user.lastName}`,
+        phone: user.role === "partner" ? user.partner?.phoneNumber : user.phoneNumber,
         price: order.totalAmount,
         status: order.status,
-        date: order.orderDate.toISOString().split("T")[0], // Format date as YYYY-MM-DD
-        role:user.role
+        date: order.orderDate.toISOString().split("T")[0],
+        role: user.role,
       }))
     );
 
@@ -328,6 +325,7 @@ export const getDataOrders = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const updateCustomer = async (req, res) => {
   try {
