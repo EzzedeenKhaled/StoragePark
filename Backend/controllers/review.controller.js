@@ -91,7 +91,6 @@ export const getReviewsByCategory = async (req, res) => {
     try {
         // Correct field name is "category", not "categoryName"
         const items = await Item.find({ category: categoryName }).select("_id");
-        console.log("Items in category:", items);
         const itemIds = items.map(item => item._id);
 
         const reviews = await Review.find({ item: { $in: itemIds } })

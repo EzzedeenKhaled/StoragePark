@@ -2,29 +2,36 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from '../lib/axios';
+import { useUserStore } from '../src/stores/useUserStore';
 const TrackOrder = () => {
   const [showInput, setShowInput] = useState(false); // State to toggle input form
   const [orderId, setOrderId] = useState(''); // State to store the entered order ID
   const navigate = useNavigate();
-
+  const {user} = useUserStore();
   const handleTrackOrder = async () => {
     if (!orderId.trim()) {
-      toast.error('Please enter a valid Order ID');
+      toast.error("Please enter a valid Order ID");
       return;
     }
-
+  
     try {
-      const response = await axios.get(`/orders/orderIdCheck/${orderId}`);
-      if (response.data.exists) {
+      const userId = user?._id || ""; 
+      const response = await axios.get(`/orders/orderIdCheck/${orderId}`, {
+        params: { userId },
+      });
+  
+      if (response.data.message === "Order has already been delivered") {
+        toast.success("Order has already been delivered");
+      } else if (response.data.exists) {
         navigate(`/order-status/${orderId}`);
       } else {
-        toast.error('Order ID does not exist');
+        toast.error("Order ID does not exist");
       }
     } catch (error) {
-      if (error.response && error.response.status === 404) {
-        toast.error('Order ID does not exist');
+      if (error.response.status === 404) {
+        toast.error("Order ID does not exist");
       } else {
-        toast.error('Something went wrong');
+        toast.error("Something went wrong");
       }
     }
   };

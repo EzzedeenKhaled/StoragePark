@@ -99,18 +99,56 @@ export const getUserOrders = async (req, res) => {
 
 export const checkOrderIdExists = async (req, res) => {
   const { orderId } = req.params;
+  const { userId } = req.query;
 
   try {
-    const userWithOrder = await User.findOne({ "orders.orderId": orderId });
-    if (userWithOrder) {
+    let order = null;
+
+    // If userId is provided
+    if (userId) {
+      const user = await User.findById(userId).populate("orders.items.item", "name price");
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      order = user.orders.find((o) => o.orderId === orderId);
+
+      if (!order) {
+        return res.status(404).json({ message: "Order ID does not exist" });
+      }
+
+      if (order.status === "delivered") {
+        return res.status(200).json({ message: "Order has already been delivered" });
+      }
+
       return res.status(200).json({ exists: true });
-    } else {
-      return res.status(404).json({ exists: false, message: "Order ID not found" });
     }
+
+    // If no userId is provided (guest)
+    const userWithOrder = await User.findOne(
+      { "orders.orderId": orderId },
+      { "orders.$": 1 }
+    );
+
+    if (!userWithOrder || !userWithOrder.orders.length) {
+      return res.status(404).json({ message: "Order ID does not exist" });
+    }
+
+    const [foundOrder] = userWithOrder.orders;
+
+    // Prevent guest from knowing if the delivered order exists
+    if (foundOrder.status === "delivered") {
+      return res.status(404).json({ message: "Order ID does not exist" });
+    }
+
+    return res.status(200).json({ exists: true });
   } catch (error) {
-    return res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Error checking order ID:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const getOrderStatus = async (req, res) => {
   const { orderId } = req.params;

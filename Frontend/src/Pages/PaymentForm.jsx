@@ -50,7 +50,7 @@ const PaymentForm = () => {
       navigate('/purchase-success', { state: { orderId: res.data.orderId } });
     } catch (err) {
       console.error('Order submission error:', err);
-      toast.error(err.message || 'Failed to process payment. Please try again.');
+      toast.error('Failed to process payment. Please try again.');
     }
   };
 

@@ -3,17 +3,15 @@ import "./sidebar.css";
 import logo from "/logo2.png";
 import dashboard from "/dashboard.png";
 import users from "/user.png";
-import Payments from "/payments.png";
 import store from "/store.png";
-import incoming from "/incoming.png";
 import outgoing from "/outgoing.png";
 import reports from "/reports.png";
 import logout from "/logout.png";
 import { useNavigate } from 'react-router-dom';
-import {useUserStore} from '../../src/stores/useUserStore'
+import { useUserStore } from '../../src/stores/useUserStore'
 
 const Sidebar = () => {
-  const {logout: logOut} = useUserStore();
+  const { logout: logOut } = useUserStore();
   const navigate = useNavigate();
 
   // State for expanded parent and active item
@@ -141,45 +139,35 @@ const Sidebar = () => {
             )}
           </li>
 
-          {/* Payments */}
+          {/* Products */}
           <li
-            onClick={() => handleParentClick("Payments")}
-            className={`sidebar-item ${activeItem === "Payments" ? "active-component" : ""}`}
+            onClick={() => {
+              setExpandedMenu(null); // Collapse any open menus
+              setActiveItem("Products"); // Set Products as active
+              navigate("/admin/products");
+            }}
+            className={`sidebar-item ${activeItem === "Products" ? "active-component" : ""}`}
           >
-            {/* Parent Menu Item */}
             <div className="menu-item-content">
-              <img
-                src={Payments}
-                alt="Payments"
-                className={`icon ${activeItem === "Payments" ? "active-icon" : ""}`}
-              />
-              <span>Payments</span>
-              <span className="arrow">{expandedMenu === "Payments" ? "▲" : "▼"}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`h-5 w-5 mr-3 ${activeItem === "Products" ? "active-icon" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                />
+              </svg>
+              <span>Products</span>
             </div>
-            {/* Sub-menu for Payments */}
-            {expandedMenu === "Payments" && (
-              <ul className="sub-menu">
-                <li
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent closing the menu
-                    handleChildClick("Wallets", "/wallets");
-                  }}
-                  className={`sub-menu-item ${activeItem === "Wallets" ? "active-submenu" : ""}`}
-                >
-                  Wallets
-                </li>
-                <li
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent closing the menu
-                    handleChildClick("Transactions", "/transactions");
-                  }}
-                  className={`sub-menu-item ${activeItem === "Transactions" ? "active-submenu" : ""}`}
-                >
-                  Transactions
-                </li>
-              </ul>
-            )}
           </li>
+
+
 
           {/* Other Menu Items */}
           <li
@@ -197,23 +185,6 @@ const Sidebar = () => {
                 className={`icon ${activeItem === "Store" ? "active-icon" : ""}`}
               />
               <span>Store</span>
-            </div>
-          </li>
-          <li
-            onClick={() => {
-              setExpandedMenu(null); // Collapse any open menus
-              setActiveItem("Incoming Orders"); // Set Incoming Orders as active
-              navigate("/admin/incoming-orders");
-            }}
-            className={`sidebar-item ${activeItem === "Incoming Orders" ? "active-component" : ""}`}
-          >
-            <div className="menu-item-content">
-              <img
-                src={incoming}
-                alt="Incoming Orders"
-                className={`icon ${activeItem === "Incoming Orders" ? "active-icon" : ""}`}
-              />
-              <span>Incoming Orders</span>
             </div>
           </li>
           <li

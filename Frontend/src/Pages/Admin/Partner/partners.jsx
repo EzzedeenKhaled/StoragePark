@@ -19,7 +19,7 @@ const Partners = () => {
         const { data } = await axios.get('/admins/accepted');
         setPartners(data);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch partners.');
+        setError('Failed to fetch partners.');
       } finally {
         setLoading(false);
       }

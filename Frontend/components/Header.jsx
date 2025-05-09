@@ -10,7 +10,7 @@ const Header = () => {
   const { cart } = useCartStore();
   const { user } = useUserStore();
 React.useEffect(() => {
-  console.log("Header user: ", user)
+  console.log("StoragePark")
 }, [user]);
   const handleCartClick = () => {
     if (cart.length === 0) {
