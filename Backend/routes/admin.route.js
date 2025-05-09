@@ -11,7 +11,8 @@ import {
   getOrderSummary,
   getOrderStatistics,
   getDataOrders,
-  getFinancialOverview
+  getFinancialOverview,
+  getAllProducts
 } from "../controllers/admin.controller.js";
 import { protectRoute, adminRoute } from "../middleware/auth.middleware.js";
 import {
@@ -48,11 +49,15 @@ router.get("/getAllQuantity", protectRoute, adminRoute, getAllQuantity);
 router.get("/partnersAndCategories", protectRoute, adminRoute, getPartnersAndCategories);
 router.get("/highestSelling", protectRoute, adminRoute, getHighestSellingProducts);
 router.get("/lowQuantity", protectRoute, adminRoute, getLowQuantityStock);
+
+// Product routes
+router.get("/allProducts", protectRoute, adminRoute, getAllProducts);
+
 router.get("/orderSummary", protectRoute, adminRoute, getOrderSummary);
 
 // Order and financial routes
-router.get("/order-statistics", protectRoute, adminRoute, getOrderStatistics);
-router.get("/orders", protectRoute, adminRoute, getDataOrders);
+router.get("/order-stats", protectRoute, adminRoute, getOrderStatistics);
+router.get("/getDataOrders", protectRoute, adminRoute, getDataOrders);
 router.get("/financial-overview", protectRoute, adminRoute, getFinancialOverview);
 
 export default router;

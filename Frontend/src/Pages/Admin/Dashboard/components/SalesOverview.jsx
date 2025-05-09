@@ -79,7 +79,7 @@ const SalesOverview = () => {
 
         const [financialData, orderStats] = await Promise.all([
           axios.get('/admins/financial-overview'),
-          axios.get('/admins/order-statistics')
+          axios.get('/admins/order-stats')
         ]);
 
         const newMetrics = [...metrics];
