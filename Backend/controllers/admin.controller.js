@@ -693,3 +693,109 @@ export const getAcceptedPartners = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getFinancialOverview = async (req, res) => {
+  try {
+    // Get all users with orders
+    const users = await User.find({
+      "orders.0": { $exists: true }
+    }).populate("orders.items.item");
+
+    // Calculate e-commerce revenue and profit
+    let ecommerceRevenue = 0;
+    let ecommerceProfit = 0;
+
+    users.forEach(user => {
+      user.orders.forEach(order => {
+        order.items.forEach(item => {
+          const itemTotal = item.price * item.quantity;
+          ecommerceRevenue += itemTotal;
+          // Calculate 50% profit from e-commerce sales
+          ecommerceProfit += itemTotal * 0.5;
+        });
+      });
+    });
+
+    // Get all items with reserved storage
+    const items = await Item.find({
+      reservedRowId: { $exists: true, $ne: null }
+    });
+
+    // Fetch all warehouses in one go for efficiency
+    const warehouseIds = items.map(item => item.reservedRowId).filter(Boolean);
+    const Warehouse = (await import('../models/warehouse.model.js')).default;
+    const warehouses = await Warehouse.find({ _id: { $in: warehouseIds } });
+    const warehouseMap = {};
+    warehouses.forEach(wh => { warehouseMap[wh._id.toString()] = wh; });
+
+    // Calculate storage revenue and profit
+    let storageRevenue = 0;
+    let storageProfit = 0;
+    items.forEach(item => {
+      const warehouse = warehouseMap[item.reservedRowId?.toString()];
+      if (warehouse && warehouse.costPerSquareMeter && item.packageWidth && item.packageHeight && item.quantity) {
+        const area = (item.packageWidth * item.packageHeight * item.quantity) / 10000;
+        const monthlyCost = area * warehouse.costPerSquareMeter.monthly;
+        storageRevenue += monthlyCost;
+        storageProfit += monthlyCost;
+      }
+    });
+
+    // Calculate total revenue and profit
+    const totalRevenue = ecommerceRevenue + storageRevenue;
+    const totalProfit = ecommerceProfit + storageProfit;
+
+    // Calculate total reserved rows from Warehouse rows
+    const warehousesWithReservedRows = await Warehouse.find({ 'rows.isReserved': true }, { rows: 1 });
+    let totalReservedRows = 0;
+    warehousesWithReservedRows.forEach(warehouse => {
+      totalReservedRows += warehouse.rows.filter(row => row.isReserved).length;
+    });
+
+    // Get monthly data for the chart
+    const monthlyData = [];
+    const currentYear = new Date().getFullYear();
+    for (let month = 0; month < 12; month++) {
+      const startDate = new Date(currentYear, month, 1);
+      const endDate = new Date(currentYear, month + 1, 0);
+      let monthlyStorageRevenue = 0;
+      let monthlyEcommerceRevenue = 0;
+      items.forEach(item => {
+        const warehouse = warehouseMap[item.reservedRowId?.toString()];
+        if (warehouse && warehouse.costPerSquareMeter && item.packageWidth && item.packageHeight && item.quantity) {
+          const area = (item.packageWidth * item.packageHeight * item.quantity) / 10000;
+          const monthlyCost = area * warehouse.costPerSquareMeter.monthly;
+          monthlyStorageRevenue += monthlyCost;
+        }
+      });
+      users.forEach(user => {
+        user.orders.forEach(order => {
+          if (order.orderDate >= startDate && order.orderDate <= endDate) {
+            order.items.forEach(item => {
+              monthlyEcommerceRevenue += item.price * item.quantity;
+            });
+          }
+        });
+      });
+      monthlyData.push({
+        month: startDate.toLocaleString('default', { month: 'short' }),
+        storage: monthlyStorageRevenue,
+        ecommerce: monthlyEcommerceRevenue
+      });
+    }
+
+    res.status(200).json({
+      storageRevenue,
+      ecommerceRevenue,
+      totalRevenue,
+      storageProfit,
+      ecommerceProfit,
+      totalProfit,
+      totalReservedRows,
+      monthlyData
+    });
+  } catch (error) {
+    console.error("Error fetching financial overview:", error);
+    res.status(500).json({ message: "Failed to fetch financial overview", error: error.message });
+  }
+};

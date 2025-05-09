@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const STORAGE_COSTS = {
 	standard: {
 		monthly: 10,    // $10 per m² per month
-		daily: 0.40     // $0.40 per m² per day (approximately $10/30 days)
+		daily: 0.40     // $0.40 per m² per day 
 	},
 	fragile: {
 		monthly: 15,    // $15 per m² per month

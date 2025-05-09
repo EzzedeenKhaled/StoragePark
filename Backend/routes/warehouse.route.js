@@ -10,6 +10,6 @@ const router = express.Router();
 
 router.get("/structure", protectRoute, getWarehouseStructure);
 router.get("/:aisleId", protectRoute, getAisleDetails);
-router.patch("/:aisleId/rows/:rowId", protectRoute, updateRowStatus);
+router.post("/:aisleId/rows/:rowId", protectRoute, updateRowStatus);
 
 export default router; 

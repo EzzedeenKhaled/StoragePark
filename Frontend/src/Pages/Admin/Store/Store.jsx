@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import Header from '../../../../components/Admin/Header';
-import { useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
-import PropTypes from 'prop-types';
 import { toast } from 'react-hot-toast';
 import axios from '../../../../lib/axios';
+import {
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  ExclamationTriangleIcon
+} from '@heroicons/react/24/outline';
 
 const Store = () => {
-  const navigate = useNavigate();
-  const [filter, setFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editRow, setEditRow] = useState(null);
+  const [addRowAisle, setAddRowAisle] = useState(null);
+  const [deleteRow, setDeleteRow] = useState(null);
+  const [detailsRow, setDetailsRow] = useState(null);
+  const [detailsItems, setDetailsItems] = useState([]);
+  const [detailsPartner, setDetailsPartner] = useState(null);
 
   useEffect(() => {
     fetchWarehouses();
@@ -20,10 +26,8 @@ const Store = () => {
   const fetchWarehouses = async () => {
     try {
       const response = await axios.get('/warehouse/structure');
-      console.log('Warehouse response:', response.data);
       if (response.data.statusCode === 200) {
         setWarehouses(response.data.data);
-        console.log('Warehouses state:', response.data.data);
       } else {
         throw new Error(response.data.message || 'Failed to fetch warehouse data');
       }
@@ -35,97 +39,30 @@ const Store = () => {
     }
   };
 
-  const filteredWarehouses = warehouses.filter(warehouse => {
-    console.log('Filtering warehouse:', warehouse);
-    const matchesSearch = `Aisle ${warehouse.aisleNumber}`.toLowerCase().includes(searchQuery.toLowerCase());
-    const hasReservedRows = warehouse.rows.some(row => row.isReserved);
-    const matchesFilter = 
-      filter === 'all' ? true :
-      filter === 'reserved' ? hasReservedRows :
-      filter === 'available' ? !hasReservedRows : true;
-    
-    return matchesSearch && matchesFilter;
-  });
-
-  console.log('Filtered warehouses:', filteredWarehouses);
-
-  const handleSectionClick = (aisleId, side) => {
-    navigate(`/admin/store/aisle/${aisleId}/${side.toLowerCase()}`);
+  const handleReset = async () => {
+    try {
+      await axios.post('/warehouse/reset');
+      toast.success('Warehouse reset!');
+      fetchWarehouses();
+    } catch {
+      toast.error('Failed to reset warehouse');
+    }
   };
 
-  const AisleSection = ({ warehouse }) => {
-    console.log('Rendering AisleSection for warehouse:', warehouse);
-    const leftRows = warehouse.rows.filter(row => row.side === 'left');
-    const rightRows = warehouse.rows.filter(row => row.side === 'right');
-    const leftReserved = leftRows.some(row => row.isReserved);
-    const rightReserved = rightRows.some(row => row.isReserved);
-
-    return (
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold text-gray-800">Aisle {warehouse.aisleNumber}</h3>
-            <span className={`px-3 py-1 rounded-full text-sm ${
-              warehouse.storageType === 'standard' ? 'bg-green-100 text-green-800' :
-              warehouse.storageType === 'fragile' ? 'bg-red-100 text-red-800' :
-              'bg-blue-100 text-blue-800'
-            }`}>
-              {warehouse.storageType.charAt(0).toUpperCase() + warehouse.storageType.slice(1)}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div
-              className={`p-4 rounded-xl cursor-pointer transition-all duration-300 ${
-                leftReserved 
-                  ? 'bg-red-500/90 text-white hover:bg-red-600' 
-                  : 'bg-green-500/90 text-white hover:bg-green-600'
-              }`}
-              onClick={() => handleSectionClick(warehouse.aisleNumber, 'Left')}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Left Side</span>
-                <div className="text-sm opacity-80">
-                  <p>{leftRows.length} Rows</p>
-                  <p>{leftReserved ? 'Partially Reserved' : 'Available'}</p>
-                </div>
-              </div>
-            </div>
-            <div
-              className={`p-4 rounded-xl cursor-pointer transition-all duration-300 ${
-                rightReserved 
-                  ? 'bg-red-500/90 text-white hover:bg-red-600' 
-                  : 'bg-green-500/90 text-white hover:bg-green-600'
-              }`}
-              onClick={() => handleSectionClick(warehouse.aisleNumber, 'Right')}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Right Side</span>
-                <div className="text-sm opacity-80">
-                  <p>{rightRows.length} Rows</p>
-                  <p>{rightReserved ? 'Partially Reserved' : 'Available'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 text-sm text-gray-600">
-            <p>Cost: ${warehouse.costPerSquareMeter.monthly}/m²/month</p>
-            <p>or ${warehouse.costPerSquareMeter.daily}/m²/day</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  AisleSection.propTypes = {
-    warehouse: PropTypes.shape({
-      aisleNumber: PropTypes.number.isRequired,
-      storageType: PropTypes.string.isRequired,
-      rows: PropTypes.array.isRequired,
-      costPerSquareMeter: PropTypes.shape({
-        monthly: PropTypes.number.isRequired,
-        daily: PropTypes.number.isRequired,
-      }).isRequired,
-    }).isRequired,
+  const handleViewDetails = async (row) => {
+    try {
+      const res = await axios.get(`/products/active-items`);
+      const items = res.data.filter(item => String(item.reservedRowId) === String(row._id));
+      setDetailsItems(items);
+      if (items.length > 0 && items[0].partner) {
+        setDetailsPartner(items[0].partner);
+      } else {
+        setDetailsPartner(null);
+      }
+      setDetailsRow(row);
+    } catch {
+      toast.error('Failed to fetch row details');
+    }
   };
 
   if (loading) {
@@ -136,53 +73,272 @@ const Store = () => {
     );
   }
 
-  console.log('Rendering Store component with warehouses:', warehouses);
-  console.log('Filtered warehouses for rendering:', filteredWarehouses);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200">
-      <Header />
-      <div className="max-w-7xl mx-auto px-4 py-10 pt-28">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">Warehouse Management</h2>
-          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-            <div className="relative flex-1 sm:flex-none">
-              <input
-                type="text"
-                placeholder="Search aisles..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full sm:w-64 pl-10 pr-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white shadow-sm"
-              />
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            </div>
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white shadow-sm"
-            >
-              <option value="all">All Aisles</option>
-              <option value="reserved">Reserved</option>
-              <option value="available">Available</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex justify-center items-center min-h-[40vh]">
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredWarehouses.length > 0 ? (
-              filteredWarehouses.map((warehouse) => (
-                <AisleSection key={warehouse._id} warehouse={warehouse} />
-              ))
-            ) : (
-              <div className="col-span-full flex flex-col items-center justify-center py-16">
-                <img src="/empty-box.svg" alt="No warehouses" className="w-32 h-32 mb-4 opacity-60" />
-                <p className="text-gray-500 text-lg">No warehouses found</p>
-              </div>
-            )}
-          </div>
+    <>
+      <div className="fixed top-0 left-0 right-0 z-30">
+        <div className={`${editRow || addRowAisle || deleteRow || detailsRow ? 'backdrop-blur-md' : ''}`}>
+          <Header />
         </div>
       </div>
-    </div>
+      <div className="min-h-screen flex flex-col mt-16">
+        {/* Title Section */}
+        <div className="bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-bold text-gray-900">Warehouse Management</h1>
+              <button
+                onClick={handleReset}
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+              >
+                Reset All Storage
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <main className="flex-1 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="space-y-6">
+              {warehouses.map(aisle => (
+                <div key={aisle._id} className="bg-white shadow-sm rounded-lg border border-gray-200">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center">
+                        <h3 className="text-xl font-semibold text-gray-800">
+                          Aisle {aisle.aisleNumber}
+                        </h3>
+                        <span className={`ml-3 px-3 py-1 rounded-full text-sm font-medium ${
+                          aisle.storageType === 'standard' ? 'bg-green-100 text-green-800' :
+                          aisle.storageType === 'fragile' ? 'bg-red-100 text-red-800' :
+                          aisle.storageType === 'temperature' ? 'bg-blue-100 text-blue-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {aisle.storageType.charAt(0).toUpperCase() + aisle.storageType.slice(1)}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setAddRowAisle(aisle)}
+                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600"
+                      >
+                        <PlusIcon className="h-5 w-5 mr-2" />
+                        Add Row
+                      </button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead>
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Row #</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Side</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dimensions (W×D)</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {aisle.rows.map(row => (
+                            <tr key={row._id} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.rowNumber}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">{row.side}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.dimensions.width}×{row.dimensions.depth} cm</td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  row.status === 'available' ? 'bg-green-100 text-green-800' :
+                                  row.status === 'reserved' ? 'bg-red-100 text-red-800' :
+                                  'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div className="flex items-center space-x-3">
+                                  <button
+                                    onClick={() => setEditRow({ aisle, row })}
+                                    className="text-blue-500 hover:text-blue-600"
+                                  >
+                                    <PencilIcon className="h-5 w-5" />
+                                  </button>
+                                  <button
+                                    onClick={() => setDeleteRow({ aisle, row })}
+                                    className="text-red-500 hover:text-red-600"
+                                  >
+                                    <TrashIcon className="h-5 w-5" />
+                                  </button>
+                                  {row.isReserved && (
+                                    <button
+                                      onClick={() => handleViewDetails(row)}
+                                      className="text-orange-500 hover:text-orange-600"
+                                    >
+                                      View Details
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+
+        {/* Modals */}
+        {(editRow || addRowAisle || deleteRow || detailsRow) && (
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-40">
+            <div className="relative w-full max-w-md mx-4">
+              {/* Blurred background layer */}
+              <div className="absolute inset-0 bg-white/40 backdrop-blur-xl rounded-lg"></div>
+              
+              {/* Content layer */}
+              <div className="relative">
+                {editRow && (
+                  <div className="bg-white/80 backdrop-blur-xl rounded-lg">
+                    <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
+                      <h2 className="text-xl font-semibold text-orange-800">Edit Row</h2>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-gray-600 mb-4">Edit functionality coming soon...</p>
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => setEditRow(null)}
+                          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {addRowAisle && (
+                  <div className="bg-white/80 backdrop-blur-xl rounded-lg">
+                    <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
+                      <h2 className="text-xl font-semibold text-orange-800">Add Row</h2>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-gray-600 mb-4">Add row functionality coming soon...</p>
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => setAddRowAisle(null)}
+                          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {deleteRow && (
+                  <div className="bg-white/80 backdrop-blur-xl rounded-lg">
+                    <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
+                      <div className="flex items-center justify-center">
+                        <ExclamationTriangleIcon className="h-6 w-6 text-orange-500 mr-2" />
+                        <h3 className="text-lg font-medium text-orange-800">Delete Row</h3>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-gray-600 mb-6 text-center">
+                        Are you sure you want to delete row {deleteRow.row.rowNumber} in aisle {deleteRow.aisle.aisleNumber}?
+                      </p>
+                      <div className="flex justify-center space-x-4">
+                        <button
+                          onClick={() => setDeleteRow(null)}
+                          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => {
+                            // Delete functionality coming soon
+                            setDeleteRow(null);
+                          }}
+                          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {detailsRow && (
+                  <div className="bg-white/80 backdrop-blur-xl rounded-lg">
+                    <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
+                      <h2 className="text-xl font-semibold text-orange-800">Reserved Row Details</h2>
+                    </div>
+                    <div className="p-6">
+                      <div className="space-y-4">
+                        <div>
+                          <span className="block text-sm font-medium text-gray-700">Partner:</span>
+                          {detailsPartner && detailsPartner.partner && detailsPartner.partner.companyName ? (
+                            <span className="block text-gray-900">{detailsPartner.partner.companyName}</span>
+                          ) : detailsPartner && (detailsPartner.firstName || detailsPartner.lastName) ? (
+                            <span className="block text-gray-900">
+                              {[detailsPartner.firstName, detailsPartner.lastName].filter(Boolean).join(' ')}
+                            </span>
+                          ) : detailsPartner && detailsPartner.email ? (
+                            <span className="block text-gray-900">{detailsPartner.email}</span>
+                          ) : (
+                            <span className="block text-gray-500">Unknown</span>
+                          )}
+                        </div>
+                        <div>
+                          <span className="block text-sm font-medium text-gray-700">Row Space:</span>
+                          {detailsRow && (() => {
+                            const totalArea = ((detailsRow.dimensions.width * detailsRow.dimensions.depth) / 10000);
+                            const usedSpace = detailsItems.reduce((sum, item) => {
+                              const itemArea = ((Number(item.packageWidth) * Number(item.packageHeight) * Number(item.quantity)) / 10000) || 0;
+                              return sum + itemArea;
+                            }, 0);
+                            const freeSpace = totalArea - usedSpace;
+                            return (
+                              <div className="space-y-1">
+                                <span className="block text-gray-700">Total: <span className="font-semibold">{totalArea.toFixed(2)} m²</span></span>
+                                <span className="block text-gray-700">Used: <span className="font-semibold">{usedSpace.toFixed(2)} m²</span></span>
+                                <span className="block text-green-700 font-semibold">Free: {freeSpace.toFixed(2)} m²</span>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                        <div>
+                          <span className="block text-sm font-medium text-gray-700">Stored Items:</span>
+                          {detailsItems.length > 0 ? (
+                            <ul className="mt-2 list-disc pl-5 text-gray-800">
+                              {detailsItems.map(item => (
+                                <li key={item._id}>
+                                  {item.productName} (Qty: {item.quantity})
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <span className="block text-gray-500">No items found in this row.</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          onClick={() => setDetailsRow(null)}
+                          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

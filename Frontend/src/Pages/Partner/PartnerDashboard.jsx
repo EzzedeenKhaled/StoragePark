@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, TrendingUp, DollarSign, CheckCircle  } from 'lucide-react';
+import { Bell, TrendingUp, DollarSign, CheckCircle, Warehouse } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import StatCard from './components/StatCard';
 import BestSelling from './components/BestSelling';
@@ -13,7 +13,8 @@ const PartnerDashboard = () => {
   const [stats, setStats] = useState({
     totalSales: 0,
     totalRevenue: 0,
-    totalProfit: 0, // Add totalProfit to state
+    totalProfit: 0,
+    storageInfo: null
   });
   const [loading, setLoading] = useState(true);
 
@@ -22,11 +23,11 @@ const PartnerDashboard = () => {
       try {
         let res;
         if(!partnerId)
-        res = await axios.get('/partners/stats');
+          res = await axios.get('/partners/stats');
         else
-        res = await axios.get('/partners/stats', {
-          params: { partnerId }
-        });
+          res = await axios.get('/partners/stats', {
+            params: { partnerId }
+          });
         setStats(res.data);
       } catch (err) {
         console.error('Error fetching stats:', err);
@@ -58,7 +59,7 @@ const PartnerDashboard = () => {
         </div>
 
         <div className="p-6 ml-[260px]">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <StatCard 
               title="Units Sold" 
               value={loading ? "Loading..." : stats.totalSales} 
@@ -79,7 +80,44 @@ const PartnerDashboard = () => {
               // percentChange={-5} 
               icon={<CheckCircle  size={24} className="text-pink-500" />}
             />
+
+            <StatCard 
+              title="Storage Cost" 
+              value={loading ? "Loading..." : stats.storageInfo ? `$${stats.storageInfo.monthlyCost.toFixed(2)}/month` : "$0.00/month"}
+              icon={<Warehouse size={24} className="text-green-500" />}
+            />
           </div>
+
+          {stats.storageInfo && (
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Storage Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Total Storage Area</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.storageInfo.totalArea.toFixed(2)} m²</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Monthly Storage Cost</p>
+                  <p className="text-2xl font-bold text-gray-900">${stats.storageInfo.monthlyCost.toFixed(2)}</p>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <h3 className="text-md font-semibold text-gray-700 mb-3">Storage Breakdown</h3>
+                <div className="space-y-4">
+                  {Object.entries(stats.storageInfo.storageBreakdown).map(([type, info]) => (
+                    <div key={type} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-800 capitalize">{type} Storage</p>
+                        <p className="text-sm text-gray-600">{info.area.toFixed(2)} m²</p>
+                      </div>
+                      <p className="font-semibold text-gray-900">${info.cost.toFixed(2)}/month</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div className="flex justify-between items-center mb-6">

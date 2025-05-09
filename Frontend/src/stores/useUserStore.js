@@ -111,7 +111,7 @@ export const useUserStore = create((set, get) => ({
 		}
 	},
 
-	updateUserCustomer: async (formData, isPartner) => {
+	updateUserCustomer: async (formData) => {
 		set({ loading: true });
 
 		try {
@@ -194,6 +194,7 @@ export const useUserStore = create((set, get) => ({
 		}
 	},
 	productFormSubmit: async (data) => {
+		console.log("data: ",data)	
 		const formData = new FormData();
 		formData.append("imageProduct", data.imageProduct);
 		formData.append('category', data.category);
@@ -207,15 +208,26 @@ export const useUserStore = create((set, get) => ({
 		formData.append('packagingType', data.packagingType);
 		formData.append('packageWidth', data.packageWidth);
 		formData.append('packageHeight', data.packageHeight);
+		if (data.location) {
+			formData.append('aisleNumber', data.location.aisleNumber);
+			formData.append('rowNumber', data.location.rowNumber);
+			formData.append('side', data.location.side);
+		}
+		if (data.reservedRowId) {
+			formData.append('reservedRowId', data.reservedRowId);
+		}
+		// Get partnerId from localStorage
+		const partnerId = localStorage.getItem('partnerId');
+		if (partnerId) {
+			formData.append('partner', partnerId);
+		}
 		set({ loading: true });
-
 		try {
 			const response = await axios.post("/products/create", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			});
-
 			if (response.data.message) {
 				toast.success("Product created successfully!");
 			} else {
@@ -223,7 +235,7 @@ export const useUserStore = create((set, get) => ({
 			}
 		} catch (error) {
 			console.error("Error creating product:", error);
-			toast.error("Failed to create product. Please try again.");
+			toast.error("Failed to create product. Please try again.", error);
 		} finally {
 			set({ loading: false });
 		}
@@ -283,6 +295,7 @@ export const useUserStore = create((set, get) => ({
 			return response.status;
 		} catch (error) {
 			toast.error("Email not found");
+			console.log(error)
 		}
 	},
 

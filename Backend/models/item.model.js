@@ -30,10 +30,6 @@ const itemSchema = new mongoose.Schema(
 			type: String,
 			required: false,
 		},
-		// storageCondition: {
-		// 	type: String,
-		// 	required: false,
-		// },
 		packagingType: {
 			type: String,
 			required: false,
@@ -53,6 +49,24 @@ const itemSchema = new mongoose.Schema(
 		partner: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
+			required: false,
+		},
+		// Location fields
+		aisleNumber: {
+			type: Number,
+			required: false,
+		},
+		rowNumber: {
+			type: Number,
+			required: false,
+		},
+		side: {
+			type: String,
+			required: false,
+		},
+		reservedRowId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Warehouse.rows",
 			required: false,
 		},
 		isActive: {

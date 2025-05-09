@@ -1,4 +1,5 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+import axios from '../../../../../lib/axios';
 import {
   AreaChart,
   Area,
@@ -9,21 +10,11 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-const data = [
-  { name: 'Jun', value: 30000 },
-  { name: 'Jul', value: 40567.88 },
-  { name: 'Aug', value: 25000 },
-  { name: 'Sep', value: 35000 },
-  { name: 'Oct', value: 45000 },
-  { name: 'Nov', value: 35000 },
-  { name: 'Dec', value: 30000 }
-];
-
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-gray-800 text-white p-3 rounded-lg shadow-lg">
-        <p className="text-sm font-normal">{`${label}, 15`}</p>
+        <p className="text-sm font-normal">{`${label}`}</p>
         <p className="text-base font-semibold">{`$${payload[0].value.toFixed(2)}`}</p>
       </div>
     );
@@ -32,6 +23,53 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const RevenueChart = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await axios.get('/admins/financial-overview');
+        const monthlyData = response.data.monthlyData.map(item => ({
+          name: item.month,
+          value: item.storage + item.ecommerce // Total revenue for the month
+        }));
+        setData(monthlyData);
+      } catch (error) {
+        console.error('Error fetching revenue data:', error);
+        setError('Failed to load revenue data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center p-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-center p-4">{error}</div>
+    );
+  }
+
+  if (!data.length) {
+    return (
+      <div className="text-gray-500 text-center p-4">No revenue data available</div>
+    );
+  }
+
   return (
     <div className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">

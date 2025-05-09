@@ -4,8 +4,7 @@ import mongoose from "mongoose";
 export const createProduct = async (req, res) => {
 	try {
 		// Extract the product data from the request
-		const { category, productName, weight, quantity, pricePerUnit, description, brand, packagingType, packageWidth, packageHeight } = req.body;
-
+		const { category, productName, weight, quantity, pricePerUnit, description, brand, packagingType, packageWidth, packageHeight, aisleNumber, rowNumber, side, reservedRowId, partner } = req.body;
 		// Ensure the image is available
 		if (!req.file) {
 			return res.status(400).json({ message: 'Image is required.' });
@@ -35,7 +34,12 @@ export const createProduct = async (req, res) => {
 			packageWidth,
 			packageHeight,
 			imageProduct: imageUrl,
-			// partner: "1841471"
+			// Add location fields if provided
+			aisleNumber,
+			rowNumber,
+			side,
+			reservedRowId,
+			partner: partner ? new mongoose.Types.ObjectId(partner) :  new mongoose.Types.ObjectId(req.user?._id),
 		});
 
 		// Save the product to the database
@@ -67,7 +71,11 @@ const UploadImage = async (base64Img, imgName) => {
 // Public route: Get all active items for customers
 export const getActiveItems = async (req, res) => {
 	try {
-		const items = await Item.find({ isActive: true }).populate('partner', 'name');
+		const items = await Item.find({ isActive: true })
+      .populate({
+        path: 'partner',
+        select: 'firstName lastName email partner.companyName',
+      });
 		console.log("Active items:", items);
 		res.json(items);
 	} catch (error) {
