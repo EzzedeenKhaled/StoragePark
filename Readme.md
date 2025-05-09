@@ -3,6 +3,7 @@ email: admin@example.com
 password: securepassword
 
 partner:
+
 email: ezzedeenkhaled7@gmail.com
 password: 123456
 
