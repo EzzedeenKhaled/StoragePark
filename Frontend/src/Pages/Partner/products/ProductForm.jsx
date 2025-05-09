@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 import { useUserStore } from "../../../stores/useUserStore";
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import axios from '../../../../lib/axios';
 
 const ProductForm = () => {
   const { productFormSubmit } = useUserStore();
@@ -24,32 +25,129 @@ const ProductForm = () => {
   const [fileName, setFileName] = useState({
     imageProduct: "Upload Image",
   });
-  const categories = ['Electronics', 'Clothing', 'Furniture', 'Other'];
+  const categories = ['Electronics', 'Toys', 'Beauty'];
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
-    const { name, value, type } = e.target;
-    if (type === 'file' && !value.type.startsWith('image/')) {
-      toast.error("Only image files are allowed.");
-      return;
-    }
-    if (value) {
+    const { name, value, type, files } = e.target;
+    if (type === 'file') {
+      const file = files[0];
+      if (!file || !file.type.startsWith('image/')) {
+        toast.error("Only image files are allowed.");
+        return;
+      }
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: file,
+      }));
+      setFileName((prevState) => ({
+        ...prevState,
+        imageProduct: file.name,
+      }));
+    } else {
       setFormData((prevState) => ({
         ...prevState,
         [name]: value,
       }));
-      if (name === 'imageProduct') {
-        setFileName((prevState) => ({
-          ...prevState,
-          imageProduct: value.name,
-        }));
-      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const calculateArea = (width, height, quantity) => {
+    // Convert cm to m and calculate total area in m²
+    return ((Number(width) * Number(height) * Number(quantity)) / 10000).toFixed(2);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    productFormSubmit(formData);
-    console.log('Form submitted:', formData);
+    setLoading(true);
+    try {
+      // 1. Calculate required area
+      const requiredArea = calculateArea(formData.packageWidth, formData.packageHeight, formData.quantity);
+
+      // 2. Fetch all warehouses and their rows
+      const warehouseRes = await axios.get('/warehouse/structure');
+      const warehouses = warehouseRes.data.data || [];
+      // Map form storageCondition to warehouse storageType
+      let storageType = formData.storageCondition;
+      if (storageType === 'temperature-controlled') storageType = 'temperature';
+      // Find the warehouse matching the selected storage type
+      const warehouse = warehouses.find(w => w.storageType === storageType);
+      if (!warehouse) {
+        toast.error('No warehouse found for the selected storage condition.');
+        setLoading(false);
+        return;
+      }
+
+      // 3. Check if the partner already has a reserved row with enough space
+      const user = useUserStore.getState().user;
+      let selectedRow = null;
+      let found = false;
+      const requiredAreaNum = Number(requiredArea);
+      for (const row of warehouse.rows) {
+        if (row.isReserved && String(row.reservedBy) === String(user._id)) {
+          // Calculate row area
+          const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
+          // Calculate used space in this row
+          const usedSpace = (row.spaceUsage || []).reduce((sum, usage) => sum + (usage.usedSpace || 0), 0);
+          if ((rowArea - usedSpace) >= requiredAreaNum) {
+            selectedRow = row;
+            found = true;
+            break;
+          }
+        }
+      }
+
+      // 4. If not, find an available row with enough space
+      if (!found) {
+        for (const row of warehouse.rows) {
+          if (!row.isReserved) {
+            const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
+            if (rowArea >= requiredAreaNum) {
+              selectedRow = row;
+              found = true;
+              // Reserve the row for the partner
+              const now = new Date();
+              const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${selectedRow._id}`, {
+                isReserved: true,
+                reservedBy: user._id,
+                startDate: now,
+                endDate: null,
+              });
+              if (reserveRes.data.statusCode !== 200) {
+                toast.error('Failed to reserve the row.');
+                setLoading(false);
+                return;
+              }
+              break;
+            }
+          }
+        }
+      }
+
+      if (!found) {
+        toast.error('No available row with enough space for your product.');
+        setLoading(false);
+        return;
+      }
+
+      // 5. Submit the product and assign location info
+      const productData = {
+        ...formData,
+        location: {
+          aisleNumber: warehouse.aisleNumber,
+          rowNumber: selectedRow.rowNumber,
+          side: selectedRow.side,
+        },
+        reservedRowId: selectedRow._id,
+      };
+      await productFormSubmit(productData);
+      toast.success('Product added and reserved successfully!');
+      navigate('/partner/products');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to add product and reserve row.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -189,6 +287,7 @@ const ProductForm = () => {
             <input
               id="image"
               type="file"
+              name="imageProduct"
               accept="image/jpeg, image/png"
               onChange={handleInputChange}
               className="hidden"
@@ -256,10 +355,10 @@ const ProductForm = () => {
         <div className="flex justify-center pt-4">
           <button
             type="submit"
-            className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all font-medium"
-            onClick={() => navigate('/partner/products')}
+            className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all font-medium disabled:opacity-60"
+            disabled={loading}
           >
-            Submit Product
+            {loading ? 'Processing...' : 'Submit Product'}
           </button>
         </div>
       </form>

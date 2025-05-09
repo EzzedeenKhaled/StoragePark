@@ -1,6 +1,7 @@
 import Warehouse from "../models/warehouse.model.js";
 
 export const getWarehouseStructure = async (req, res) => {
+  
   try {
     const warehouses = await Warehouse.find().sort({ aisleNumber: 1 });
     console.log('Found warehouses:', warehouses);
@@ -9,6 +10,8 @@ export const getWarehouseStructure = async (req, res) => {
       data: warehouses,
       message: "Warehouse structure retrieved successfully"
     });
+
+
   } catch (error) {
     console.error('Error in getWarehouseStructure:', error);
     return res.status(500).json({
@@ -84,3 +87,4 @@ export const updateRowStatus = async (req, res) => {
     });
   }
 }; 
+

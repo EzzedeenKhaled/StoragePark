@@ -78,72 +78,154 @@ export const getMonthlySalesAndPurchases = async (req, res) => {
   
 
 export const getStats = async (req, res) => {
-    try {
-      const partnerId = req.query.partnerId || req.user._id;
-      const objectId = new mongoose.Types.ObjectId(partnerId);
-  
-      const result = await User.aggregate([
-        { $unwind: "$orders" },
-        { $unwind: "$orders.items" },
-        {
-          $lookup: {
-            from: "items",
-            localField: "orders.items.item",
-            foreignField: "_id",
-            as: "itemDetails",
-          },
+  try {
+    const partnerId = req.query.partnerId || req.user._id;
+    const objectId = new mongoose.Types.ObjectId(partnerId);
+
+    // Get sales and revenue stats
+    const result = await User.aggregate([
+      { $unwind: "$orders" },
+      { $unwind: "$orders.items" },
+      {
+        $lookup: {
+          from: "items",
+          localField: "orders.items.item",
+          foreignField: "_id",
+          as: "itemDetails",
         },
-        { $unwind: "$itemDetails" },
-        {
-          $match: {
-            "itemDetails.partner": objectId,
-          },
+      },
+      { $unwind: "$itemDetails" },
+      {
+        $match: {
+          "itemDetails.partner": objectId,
         },
-        {
-          $group: {
-            _id: null,
-            totalRevenue: {
-              $sum: {
-                $multiply: ["$orders.items.quantity", "$orders.items.price"],
-              },
-            },
-            totalCost: {
-              $sum: {
-                $multiply: [
-                  "$orders.items.quantity",
-                  { $multiply: ["$orders.items.price", 0.7] }, // 70% cost of the item price
-                ],
-              },
-            },
-            totalProfit: {
-              $sum: {
-                $subtract: [
-                  {
-                    $multiply: ["$orders.items.quantity", "$orders.items.price"], // Revenue
-                  },
-                  {
-                    $multiply: [
-                      "$orders.items.quantity",
-                      { $multiply: ["$orders.items.price", 0.7] }, // Cost
-                    ],
-                  },
-                ],
-              },
-            },
-            totalSales: {
-              $sum: "$orders.items.quantity",
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: {
+              $multiply: ["$orders.items.quantity", "$orders.items.price"],
             },
           },
+          totalCost: {
+            $sum: {
+              $multiply: [
+                "$orders.items.quantity",
+                { $multiply: ["$orders.items.price", 0.7] }, // 70% cost of the item price
+              ],
+            },
+          },
+          totalSales: {
+            $sum: "$orders.items.quantity",
+          },
         },
-      ]);
-  
-      const stats = result[0] || { totalRevenue: 0, totalCost: 0, totalProfit: 0, totalSales: 0 };
-      res.status(200).json(stats);
-    } catch (error) {
-      console.error("Error fetching partner stats:", error);
-      res.status(500).json({ message: "Failed to fetch stats", error: error.message });
+      },
+    ]);
+
+    // Get storage costs
+    const storageCosts = await Item.aggregate([
+      {
+        $match: {
+          partner: objectId,
+          reservedRowId: { $exists: true, $ne: null }
+        }
+      },
+      {
+        $lookup: {
+          from: "warehouses",
+          let: { rowId: "$reservedRowId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$$rowId", "$rows._id"]
+                }
+              }
+            },
+            {
+              $unwind: "$rows"
+            },
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$rows._id", "$$rowId"]
+                }
+              }
+            }
+          ],
+          as: "warehouseInfo"
+        }
+      },
+      {
+        $unwind: "$warehouseInfo"
+      },
+      {
+        $group: {
+          _id: null,
+          totalStorageArea: {
+            $sum: {
+              $divide: [
+                { $multiply: ["$packageWidth", "$packageHeight", "$quantity"] },
+                10000 // Convert cm² to m²
+              ]
+            }
+          },
+          storageCosts: {
+            $push: {
+              area: {
+                $divide: [
+                  { $multiply: ["$packageWidth", "$packageHeight", "$quantity"] },
+                  10000
+                ]
+              },
+              costPerSquareMeter: "$warehouseInfo.costPerSquareMeter.monthly",
+              storageType: "$warehouseInfo.storageType"
+            }
+          }
+        }
+      }
+    ]);
+
+    // Calculate total storage cost
+    let totalStorageCost = 0;
+    if (storageCosts.length > 0) {
+      totalStorageCost = storageCosts[0].storageCosts.reduce((sum, item) => {
+        return sum + (item.area * item.costPerSquareMeter);
+      }, 0);
     }
-  };
+
+    const stats = result[0] || { totalRevenue: 0, totalCost: 0, totalSales: 0 };
+    
+    // Add storage costs to total cost
+    stats.totalCost = (stats.totalCost || 0) + totalStorageCost;
+    
+    // Recalculate profit with storage costs included
+    stats.totalProfit = (stats.totalRevenue || 0) - stats.totalCost;
+
+    // Add storage information
+    stats.storageInfo = storageCosts.length > 0 ? {
+      totalArea: storageCosts[0].totalStorageArea,
+      monthlyCost: totalStorageCost,
+      storageBreakdown: storageCosts[0].storageCosts.reduce((acc, item) => {
+        if (!acc[item.storageType]) {
+          acc[item.storageType] = {
+            area: 0,
+            cost: 0
+          };
+        }
+        acc[item.storageType].area += item.area;
+        acc[item.storageType].cost += (item.area * item.costPerSquareMeter);
+        return acc;
+      }, {})
+    } : null;
+
+    res.status(200).json(stats);
+  } catch (error) {
+    console.error("Error fetching partner stats:", error);
+    res.status(500).json({ message: "Failed to fetch stats", error: error.message });
+  }
+};
   
 
 
