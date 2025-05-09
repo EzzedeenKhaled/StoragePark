@@ -93,7 +93,7 @@ const userSchema = new mongoose.Schema(
 			  totalAmount: { type: Number, required: true }, // Total price for the order
 			  status: {
 				type: String,
-				enum: ["pending", "shipped", "delivered", "cancelled"],
+				enum: ["pending", "delivered"],
 				default: "pending",
 			  },
 			  deliveryAddress: { type: String }, // Address where the order was delivered

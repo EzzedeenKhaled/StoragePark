@@ -134,65 +134,79 @@ const OutgoingOrders = () => {
                 <thead>
                   <tr className="border-b">
                     <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">ORDER ID</th>
-                    <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">COMPANY NAME</th>
-                    <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">CUSTOMER PHONE</th>
+                    <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">USER NAME</th>
+                    <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">USER PHONE</th>
                     <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">TOTAL PRICE</th>
                     <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">STATUS</th>
                     <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">DATE</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan={6} className="text-center py-8 text-gray-500">
-                        Loading...
-                      </td>
-                    </tr>
-                  ) : filteredOrders.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="text-center py-8 text-gray-500">
-                        No outgoing orders found
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredOrders.map((order) => (
-                      <tr key={order.orderId} className="border-b last:border-b-0 hover:bg-gray-50">
-                        <td className="py-4 px-6">
-                          <button
-                            className="text-orange-500 hover:underline"
-                            onClick={() => navigate(`/order-status/${order.orderId}`)}
-                          >
-                            #{order.orderId}
-                          </button>
-                        </td>
-                        <td className="py-4 px-6">{order.company}</td>
-                        <td className="py-4 px-6">
-                          <svg
-                            className="w-4 h-4 inline-block mr-2 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                            />
-                          </svg>
-                          {order.phone}
-                        </td>
-                        <td className="py-4 px-6">${order.price}</td>
-                        <td className="py-4 px-6">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${order.status.toLowerCase() === 'delivered' ? 'bg-green-100 text-green-800' : order.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6">{order.date}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
+<tbody>
+  {loading ? (
+    <tr>
+      <td colSpan={6} className="text-center py-8 text-gray-500">
+        Loading...
+      </td>
+    </tr>
+  ) : filteredOrders.length === 0 ? (
+    <tr>
+      <td colSpan={6} className="text-center py-8 text-gray-500">
+        No outgoing orders found
+      </td>
+    </tr>
+  ) : (
+    filteredOrders.map((order) => (
+      <tr key={order.orderId} className="border-b last:border-b-0 hover:bg-gray-50">
+        <td className="py-4 px-6">
+          {order.status.trim().toLowerCase() === 'delivered' ? (
+            <span className="text-gray-400 cursor-not-allowed">#{order.orderId}</span>
+          ) : (
+            <button
+              className="text-orange-500 hover:underlin cursor-pointer"
+              onClick={() => navigate(`/order-status/${order.orderId}`)}
+            >
+              #{order.orderId}
+            </button>
+          )}
+        </td>
+        <td className="py-4 px-6">
+          {order.company} {order.role === 'customer' ? '(c)' : order.role === 'partner' ? '(p)' : ''}
+        </td>
+        <td className="py-4 px-6">
+          <svg
+            className="w-4 h-4 inline-block mr-2 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+            />
+          </svg>
+          {order.phone}
+        </td>
+        <td className="py-4 px-6">${order.price}</td>
+        <td className="py-4 px-6">
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-medium ${
+              order.status.toLowerCase() === 'delivered'
+                ? 'bg-green-100 text-green-800'
+                : order.status.toLowerCase() === 'pending'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-gray-100 text-gray-800'
+            }`}
+          >
+            {order.status}
+          </span>
+        </td>
+        <td className="py-4 px-6">{order.date}</td>
+      </tr>
+    ))
+  )}
+</tbody>
               </table>
             </div>
           </div>

@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { sendCustomerCredentials, sendEmployeeCredentials,sendVerificationEmail } from "../lib/mail.js";
 import Item from "../models/item.model.js";
+import {imagekit} from "../lib/imageKit.js";
 
 export const getOrderSummary = async (req, res) => {
   try {
@@ -84,6 +85,52 @@ export const getOrderStatistics = async (req,res) => {
     
   } catch (error) {
     console.error("Error fetching order statistics:", error);
+    throw error;
+  }
+};
+
+export const UpdateImage = async (req, res) => {
+  try {
+    const adminId = req.user.id; // Assuming the admin's ID is available in the request
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    // Convert the uploaded file to base64 and upload to ImageKit
+    const base64Img = file.buffer.toString("base64");
+    const imgName = file.originalname;
+    const uploadResult = await UploadImage(base64Img, imgName);
+
+    // Update the admin's profile image in the database
+    const updatedAdmin = await User.findByIdAndUpdate(
+      adminId,
+      { profileImage: uploadResult.url },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAdmin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    res.status(200).json({ message: "Profile image updated", profileImage: updatedAdmin.profileImage });
+  } catch (error) {
+    console.error("Error updating admin profile image:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const UploadImage = async (base64Img, imgName) => {
+  try {
+    const result = await imagekit.upload({
+      file: base64Img,
+      fileName: imgName,
+      tags: ["profile", "customer"]
+    });
+    return result;
+  } catch (error) {
+    console.error("ImageKit Upload Error:", error);
     throw error;
   }
 };

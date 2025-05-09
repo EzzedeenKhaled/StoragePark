@@ -12,7 +12,8 @@ import {
   getOrderStatistics,
   getDataOrders,
   getFinancialOverview,
-  getAllProducts
+  getAllProducts,
+  UpdateImage
 } from "../controllers/admin.controller.js";
 import { protectRoute, adminRoute } from "../middleware/auth.middleware.js";
 import {
@@ -25,6 +26,7 @@ import {
   updateEmployee,
   deleteEmployee
 } from "../controllers/admin.controller.js";
+import multer from "multer";
 
 const router = express.Router();
 
@@ -59,5 +61,9 @@ router.get("/orderSummary", protectRoute, adminRoute, getOrderSummary);
 router.get("/order-stats", protectRoute, adminRoute, getOrderStatistics);
 router.get("/getDataOrders", protectRoute, adminRoute, getDataOrders);
 router.get("/financial-overview", protectRoute, adminRoute, getFinancialOverview);
+
+// Change Image
+const upload = multer({ storage: multer.memoryStorage() });
+router.post("/updateImage", protectRoute, adminRoute, upload.single("profileImage"), UpdateImage);
 
 export default router;

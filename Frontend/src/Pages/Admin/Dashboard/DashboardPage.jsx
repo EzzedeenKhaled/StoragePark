@@ -5,9 +5,13 @@ import TopSellingStock from './components/TopSellingStock';
 import LowQuantityStock from './components/LowQuantityStock';
 import OrderSummaryChart from './components/OrderSummaryChart';
 import RevenueChart from './components/RevenueChart';
+import Header from '../../../../components/Admin/Header';
 const DashboardPage = () => {
   return (
-    <div className="p-6 w-full">
+    <div className="p-6 w-full mt-15">
+            <div className="fixed top-0 left-0 right-0 z-30">
+          <Header />
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* First Column - 2/3 width */}
         <div className="lg:col-span-2 space-y-6">

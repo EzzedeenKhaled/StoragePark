@@ -5,7 +5,7 @@ import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
 const ProductList = () => {
   const partnerId = localStorage.getItem('partnerId');
-  const { partnerItems, getPartnerItems, toggleProductStatus } = usePartnerStore();
+  const { partnerItems, getPartnerItems, toggleProductStatus,loading } = usePartnerStore();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   
@@ -22,7 +22,9 @@ const ProductList = () => {
     product.brand.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  
+    if (loading) {
+    return <LoadingSpinner />
+  }
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />

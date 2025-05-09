@@ -33,6 +33,7 @@ import NotFound from './Pages/NotFound';
 import 'react-toastify/dist/ReactToastify.css';
 import OrderHistory from './Pages/OrderHistory';
 import OrderStatus from './Pages/OrderStatus';
+import Unauthorized from "./Pages/Unauthorized";
 function App() {
   const { checkAuth, checkingAuth, user } = useUserStore();
   const { getCartItems } = useCartStore();
@@ -89,7 +90,7 @@ function App() {
         <Route path="/payment-form" element={<PaymentForm />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/category/:categoryName" element={<Category />} />
-
+        <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/admin/*" element={<AdminDashboard />} />
         
         <Route path="/partner/dashboard" element={<PartnerDashboard />} />

@@ -1,20 +1,14 @@
 import PropTypes from 'prop-types';
 import Sidebar from '../components/Sidebar';
-import { BarChart, Bar, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
 import axios from '../../../../lib/axios';
-
 import { useState, useEffect } from 'react';
-
+import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 const StatCard = ({ title, value, image }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-gray-600">{title}</h3>
-        <button className="text-gray-400">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-          </svg>
-        </button>
       </div>
       <div className="flex items-center space-x-4">
         {image && (
@@ -28,66 +22,14 @@ const StatCard = ({ title, value, image }) => {
 
 StatCard.propTypes = {
   title: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ]).isRequired,
-  image: PropTypes.string, // optional
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  image: PropTypes.string,
 };
-// const UserActivityChart = () => {
-//   const data = [
-//     { name: 'S', value: 9000 },
-//     { name: 'M', value: 3000 },
-//     { name: 'T', value: 5000 },
-//     { name: 'W', value: 5500 },
-//     { name: 'T', value: 4000 },
-//     { name: 'F', value: 2000 },
-//     { name: 'S', value: 6000 }
-//   ];
-
-//   return (
-//     <div className="bg-white p-6 rounded-lg shadow-sm">
-//       <div className="flex justify-between items-center mb-6">
-//         <div>
-//           <h3 className="text-gray-600">User Activity</h3>
-//           <div className="flex items-center">
-//             <span className="text-2xl font-semibold">10,320</span>
-//             <span className="ml-2 text-red-500 text-sm">-20%</span>
-//           </div>
-//         </div>
-//         <select className="bg-gray-50 border border-gray-200 rounded px-3 py-1 text-sm">
-//           <option>This Week</option>
-//           <option>Last Week</option>
-//           <option>Last Month</option>
-//         </select>
-//       </div>
-//       <div className="h-48">
-//         <ResponsiveContainer width="100%" height="100%">
-//           <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-//             <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-//               {data.map((entry, index) => (
-//                 <Cell
-//                   key={`cell-${index}`}
-//                   fill={index === 0 ? '#f97316' : '#1f2937'}
-//                 />
-//               ))}
-//             </Bar>
-//           </BarChart>
-//         </ResponsiveContainer>
-//       </div>
-//     </div>
-//   );
-// };
 
 const CustomerRating = ({ totalRating, positiveR, negativeR }) => {
-
-  const total = totalRating;
-  const positive = positiveR;
-  const negative = negativeR;
-
   const data = [
-    { name: 'Positive', value: positive },
-    { name: 'Negative', value: negative }
+    { name: 'Positive', value: positiveR },
+    { name: 'Negative', value: negativeR },
   ];
 
   const COLORS = ['#22c55e', '#ef4444'];
@@ -96,11 +38,6 @@ const CustomerRating = ({ totalRating, positiveR, negativeR }) => {
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-gray-600">Customer Rating</h3>
-        <select className="bg-gray-50 border border-gray-200 rounded px-3 py-1 text-sm">
-          <option>This Week</option>
-          <option>Last Week</option>
-          <option>Last Month</option>
-        </select>
       </div>
       <div className="flex justify-center">
         <div className="relative w-48 h-48">
@@ -122,18 +59,18 @@ const CustomerRating = ({ totalRating, positiveR, negativeR }) => {
           </PieChart>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
             <div className="text-2xl font-semibold">Total</div>
-            <div className="text-3xl font-bold">{total}</div>
+            <div className="text-3xl font-bold">{totalRating}</div>
           </div>
         </div>
       </div>
       <div className="flex justify-between mt-6">
         <div className="flex items-center">
           <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-          <span className="text-sm">Negative: {negative}</span>
+          <span className="text-sm">Negative: {negativeR}</span>
         </div>
         <div className="flex items-center">
           <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-          <span className="text-sm">Positive: {positive}</span>
+          <span className="text-sm">Positive: {positiveR}</span>
         </div>
       </div>
     </div>
@@ -147,14 +84,16 @@ const PartnerAnalytics = () => {
   const [negativeR, setNegativeR] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
   const [topSelling, setTopSelling] = useState({ data: [] });
-  const [topCategory, setTopCategory] = useState("");
-  
+  const [topCategory, setTopCategory] = useState('');
   const [totalProductsSold, setTotalProductsSold] = useState(0);
+  const [loading, setLoading] = useState(true); // Loading state
+
   useEffect(() => {
     const fetchOrderStats = async () => {
       try {
+        setLoading(true); // Start loading
         const response = await axios.get('/partners/orders', {
-          params: { partnerId }
+          params: { partnerId },
         });
         const totalOrders = response.data.length;
 
@@ -163,15 +102,11 @@ const PartnerAnalytics = () => {
           return sum + orderTotal;
         }, 0);
 
-        // console.log('Total Orders:', totalOrders);
-        // console.log('Total Products Sold:', totalProductsSold);
-
-        // You can now set these in state if needed
         setTotalOrders(totalOrders);
         setTotalProductsSold(totalProductsSold);
 
         const res = await axios.get('/reviews/partner-rating', {
-          params: { partnerId }
+          params: { partnerId },
         });
         const { total, positive, negative } = res.data;
         setTotalRating(total);
@@ -179,22 +114,27 @@ const PartnerAnalytics = () => {
         setNegativeR(negative);
 
         const topS = await axios.get('/partners/topSelling', {
-          params: { partnerId }
-        })
+          params: { partnerId },
+        });
         setTopSelling(topS);
 
         const topC = await axios.get('/partners/topCategory', {
-          params: { partnerId }
-        })
-        setTopCategory(topC.data[0].category)
+          params: { partnerId },
+        });
+        setTopCategory(topC.data[0]?.category);
       } catch (err) {
         console.error('Error fetching order stats:', err);
+      } finally {
+        setLoading(false); // End loading
       }
     };
 
     fetchOrderStats();
   }, []);
-console.log(totalRating, positiveR, negativeR)
+
+  if (loading) {
+    return <LoadingSpinner/>
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -208,46 +148,22 @@ console.log(totalRating, positiveR, negativeR)
               <h1 className="text-2xl font-semibold text-white">Analytics</h1>
               <p className="text-orange-50">Monitor progress regularly to increase sales</p>
             </div>
-            <button className="bg-orange-400 p-2 rounded-lg shadow-sm hover:bg-orange-400/80 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
-                <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" />
-              </svg>
-            </button>
           </div>
         </div>
 
         <div className="p-8 ml-[250px]">
           <div className="grid grid-cols-4 gap-6 mb-8">
-            <StatCard
-              title="Total Orders"
-              value={totalOrders}
-            // change="-59%" 
-            // lastWeekValue="2041"
-            />
+            <StatCard title="Total Orders" value={totalOrders} />
             <StatCard
               title="Top Selling Item"
               value={topSelling.data[0]?.productName}
               image={topSelling.data[0]?.imageProduct}
-              // change="-0.5%"
-              // lastWeekValue="%15"
             />
-            <StatCard
-              title="Top Category"
-              value={topCategory}
-              // change="+1.0%"
-              // lastWeekValue="100"
-            />
-            <StatCard
-              title="Products Sold"
-              value={totalProductsSold}
-            // change="-30%" 
-            // lastWeekValue="707"
-            />
+            <StatCard title="Top Category" value={topCategory} />
+            <StatCard title="Products Sold" value={totalProductsSold} />
           </div>
 
-          <div className="">
-            {/* <UserActivityChart /> */}
+          <div>
             <CustomerRating
               totalRating={totalRating}
               positiveR={positiveR}
