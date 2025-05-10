@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import {sendVerificationEmail} from "../lib/mail.js";
 import crypto from "crypto";
 
-const generateTokens = (userId) => {
+ const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
 		expiresIn: "15m",
 	});
@@ -14,14 +14,14 @@ const generateTokens = (userId) => {
 	});
 
 	return { accessToken, refreshToken };
-};
+ };
 
 const storeRefreshToken = async (userId, refreshToken) => {
 	await redis.set(`refresh_token:${userId}`, refreshToken, "EX", 7 * 24 * 60 * 60); // 7days
 };
 
-const setCookies = (res, accessToken, refreshToken) => {
-	res.cookie("accessToken", accessToken, {
+ const setCookies = (res, accessToken, refreshToken) => {
+ 	res.cookie("accessToken", accessToken, {
 		httpOnly: true, // prevent XSS attacks, cross site scripting attack
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict", // prevents CSRF attack, cross-site request forgery attack
@@ -41,7 +41,7 @@ export const forgotPassword = async (req, res) => {
 	try {
 		const user = await User.findOne({ email: email });
 
-		if (!user) {
+	 	if (!user) {
 			return res.status(404).json({ message: "Email not found." });
 		}
 
@@ -51,14 +51,14 @@ export const forgotPassword = async (req, res) => {
 		// Alternatively, if you want something even more secure (optional):
 		const resetCode = crypto.randomBytes(3).toString('hex').toUpperCase(); // 6-char hex string
 
-		// Save the code to the user document
+	 	// Save the code to the user document
 		user.resetPasswordCode = resetCode;
 		user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // Code valid for 10 minutes
 		await user.save();
 		await sendVerificationEmail(email, resetCode, true,false);
-		// TODO: Send the code via email to the user here
+	 	// TODO: Send the code via email to the user here
 		// For now, just send it back in the response for testing
-		return res.status(200).json({
+	 	return res.status(200).json({
 			message: "Reset code generated.",
 			success: true,
 			code: resetCode // (only for testing; don't send codes in production responses)
@@ -71,7 +71,7 @@ export const forgotPassword = async (req, res) => {
 };
 
 
-export const signup = async (req, res) => {
+ export const signup = async (req, res) => {
 	console.log("backend")
 	const { email, password, firstName, lastName, role, phone: phoneNumber } = req.body;
 	try {
