@@ -305,6 +305,14 @@ export const changeIsActive = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
 
+        // Prevent toggling if stock is 0
+        if (item.quantity === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Cannot activate product with zero stock. Please update the stock quantity first." 
+            });
+        }
+
         // Toggle the isActive status
         item.isActive = !item.isActive;
 

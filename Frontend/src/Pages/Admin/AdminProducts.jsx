@@ -118,11 +118,24 @@ const AdminProducts = () => {
                           <td className="py-4 px-6">
                             <button
                               onClick={() => handleToggleProductStatus(product._id)}
-                              className={`w-12 h-6 rounded-full ${product.isActive ? 'bg-orange-500' : 'bg-gray-200'} relative transition-colors duration-300 cursor-pointer`}
-                              title={product.isActive ? "Click to deactivate" : "Click to activate"}
+                              disabled={product.quantity === 0}
+                              className={`w-12 h-6 rounded-full ${
+                                product.quantity === 0 
+                                  ? 'bg-gray-300 cursor-not-allowed' 
+                                  : product.isActive 
+                                    ? 'bg-orange-500' 
+                                    : 'bg-gray-200'
+                              } relative transition-colors duration-300 ${product.quantity === 0 ? '' : 'cursor-pointer'}`}
+                              title={product.quantity === 0 
+                                ? "Cannot toggle: Product is out of stock" 
+                                : product.isActive 
+                                  ? "Click to deactivate" 
+                                  : "Click to activate"}
                             >
                               <div
-                                className={`absolute w-5 h-5 rounded-full bg-white top-0.5 transition-all duration-300 shadow-sm ${product.isActive ? 'left-6' : 'left-0.5'}`}
+                                className={`absolute w-5 h-5 rounded-full bg-white top-0.5 transition-all duration-300 shadow-sm ${
+                                  product.isActive ? 'left-6' : 'left-0.5'
+                                }`}
                               />
                             </button>
                           </td>

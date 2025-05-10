@@ -77,6 +77,10 @@ export const updateQuantity = async (req, res) => {
 
 			existingItem.quantity = quantity;
 			await user.save();
+			
+			// Update the item's stock using the new method
+			await item.updateStock(item.quantity - quantity);
+			
 			res.json(user.cartItems);
 		} else {
 			res.status(404).json({ message: "Product not found" });

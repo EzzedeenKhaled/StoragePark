@@ -51,16 +51,20 @@ const Store = () => {
 
   const handleViewDetails = async (row) => {
     try {
-      const res = await axios.get(`/products/active-items`);
-      const items = res.data.filter(item => String(item.reservedRowId) === String(row._id));
+      const res = await axios.get(`/admins/allProducts`);
+      const items = Array.isArray(res.data) ? res.data.filter(item => String(item.reservedRowId) === String(row._id)) : [];
       setDetailsItems(items);
-      if (items.length > 0 && items[0].partner) {
-        setDetailsPartner(items[0].partner);
+      
+      // Get partner information from the first item that has it
+      const itemWithPartner = items.find(item => item.partner);
+      if (itemWithPartner?.partner) {
+        setDetailsPartner(itemWithPartner.partner);
       } else {
         setDetailsPartner(null);
       }
       setDetailsRow(row);
-    } catch {
+    } catch (error) {
+      console.error('Error fetching row details:', error);
       toast.error('Failed to fetch row details');
     }
   };
@@ -311,16 +315,22 @@ const Store = () => {
                       <div className="space-y-4">
                         <div>
                           <span className="block text-sm font-medium text-gray-700">Partner:</span>
-                          {detailsPartner && detailsPartner.partner && detailsPartner.partner.companyName ? (
-                            <span className="block text-gray-900">{detailsPartner.partner.companyName}</span>
-                          ) : detailsPartner && (detailsPartner.firstName || detailsPartner.lastName) ? (
-                            <span className="block text-gray-900">
-                              {[detailsPartner.firstName, detailsPartner.lastName].filter(Boolean).join(' ')}
-                            </span>
-                          ) : detailsPartner && detailsPartner.email ? (
-                            <span className="block text-gray-900">{detailsPartner.email}</span>
+                          {detailsPartner ? (
+                            <div className="mt-1">
+                              {detailsPartner.companyName && (
+                                <span className="block text-gray-900">{detailsPartner.companyName}</span>
+                              )}
+                              {detailsPartner.firstName && detailsPartner.lastName && (
+                                <span className="block text-gray-900">
+                                  {detailsPartner.firstName} {detailsPartner.lastName}
+                                </span>
+                              )}
+                              {detailsPartner.email && (
+                                <span className="block text-gray-500 text-sm">{detailsPartner.email}</span>
+                              )}
+                            </div>
                           ) : (
-                            <span className="block text-gray-500">Unknown</span>
+                            <span className="block text-gray-500">No partner information available</span>
                           )}
                         </div>
                         <div>
@@ -328,10 +338,10 @@ const Store = () => {
                           {detailsRow && (() => {
                             const totalArea = ((detailsRow.dimensions.width * detailsRow.dimensions.depth) / 10000);
                             const usedSpace = detailsItems.reduce((sum, item) => {
-                              const itemArea = ((Number(item.packageWidth) * Number(item.packageHeight) * Number(item.quantity)) / 10000) || 0;
-                              return sum + itemArea;
+                              const itemArea = ((Number(item.packageWidth || 0) * Number(item.packageHeight || 0) * Number(item.quantity || 0)) / 10000);
+                              return sum + (isNaN(itemArea) ? 0 : itemArea);
                             }, 0);
-                            const freeSpace = totalArea - usedSpace;
+                            const freeSpace = Math.max(0, totalArea - usedSpace);
                             return (
                               <div className="space-y-1">
                                 <span className="block text-gray-700">Total: <span className="font-semibold">{totalArea.toFixed(2)} m²</span></span>
@@ -343,11 +353,28 @@ const Store = () => {
                         </div>
                         <div>
                           <span className="block text-sm font-medium text-gray-700">Stored Items:</span>
-                          {detailsItems.length > 0 ? (
+                          {detailsItems && detailsItems.length > 0 ? (
                             <ul className="mt-2 list-disc pl-5 text-gray-800">
                               {detailsItems.map(item => (
-                                <li key={item._id}>
-                                  {item.productName} (Qty: {item.quantity})
+                                <li key={item._id} className="mb-2">
+                                  <div className="flex items-start">
+                                    <div className="flex-1">
+                                      <span className="font-medium">{item.productName}</span>
+                                      <span className="text-gray-600"> (Qty: {item.quantity})</span>
+                                      {item.packageWidth && item.packageHeight && (
+                                        <span className="text-gray-500 text-sm block ml-4">
+                                          Size: {item.packageWidth}×{item.packageHeight} cm
+                                        </span>
+                                      )}
+                                    </div>
+                                    {item.isActive !== undefined && (
+                                      <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                                        item.isActive ? 'bg-orange-100 text-orange-800' : 'bg-orange-50 text-orange-600'
+                                      }`}>
+                                        {item.isActive ? 'Active' : 'Inactive'}
+                                      </span>
+                                    )}
+                                  </div>
                                 </li>
                               ))}
                             </ul>

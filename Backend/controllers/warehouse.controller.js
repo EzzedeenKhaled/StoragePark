@@ -113,13 +113,17 @@ export const deleteRow = async (req, res) => {
       });
     }
 
-    // Check if there are any items in this row
-    const itemsInRow = await Item.find({ reservedRowId: rowId });
-    if (itemsInRow.length > 0) {
+    // Check if there are any active items in this row
+    const activeItemsInRow = await Item.find({ 
+      reservedRowId: rowId,
+      isActive: true 
+    });
+    
+    if (activeItemsInRow.length > 0) {
       return res.status(400).json({
         statusCode: 400,
         message: "Cannot remove reservation with active items",
-        items: itemsInRow
+        items: activeItemsInRow
       });
     }
 
@@ -151,13 +155,15 @@ export const deleteRow = async (req, res) => {
 
     return res.status(200).json({
       statusCode: 200,
-      message: "Row reservation removed successfully"
+      message: "Reservation removed successfully"
     });
+
   } catch (error) {
-    console.error('Error in deleteRow:', error);
+    console.error("Error removing row reservation:", error);
     return res.status(500).json({
       statusCode: 500,
-      message: error.message || "Internal server error"
+      message: "Failed to remove reservation",
+      error: error.message
     });
   }
 }; 
