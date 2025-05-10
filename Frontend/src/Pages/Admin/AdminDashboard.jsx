@@ -6,7 +6,6 @@ import Partners from './Partner/partners';
 import Store from './Store/Store';
 import Customers from './Customers';
 import Employees from './Employees';
-import Rows from './Store/Rows';
 import Outgoing from './outgoing/OutgoingOrders';
 import AdminProducts from './AdminProducts';
 function AdminDashboard() {
@@ -27,7 +26,6 @@ function AdminDashboard() {
             <Route path="/store" element={<Store />} />
             <Route path="/customer" element={<Customers />} />
             <Route path="/employees" element={<Employees />} />
-            <Route path="/store/aisle/:aisleId/:side" element={<Rows />} />
             <Route path="/outgoing-orders" element={<Outgoing />} />
             <Route path="/products" element={<AdminProducts />} />
           </Routes>

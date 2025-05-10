@@ -65,6 +65,36 @@ const Store = () => {
     }
   };
 
+  const handleDeleteRow = async () => {
+    try {
+      const response = await axios.delete(`/warehouse/${deleteRow.aisle.aisleNumber}/rows/${deleteRow.row._id}`);
+      
+      if (response.data.statusCode === 200) {
+        toast.success('Reservation removed successfully');
+        setDeleteRow(null);
+        fetchWarehouses();
+      }
+    } catch (error) {
+      if (error.response?.data?.statusCode === 400) {
+        // Show items in the row that prevent removal
+        const items = error.response.data.items;
+        toast.error(
+          <div>
+            <p className="font-semibold mb-2">Cannot remove reservation with active items:</p>
+            <ul className="list-disc pl-4">
+              {items.map(item => (
+                <li key={item._id}>{item.productName} (Qty: {item.quantity})</li>
+              ))}
+            </ul>
+          </div>,
+          { duration: 5000 }
+        );
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to remove reservation');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 flex items-center justify-center">
@@ -160,19 +190,21 @@ const Store = () => {
                                   >
                                     <PencilIcon className="h-5 w-5" />
                                   </button>
-                                  <button
-                                    onClick={() => setDeleteRow({ aisle, row })}
-                                    className="text-red-500 hover:text-red-600"
-                                  >
-                                    <TrashIcon className="h-5 w-5" />
-                                  </button>
                                   {row.isReserved && (
-                                    <button
-                                      onClick={() => handleViewDetails(row)}
-                                      className="text-orange-500 hover:text-orange-600"
-                                    >
-                                      View Details
-                                    </button>
+                                    <>
+                                      <button
+                                        onClick={() => setDeleteRow({ aisle, row })}
+                                        className="text-red-500 hover:text-red-600"
+                                      >
+                                        <TrashIcon className="h-5 w-5" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleViewDetails(row)}
+                                        className="text-orange-500 hover:text-orange-600"
+                                      >
+                                        View Details
+                                      </button>
+                                    </>
                                   )}
                                 </div>
                               </td>
@@ -240,12 +272,17 @@ const Store = () => {
                     <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
                       <div className="flex items-center justify-center">
                         <ExclamationTriangleIcon className="h-6 w-6 text-orange-500 mr-2" />
-                        <h3 className="text-lg font-medium text-orange-800">Delete Row</h3>
+                        <h3 className="text-lg font-medium text-orange-800">Remove Reservation</h3>
                       </div>
                     </div>
                     <div className="p-6">
                       <p className="text-gray-600 mb-6 text-center">
-                        Are you sure you want to delete row {deleteRow.row.rowNumber} in aisle {deleteRow.aisle.aisleNumber}?
+                        Are you sure you want to remove the reservation for row {deleteRow.row.rowNumber} in aisle {deleteRow.aisle.aisleNumber}?
+                        {deleteRow.row.isReserved && (
+                          <span className="block mt-2 text-orange-600">
+                            The partner will be notified of this reservation removal.
+                          </span>
+                        )}
                       </p>
                       <div className="flex justify-center space-x-4">
                         <button
@@ -255,13 +292,10 @@ const Store = () => {
                           Cancel
                         </button>
                         <button
-                          onClick={() => {
-                            // Delete functionality coming soon
-                            setDeleteRow(null);
-                          }}
+                          onClick={handleDeleteRow}
                           className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
                         >
-                          Delete
+                          Remove Reservation
                         </button>
                       </div>
                     </div>
