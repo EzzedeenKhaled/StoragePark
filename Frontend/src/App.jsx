@@ -94,7 +94,7 @@ function App() {
         <Route path="/admin/*" element={<AdminDashboard />} />
         
         <Route path="/partner-dashboard" element={<PartnerDashboard />} />
-        <Route path="/partner/analytics" element={(user?.role === 'partner' || user?.role === 'admin') ? <Analytics /> : <Navigate to="/unauthorized" />} />
+        <Route path="/partner/analytics" element={(user?.role === 'partner' || user?.role === 'admin') ? <PartnerAnalytics /> : <Navigate to="/unauthorized" />} />
         <Route path="/partner/orders" element={(user?.role === 'partner' || user?.role === 'admin') ? <Orders /> : <Navigate to="/unauthorized" />} />
         <Route path="/partner/products" element={(user?.role === 'partner' || user?.role === 'admin') ? <ProductList /> : <Navigate to="/unauthorized" />} />
         <Route path="/partner/products/productForm" element={(user?.role === 'partner' || user?.role === 'admin') ? <ProductForm /> : <Navigate to="/unauthorized" />} />
