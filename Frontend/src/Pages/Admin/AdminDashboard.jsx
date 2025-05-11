@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Sidebar from '../../../components/Admin/Sidebar';
 import DashboardPage from './Dashboard/DashboardPage';
 import RequestsList from './Requests/RequestList';
@@ -9,7 +10,20 @@ import Employees from './Employees';
 import Rows from './Store/Rows';
 import Outgoing from './outgoing/OutgoingOrders';
 import AdminProducts from './AdminProducts';
+import { useUserStore } from '../../stores/useUserStore';
+import { LoadingSpinner } from '../../../components/LoadingSpinner';
 function AdminDashboard() {
+  const { user } = useUserStore();
+  const [checkingRole, setCheckingRole] = React.useState(true);
+  const navigate = useNavigate();
+  React.useEffect(() => {
+    setCheckingRole(true);
+     if (user?.role !== "admin" || !user) {
+      navigate('/unauthorized');
+    }
+    setCheckingRole(false);
+  }, [user, navigate]);
+  if (checkingRole) return <LoadingSpinner />;
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}

@@ -34,6 +34,11 @@ const Navbar = () => {
             <button>return to admin</button>
           </NavLink>
         )}
+        {user?.role === 'partner' && (
+          <NavLink to='/partner-dashboard'>
+            <button>return to partner</button>
+          </NavLink>
+        )}
       </div>
     </div>
   );

@@ -4,11 +4,13 @@ import axios from "../../lib/axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import PasswordConfirmForm from "./PasswordConfirmForm"; // Import PasswordConfirmForm
+import PasswordConfirmForm from "./PasswordConfirmForm"; 
+import { useUserStore } from "../stores/useUserStore";
 
 const EmailVerification = () => {
   const location = useLocation();
   const email = location.state?.email || null;
+  if(!email) navigate("/");
   const [code, setCode] = useState(["", "", "", "", "", ""]); // State for storing the code
   const inputRefs = useRef([]); // Refs for managing focus between input fields
   const [isVerified, setIsVerified] = useState(false); // State to track verification status
@@ -68,7 +70,7 @@ const EmailVerification = () => {
         setShowModal(true);
       }
 
-      setIsVerified(true); // Set the email as verified when successful
+      setIsVerified(true);
     } catch (error) {
       console.error("Error verifying email:", error);
       toast.error("Failed to verify email. Please try again.");
@@ -135,7 +137,7 @@ const EmailVerification = () => {
             </button>
           </form>
         ) : (
-          <PasswordConfirmForm email={email} /> // Render PasswordConfirmForm once the email is verified
+          <PasswordConfirmForm email={email} />
         )}
       </div>
     </div>

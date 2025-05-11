@@ -1,6 +1,6 @@
 import '../assets/Styles/RegisterP1.css';
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 import { toast } from 'react-hot-toast';
@@ -17,9 +17,19 @@ const RegisterPartner = () => {
         googleProfile: "",
         role: "partner",
     });
-    const { signup_Next, loading } = useUserStore();
+    const { user, signup_Next, loading } = useUserStore();
     const navigate = useNavigate();
-
+    useEffect(() => {
+        if (user) {
+            if (user.role === "customer") {
+                navigate("/ecommerce");
+            } else if (user.role === "admin") {
+                navigate("/admin");
+            } else if (user.role === "partner") {
+                navigate("/partner-dashboard");
+            }
+        }
+    },[]);
     const nextForm = async (e) => {
         e.preventDefault();
         try {

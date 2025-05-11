@@ -13,8 +13,6 @@ const ForgotPassword = () => {
         if (res === 200) {
             navigate('/verify-email', { state: { email } });
         }
-        // This is where you would typically integrate with your backend
-        // For now, we'll just show a success message
     };
 
     return (

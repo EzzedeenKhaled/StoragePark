@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useUserStore } from "../../../stores/useUserStore";
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import axios from '../../../../lib/axios';
-
+import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 const ProductForm = () => {
-  const { productFormSubmit } = useUserStore();
   const navigate = useNavigate();
+  const { productFormSubmit, user } = useUserStore();
+  const [checkingRole, setCheckingRole] = useState(true);
+  useEffect(() => {
+    setCheckingRole(true);
+    if(user?.role === "customer") {
+      navigate('/unauthorized');
+    }
+    setCheckingRole(false);
+  }, [user, navigate]);
+  if (checkingRole) return <LoadingSpinner />; 
   const [formData, setFormData] = useState({
     category: '',
     productName: '',

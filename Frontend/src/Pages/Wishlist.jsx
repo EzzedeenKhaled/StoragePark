@@ -3,10 +3,19 @@ import { Sidebar } from '../../components/Sidebar';
 import { useUserStore } from '../stores/useUserStore';
 import { WishlistItem } from "../../components/WishlistItem";
 import { LoadingSpinner } from '../../components/LoadingSpinner'
-
+import { useNavigate } from 'react-router-dom';
 function Wishlist() {
   const { user, wishlist, loading, getWishlist } = useUserStore();
-  
+  const [checkingRole, setCheckingRole] = React.useState(true);
+  const navigate = useNavigate();
+  React.useEffect(() => {
+    setCheckingRole(true);
+    if (user?.role === "admin" || user?.role === "partner" || !user) {
+      navigate('/');
+    }
+    setCheckingRole(false);
+  }, [user, navigate]);
+  if (checkingRole) return <LoadingSpinner />;
   React.useEffect(() => {
     if (user) { 
       getWishlist();

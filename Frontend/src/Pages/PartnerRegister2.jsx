@@ -5,6 +5,7 @@ import { useUserStore } from '../stores/useUserStore';
 import { toast } from 'react-hot-toast';
 import { useNavigate, useLocation } from "react-router-dom";
 const RegisterPartner2 = () => {
+
     const location = useLocation();
     const email = location.state?.email;
     const navigate = useNavigate();
@@ -42,8 +43,18 @@ const RegisterPartner2 = () => {
         }
     };
 
-    const { signup_Done, loading } = useUserStore();
-
+    const { user, signup_Done, loading } = useUserStore();
+        useEffect(() => {
+            if (user) {
+                if (user.role === "customer") {
+                    navigate("/ecommerce");
+                } else if (user.role === "admin") {
+                    navigate("/admin");
+                } else if (user.role === "partner") {
+                    navigate("/partner-dashboard");
+                }
+            }
+        },[]);
     const handleSubmit = async (e) => {
         e.preventDefault();
 

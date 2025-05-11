@@ -1,14 +1,23 @@
 import React, { useState } from "react";
 import { useUserStore } from "../stores/useUserStore";
 import { useNavigate } from "react-router-dom";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
 const PasswordConfirmForm = ({email}) => {
+  const [checkingRole, setCheckingRole] = useState(true);
+  const navigate = useNavigate();
+  React.useEffect(() => {
+    setCheckingRole(true);
+      if(!email)
+      navigate('/');
+      setCheckingRole(false);
+  }, [user, navigate]);
+  if (checkingRole) return <LoadingSpinner />;
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState("");
 
-    const navigate = useNavigate();
     const { resetPassword } = useUserStore();
     const handleSubmit =  async (e) => {
         e.preventDefault();

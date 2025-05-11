@@ -25,7 +25,6 @@ const Cart = () => {
         const cartItemIds = cart.map((item) => item._id); // Get IDs of items in the cart
         const response = await axios.post("/products/onSale", { cartItemIds }); // Fetch on-sale items
         setOnSaleItems(response.data); // Set on-sale items
-        console.log(onSaleItems)
       } catch (error) {
         console.error("Error fetching on-sale items:", error);
       }

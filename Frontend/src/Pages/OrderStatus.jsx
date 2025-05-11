@@ -37,6 +37,8 @@ function OrderStatus() {
       try {
         const response = await axios.get(`/orders/status/${orderId}`);
         const order = response.data;
+        if(order.status === 'delivered')
+          navigate('/');
         setUserLocation(order.userLocation);
         setDeliveryGuyLocation(order.deliveryGuyLocation);
         setOrderDetails(order);

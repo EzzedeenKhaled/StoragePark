@@ -3,11 +3,16 @@ import { Bell, TrendingUp, DollarSign, CheckCircle, Warehouse } from 'lucide-rea
 import Sidebar from './components/Sidebar';
 import StatCard from './components/StatCard';
 import BestSelling from './components/BestSelling';
+import { useUserStore } from '../../stores/useUserStore';
+import { useNavigate } from 'react-router-dom';
 import SalesPurchaseChart from './components/SalesPurchaseChart';
-// import TransactionHistory from './components/TransactionHistory';
+import { LoadingSpinner } from '../../../components/LoadingSpinner';
 import axios from '../../../lib/axios';
 
 const PartnerDashboard = () => {
+  const [checkingRole, setCheckingRole] = useState(true);
+  const { user } = useUserStore();
+  const navigate = useNavigate();
   const partnerId = localStorage.getItem('partnerId');
   const [year] = useState('This Year');
   const [stats, setStats] = useState({
@@ -17,12 +22,18 @@ const PartnerDashboard = () => {
     storageInfo: null
   });
   const [loading, setLoading] = useState(true);
-
+  useEffect(() => {
+      setCheckingRole(true);
+      if (user?.role === "customer" || !user) {
+        navigate("/unauthorized");
+      }
+      setCheckingRole(false);
+  }, []);
   useEffect(() => {
     const fetchStats = async () => {
       try {
         let res;
-        if(!partnerId)
+        if (!partnerId)
           res = await axios.get('/partners/stats');
         else
           res = await axios.get('/partners/stats', {
@@ -38,10 +49,10 @@ const PartnerDashboard = () => {
 
     fetchStats();
   }, []);
-
+  if (checkingRole) return <LoadingSpinner />;
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar/>
+      <Sidebar />
 
       <div className="flex-1">
         <div className="bg-orange-500 text-white p-6 ml-[250px]">
@@ -60,29 +71,29 @@ const PartnerDashboard = () => {
 
         <div className="p-6 ml-[260px]">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <StatCard 
-              title="Units Sold" 
-              value={loading ? "Loading..." : stats.totalSales} 
+            <StatCard
+              title="Units Sold"
+              value={loading ? "Loading..." : stats.totalSales}
               // percentChange={12} 
               icon={<TrendingUp size={24} className="text-yellow-500" />}
             />
-            
-            <StatCard 
-              title="Total Revenue" 
-              value={loading ? "Loading..." : `$${stats.totalRevenue.toFixed(2)}`} 
+
+            <StatCard
+              title="Total Revenue"
+              value={loading ? "Loading..." : `$${stats.totalRevenue.toFixed(2)}`}
               // percentChange={35} 
               icon={<DollarSign size={24} className="text-blue-500" />}
             />
 
-            <StatCard 
+            <StatCard
               title="Profit" // Change 'Return' to 'Profit'
               value={loading ? "Loading..." : `$${stats.totalProfit.toFixed(2)}`} // Use totalProfit
               // percentChange={-5} 
-              icon={<CheckCircle  size={24} className="text-pink-500" />}
+              icon={<CheckCircle size={24} className="text-pink-500" />}
             />
 
-            <StatCard 
-              title="Storage Cost" 
+            <StatCard
+              title="Storage Cost"
               value={loading ? "Loading..." : stats.storageInfo ? `$${stats.storageInfo.monthlyCost.toFixed(2)}/month` : "$0.00/month"}
               icon={<Warehouse size={24} className="text-green-500" />}
             />
@@ -101,7 +112,7 @@ const PartnerDashboard = () => {
                   <p className="text-2xl font-bold text-gray-900">${stats.storageInfo.monthlyCost.toFixed(2)}</p>
                 </div>
               </div>
-              
+
               <div className="mt-6">
                 <h3 className="text-md font-semibold text-gray-700 mb-3">Storage Breakdown</h3>
                 <div className="space-y-4">
@@ -137,7 +148,7 @@ const PartnerDashboard = () => {
                 </button>
               </div>
             </div>
-            <SalesPurchaseChart/>
+            <SalesPurchaseChart />
           </div>
 
           <div className="">

@@ -18,8 +18,18 @@ const Register = () => {
     });
 
     const navigate = useNavigate();
-    const { signup, loading } = useUserStore();
-
+    const { user, signup, loading } = useUserStore();
+    useEffect(() => {
+        if (user) {
+            if (user.role === "customer") {
+                navigate("/ecommerce");
+            } else if (user.role === "admin") {
+                navigate("/admin");
+            } else if (user.role === "partner") {
+                navigate("/partner-dashboard");
+            }
+        }
+    },[]);
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {

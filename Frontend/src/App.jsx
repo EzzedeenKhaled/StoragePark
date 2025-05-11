@@ -93,12 +93,12 @@ function App() {
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/admin/*" element={<AdminDashboard />} />
         
-        <Route path="/partner/dashboard" element={<PartnerDashboard />} />
-        <Route path="/partner/analytics" element={<PartnerAnalytics />} />
-        <Route path="/partner/orders" element={<Orders />} />
-        <Route path="/partner/products" element={<ProductList />} />
-        <Route path="/partner/products/productForm" element={<ProductForm />} />
-        <Route path="/partner/profile" element={<ProfilePartner />} />
+        <Route path="/partner-dashboard" element={<PartnerDashboard />} />
+        <Route path="/partner/analytics" element={(user?.role === 'partner' || user?.role === 'admin') ? <Analytics /> : <Navigate to="/unauthorized" />} />
+        <Route path="/partner/orders" element={(user?.role === 'partner' || user?.role === 'admin') ? <Orders /> : <Navigate to="/unauthorized" />} />
+        <Route path="/partner/products" element={(user?.role === 'partner' || user?.role === 'admin') ? <ProductList /> : <Navigate to="/unauthorized" />} />
+        <Route path="/partner/products/productForm" element={(user?.role === 'partner' || user?.role === 'admin') ? <ProductForm /> : <Navigate to="/unauthorized" />} />
+        <Route path="/partner/profile" element={(user?.role === 'partner' || user?.role === 'admin') ? <ProfilePartner /> : <Navigate to="/unauthorized" />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 

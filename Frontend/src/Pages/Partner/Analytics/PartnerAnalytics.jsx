@@ -156,10 +156,10 @@ const PartnerAnalytics = () => {
             <StatCard title="Total Orders" value={totalOrders} />
             <StatCard
               title="Top Selling Item"
-              value={topSelling.data[0]?.productName}
+              value={topSelling.data[0]?.productName || 'No data'}
               image={topSelling.data[0]?.imageProduct}
             />
-            <StatCard title="Top Category" value={topCategory} />
+            <StatCard title="Top Category" value={topCategory || "No data"} />
             <StatCard title="Products Sold" value={totalProductsSold} />
           </div>
 

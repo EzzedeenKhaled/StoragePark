@@ -1,10 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useUserStore } from '../stores/useUserStore';
 function HomePage() {
     const navigate = useNavigate();
-    const {user} = useUserStore();
-    if (user?.role === 'partner') 
-      navigate('/partner-dashboard');
     return (
       <div
         style={{

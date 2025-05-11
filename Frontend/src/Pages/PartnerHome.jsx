@@ -17,7 +17,7 @@ const Landing = () => {
                             Storage Park couples powerful software with its flexible nationwide fulfillment network, enabling brands to offer consistently efficient,
                             cost-effective delivery that improves the customer experience, from every channel.
                         </p>
-                        {user?.role !== "customer" && user?.role !== "admin" && (
+                        {user?.role !== "customer" && user?.role !== "admin" && user?.role !== "partner" && (
                             <button onClick={() => navigate('/register-partner-1')}>
                                 Become a Partner
                             </button>

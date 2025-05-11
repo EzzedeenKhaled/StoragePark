@@ -1,18 +1,36 @@
 import { ArrowRight, CheckCircle, HandHeart } from "lucide-react";
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useCartStore } from "../stores/useCartStore";
+import { useUserStore } from "../stores/useUserStore";
 import Confetti from "react-confetti";
 import { useLocation } from "react-router-dom";
 
 const PurchaseSuccessPage = () => {
 	const location = useLocation();
-const orderId = location.state?.orderId || "N/A";
+	const orderId = location.state?.orderId || "N/A";
 	const { clearCart } = useCartStore();
-
+	const [checkingRole, setCheckingRole] = useState(true);
+	const { user } = useUserStore();
+	const navigate = useNavigate();
 	useEffect(() => {
+
+	}, []);
+	useEffect(() => {
+		if(user && orderId === "N/A") {
+			setCheckingRole(true);
+			navigate("/ecommerce");
+			setCheckingRole(false);
+		}
+		else if (!user) {
+			setCheckingRole(true);
+			navigate("/");
+			setCheckingRole(false);
+		}
+		setCheckingRole(false);
 		clearCart();
 	}, []);
+	if (checkingRole) return <LoadingSpinner />;
 
 	return (
 		<div className='h-screen flex items-center justify-center px-4 bg-gradient-to-b from-[#ff9800] to-white'>
@@ -25,7 +43,7 @@ const orderId = location.state?.orderId || "N/A";
 				recycle={false}
 			/>
 
-<div className='max-w-md w-full bg-[#1D2126] rounded-lg shadow-xl overflow-hidden relative z-10'>
+			<div className='max-w-md w-full bg-[#1D2126] rounded-lg shadow-xl overflow-hidden relative z-10'>
 				<div className='p-6 sm:p-8'>
 					<div className='flex justify-center'>
 						<CheckCircle className='text-[#FF8B13] w-16 h-16 mb-4' />
@@ -52,7 +70,7 @@ const orderId = location.state?.orderId || "N/A";
 					</div>
 
 					<div className='space-y-4'>
-					<button className='w-full bg-[#FF8B13] hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center'>
+						<button className='w-full bg-[#FF8B13] hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center'>
 							<HandHeart className='mr-2' size={18} />
 							Thanks for trusting us!
 						</button>
