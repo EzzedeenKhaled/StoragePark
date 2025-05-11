@@ -259,4 +259,41 @@ async function sendEmployeeCredentials(email, firstName, password, role) {
   }
 }
 
-export { sendVerificationEmail, sendEmployeeCredentials, sendCustomerCredentials };
+// Function to send notification email
+async function sendNotificationEmail(email, subject, message) {
+  const htmlContent = `
+    <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 24px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      ${logoHtml}
+      <!-- Header -->
+      <h1 style="font-size: 28px; font-weight: 700; text-align: center; color: #ff9800; margin-bottom: 16px;">${subject}</h1>
+      
+      <!-- Message -->
+      <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px; margin: 24px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+        ${message.split('\n').map(line => `<p style="margin: 8px 0;">${line}</p>`).join('')}
+      </div>
+
+      <!-- Footer -->
+      <p style="text-align: center; font-size: 12px; color: #999; margin-top: 24px;">
+        This is an automated email. Please do not reply to this message.
+      </p>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: process.env.GMAIL_USER,
+    to: email,
+    subject: subject,
+    html: htmlContent,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Notification email sent:", info.response);
+    return true;
+  } catch (error) {
+    console.error("Error sending notification email:", error);
+    return false;
+  }
+}
+
+export { sendVerificationEmail, sendEmployeeCredentials, sendCustomerCredentials, sendNotificationEmail };

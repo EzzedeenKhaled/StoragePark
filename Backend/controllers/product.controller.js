@@ -3,23 +3,22 @@ import { imagekit } from "../lib/imageKit.js";
 import mongoose from "mongoose";
 export const createProduct = async (req, res) => {
 	try {
-		// Extract the product data from the request
+		 // Extract the product data from the request
 		const { category, productName, weight, quantity, pricePerUnit, description, brand, packagingType, packageWidth, packageHeight, aisleNumber, rowNumber, side, reservedRowId, partner } = req.body;
 		// Ensure the image is available
 		if (!req.file) {
 			return res.status(400).json({ message: 'Image is required.' });
-		}
-
-		// Convert the image file to base64
-		const base64Img = req.file.buffer.toString('base64');
-		const imgName = req.file.originalname; // Use a timestamp to ensure unique filenames
-		//   console.log("Image name:", imgName);
-		// Upload image to ImageKit
-		const uploadResult = await UploadImage(base64Img, imgName);
-
-		// Get the URL of the uploaded image
-		const imageUrl = uploadResult.url;
-
+	 	}
+	 	// Convert the image file to base64
+	 	const base64Img = req.file.buffer.toString('base64');
+	 	const imgName = req.file.originalname; // Use a timestamp to ensure unique filenames
+	 	//   console.log("Image name:", imgName);
+	 	// Upload image to ImageKit
+	  	const uploadResult = await UploadImage(base64Img, imgName);
+ 
+	 	// Get the URL of the uploaded image
+	 	const imageUrl = uploadResult.url;
+  
 		// Create a new product document
 		const newProduct = new Item({
 			category,
@@ -27,11 +26,11 @@ export const createProduct = async (req, res) => {
 			weight,
 			quantity,
 			pricePerUnit,
-			description,
+	 		description,
 			brand,
 			// storageCondition,
 			packagingType,
-			packageWidth,
+	 		packageWidth,
 			packageHeight,
 			imageProduct: imageUrl,
 			// Add location fields if provided

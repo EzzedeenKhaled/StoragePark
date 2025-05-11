@@ -19,15 +19,15 @@ export const getPartnerProfile = async (req, res) => {
     }
 };
 
-export const getMonthlySalesAndPurchases = async (req, res) => {
-  try {
-    const partnerId = new mongoose.Types.ObjectId(req.query.partnerId || req.user._id);
- // Ensure authentication middleware sets req.user
+ export const getMonthlySalesAndPurchases = async (req, res) => {
+   try {
+     const partnerId = new mongoose.Types.ObjectId(req.query.partnerId || req.user._id);
+  // Ensure authentication middleware sets req.user
     const monthlyData = [];
 
     for (let month = 1; month <= 12; month++) {
       const startOfMonth = new Date(2025, month - 1, 1);
-      const endOfMonth = new Date(2025, month, 0);
+       const endOfMonth = new Date(2025, month, 0);
 
       // Sales: from orders of the partner
       const salesData = await User.aggregate([
@@ -38,7 +38,7 @@ export const getMonthlySalesAndPurchases = async (req, res) => {
             "orders.orderDate": { $gte: startOfMonth, $lte: endOfMonth }
           }
         },
-        {
+         {
           $group: {
             _id: null,
             totalSales: { $sum: "$orders.totalAmount" }
@@ -48,7 +48,7 @@ export const getMonthlySalesAndPurchases = async (req, res) => {
 
       // Purchases: items created by the partner within the month
       const purchaseData = await Item.aggregate([
-        {
+         {
           $match: {
             partner: partnerId, // assumes `Item` has a `partner` field (ObjectId)
             createdAt: { $gte: startOfMonth, $lte: endOfMonth }
@@ -303,6 +303,14 @@ export const changeIsActive = async (req, res) => {
 
         if (!item) {
             return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        // Prevent toggling if stock is 0
+        if (item.quantity === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Cannot activate product with zero stock. Please update the stock quantity first." 
+            });
         }
 
         // Toggle the isActive status

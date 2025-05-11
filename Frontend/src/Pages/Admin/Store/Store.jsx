@@ -51,17 +51,51 @@ const Store = () => {
 
   const handleViewDetails = async (row) => {
     try {
-      const res = await axios.get(`/products/active-items`);
-      const items = res.data.filter(item => String(item.reservedRowId) === String(row._id));
+      const res = await axios.get(`/admins/allProducts`);
+      const items = Array.isArray(res.data) ? res.data.filter(item => String(item.reservedRowId) === String(row._id)) : [];
       setDetailsItems(items);
-      if (items.length > 0 && items[0].partner) {
-        setDetailsPartner(items[0].partner);
+      
+      // Get partner information from the first item that has it
+      const itemWithPartner = items.find(item => item.partner);
+      if (itemWithPartner?.partner) {
+        setDetailsPartner(itemWithPartner.partner);
       } else {
         setDetailsPartner(null);
       }
       setDetailsRow(row);
-    } catch {
+    } catch (error) {
+      console.error('Error fetching row details:', error);
       toast.error('Failed to fetch row details');
+    }
+  };
+
+  const handleDeleteRow = async () => {
+    try {
+      const response = await axios.delete(`/warehouse/${deleteRow.aisle.aisleNumber}/rows/${deleteRow.row._id}`);
+      
+      if (response.data.statusCode === 200) {
+        toast.success('Reservation removed successfully');
+        setDeleteRow(null);
+        fetchWarehouses();
+      }
+    } catch (error) {
+      if (error.response?.data?.statusCode === 400) {
+        // Show items in the row that prevent removal
+        const items = error.response.data.items;
+        toast.error(
+          <div>
+            <p className="font-semibold mb-2">Cannot remove reservation with active items:</p>
+            <ul className="list-disc pl-4">
+              {items.map(item => (
+                <li key={item._id}>{item.productName} (Qty: {item.quantity})</li>
+              ))}
+            </ul>
+          </div>,
+          { duration: 5000 }
+        );
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to remove reservation');
+      }
     }
   };
 
@@ -160,19 +194,21 @@ const Store = () => {
                                   >
                                     <PencilIcon className="h-5 w-5" />
                                   </button>
-                                  <button
-                                    onClick={() => setDeleteRow({ aisle, row })}
-                                    className="text-red-500 hover:text-red-600"
-                                  >
-                                    <TrashIcon className="h-5 w-5" />
-                                  </button>
                                   {row.isReserved && (
-                                    <button
-                                      onClick={() => handleViewDetails(row)}
-                                      className="text-orange-500 hover:text-orange-600"
-                                    >
-                                      View Details
-                                    </button>
+                                    <>
+                                      <button
+                                        onClick={() => setDeleteRow({ aisle, row })}
+                                        className="text-red-500 hover:text-red-600"
+                                      >
+                                        <TrashIcon className="h-5 w-5" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleViewDetails(row)}
+                                        className="text-orange-500 hover:text-orange-600"
+                                      >
+                                        View Details
+                                      </button>
+                                    </>
                                   )}
                                 </div>
                               </td>
@@ -240,12 +276,17 @@ const Store = () => {
                     <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
                       <div className="flex items-center justify-center">
                         <ExclamationTriangleIcon className="h-6 w-6 text-orange-500 mr-2" />
-                        <h3 className="text-lg font-medium text-orange-800">Delete Row</h3>
+                        <h3 className="text-lg font-medium text-orange-800">Remove Reservation</h3>
                       </div>
                     </div>
                     <div className="p-6">
                       <p className="text-gray-600 mb-6 text-center">
-                        Are you sure you want to delete row {deleteRow.row.rowNumber} in aisle {deleteRow.aisle.aisleNumber}?
+                        Are you sure you want to remove the reservation for row {deleteRow.row.rowNumber} in aisle {deleteRow.aisle.aisleNumber}?
+                        {deleteRow.row.isReserved && (
+                          <span className="block mt-2 text-orange-600">
+                            The partner will be notified of this reservation removal.
+                          </span>
+                        )}
                       </p>
                       <div className="flex justify-center space-x-4">
                         <button
@@ -255,13 +296,10 @@ const Store = () => {
                           Cancel
                         </button>
                         <button
-                          onClick={() => {
-                            // Delete functionality coming soon
-                            setDeleteRow(null);
-                          }}
+                          onClick={handleDeleteRow}
                           className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
                         >
-                          Delete
+                          Remove Reservation
                         </button>
                       </div>
                     </div>
@@ -277,16 +315,22 @@ const Store = () => {
                       <div className="space-y-4">
                         <div>
                           <span className="block text-sm font-medium text-gray-700">Partner:</span>
-                          {detailsPartner && detailsPartner.partner && detailsPartner.partner.companyName ? (
-                            <span className="block text-gray-900">{detailsPartner.partner.companyName}</span>
-                          ) : detailsPartner && (detailsPartner.firstName || detailsPartner.lastName) ? (
-                            <span className="block text-gray-900">
-                              {[detailsPartner.firstName, detailsPartner.lastName].filter(Boolean).join(' ')}
-                            </span>
-                          ) : detailsPartner && detailsPartner.email ? (
-                            <span className="block text-gray-900">{detailsPartner.email}</span>
+                          {detailsPartner ? (
+                            <div className="mt-1">
+                              {detailsPartner.companyName && (
+                                <span className="block text-gray-900">{detailsPartner.companyName}</span>
+                              )}
+                              {detailsPartner.firstName && detailsPartner.lastName && (
+                                <span className="block text-gray-900">
+                                  {detailsPartner.firstName} {detailsPartner.lastName}
+                                </span>
+                              )}
+                              {detailsPartner.email && (
+                                <span className="block text-gray-500 text-sm">{detailsPartner.email}</span>
+                              )}
+                            </div>
                           ) : (
-                            <span className="block text-gray-500">Unknown</span>
+                            <span className="block text-gray-500">No partner information available</span>
                           )}
                         </div>
                         <div>
@@ -294,10 +338,10 @@ const Store = () => {
                           {detailsRow && (() => {
                             const totalArea = ((detailsRow.dimensions.width * detailsRow.dimensions.depth) / 10000);
                             const usedSpace = detailsItems.reduce((sum, item) => {
-                              const itemArea = ((Number(item.packageWidth) * Number(item.packageHeight) * Number(item.quantity)) / 10000) || 0;
-                              return sum + itemArea;
+                              const itemArea = ((Number(item.packageWidth || 0) * Number(item.packageHeight || 0) * Number(item.quantity || 0)) / 10000);
+                              return sum + (isNaN(itemArea) ? 0 : itemArea);
                             }, 0);
-                            const freeSpace = totalArea - usedSpace;
+                            const freeSpace = Math.max(0, totalArea - usedSpace);
                             return (
                               <div className="space-y-1">
                                 <span className="block text-gray-700">Total: <span className="font-semibold">{totalArea.toFixed(2)} m²</span></span>
@@ -309,11 +353,28 @@ const Store = () => {
                         </div>
                         <div>
                           <span className="block text-sm font-medium text-gray-700">Stored Items:</span>
-                          {detailsItems.length > 0 ? (
+                          {detailsItems && detailsItems.length > 0 ? (
                             <ul className="mt-2 list-disc pl-5 text-gray-800">
                               {detailsItems.map(item => (
-                                <li key={item._id}>
-                                  {item.productName} (Qty: {item.quantity})
+                                <li key={item._id} className="mb-2">
+                                  <div className="flex items-start">
+                                    <div className="flex-1">
+                                      <span className="font-medium">{item.productName}</span>
+                                      <span className="text-gray-600"> (Qty: {item.quantity})</span>
+                                      {item.packageWidth && item.packageHeight && (
+                                        <span className="text-gray-500 text-sm block ml-4">
+                                          Size: {item.packageWidth}×{item.packageHeight} cm
+                                        </span>
+                                      )}
+                                    </div>
+                                    {item.isActive !== undefined && (
+                                      <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                                        item.isActive ? 'bg-orange-100 text-orange-800' : 'bg-orange-50 text-orange-600'
+                                      }`}>
+                                        {item.isActive ? 'Active' : 'Inactive'}
+                                      </span>
+                                    )}
+                                  </div>
                                 </li>
                               ))}
                             </ul>
