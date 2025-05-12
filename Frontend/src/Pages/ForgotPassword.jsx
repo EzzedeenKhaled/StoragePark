@@ -11,7 +11,7 @@ const ForgotPassword = () => {
         e.preventDefault();
         const res = await forgotPassword(email);
         if (res === 200) {
-            navigate('/verify-email', { state: { email } });
+            navigate('/verify-email', { state: { email, from: "forgot-password" } });
         }
     };
 

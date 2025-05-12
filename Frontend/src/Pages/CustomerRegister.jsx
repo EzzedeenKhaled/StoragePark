@@ -5,7 +5,7 @@ import { UserPlus, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-hot-toast';
-
+import { useEffect } from 'react';
 const Register = () => {
     const [errorMessage] = useState("");
     const [formData, setFormData] = useState({
@@ -20,7 +20,7 @@ const Register = () => {
     const navigate = useNavigate();
     const { user, signup, loading } = useUserStore();
     useEffect(() => {
-        if (user) {
+        if (user && user.isVerified) {
             if (user.role === "customer") {
                 navigate("/ecommerce");
             } else if (user.role === "admin") {
@@ -42,7 +42,12 @@ const Register = () => {
                 toast.error("User already exists");
                 return;
             }
-            navigate("/verify-email");
+            navigate("/verify-email", { 
+                state: { 
+                  email: formData.email, 
+                  from: "customer-register" 
+                } 
+              });
         } catch (error) {
             console.error("Error during signup:", error);
             toast.error("Something went wrong. Please try again.");

@@ -24,7 +24,10 @@ const PartnerDashboard = () => {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
       setCheckingRole(true);
-      if (user?.role === "customer" || !user) {
+      if (!user) {
+        return;
+      }
+      if (user?.role === "customer") {
         navigate("/unauthorized");
       }
       setCheckingRole(false);

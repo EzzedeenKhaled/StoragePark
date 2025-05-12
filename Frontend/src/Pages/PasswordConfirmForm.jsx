@@ -3,6 +3,7 @@ import { useUserStore } from "../stores/useUserStore";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 const PasswordConfirmForm = ({email}) => {
+    const {user} = useUserStore();
   const [checkingRole, setCheckingRole] = useState(true);
   const navigate = useNavigate();
   React.useEffect(() => {
@@ -11,7 +12,7 @@ const PasswordConfirmForm = ({email}) => {
       navigate('/');
       setCheckingRole(false);
   }, [user, navigate]);
-  if (checkingRole) return <LoadingSpinner />;
+
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -37,7 +38,7 @@ const PasswordConfirmForm = ({email}) => {
         // Handle successful password confirmation
         console.log("Passwords match!");
     };
-
+    if (checkingRole) return <LoadingSpinner />;
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             {/* Header for Password Confirmation */}

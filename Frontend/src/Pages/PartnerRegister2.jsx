@@ -4,6 +4,7 @@ import { Check, Loader } from "lucide-react";
 import { useUserStore } from '../stores/useUserStore';
 import { toast } from 'react-hot-toast';
 import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from 'react';
 const RegisterPartner2 = () => {
 
     const location = useLocation();

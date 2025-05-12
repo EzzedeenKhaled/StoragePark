@@ -159,6 +159,7 @@ export const login = async (req, res) => {
 				isVerified: user.isVerified,
 				profileImage: user.profileImage,
 				phoneNumber: user.phoneNumber,
+				accessToken: accessToken,
 			});
 		} else {
 			res.status(400).json({ message: "Invalid email or password" });
@@ -256,6 +257,7 @@ export const verifyEmail = async (req, res) => {
 				email: user.email,
 				role: user.role,
 				isVerified: user.isVerified,
+				accessToken: accessToken,
 			}
 		});
 	} catch (error) {

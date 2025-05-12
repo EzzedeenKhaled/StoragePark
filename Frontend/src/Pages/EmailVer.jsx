@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import "../assets/Styles/EmailVer.css";
 import axios from "../../lib/axios";
 import { toast } from "react-hot-toast";
@@ -10,12 +10,18 @@ import { useUserStore } from "../stores/useUserStore";
 const EmailVerification = () => {
   const location = useLocation();
   const email = location.state?.email || null;
-  if(!email) navigate("/");
+  const from = location.state?.from || null;
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!email) {
+      navigate("/");
+    }
+  }, [email, navigate]);
   const [code, setCode] = useState(["", "", "", "", "", ""]); // State for storing the code
   const inputRefs = useRef([]); // Refs for managing focus between input fields
   const [isVerified, setIsVerified] = useState(false); // State to track verification status
   const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate(); // Hook for navigation
+ // Hook for navigation
 
   // Handle input changes
   const handleChange = (index, value) => {
@@ -56,11 +62,11 @@ const EmailVerification = () => {
     let token = code.join("").toUpperCase();
     try {
       let response = null;
-      if (email) {
-        response = await axios.post("/auth/verify-code", { token, email });
-        toast.success(response.data.message);
-      } else {
+      if (email && from === "customer-register") {
         response = await axios.post("/auth/verify-email", { token });
+        toast.success(response.data.message);
+      } else if (email && (from === "forgot-password" || !from)) {
+        response = await axios.post("/auth/verify-code", { token, email });
         toast.success(response.data.message);
       }
 

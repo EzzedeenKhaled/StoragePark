@@ -22,9 +22,9 @@
     width: 100px; 
 }
 
-.container {
+.RegisterPage .container {
     width: 100%;
-    /* max-width: 800px; */
+    max-width: 800px; 
     text-align: center;
 }
 

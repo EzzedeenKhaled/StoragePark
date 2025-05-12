@@ -16,8 +16,11 @@ function AdminDashboard() {
   const [checkingRole, setCheckingRole] = React.useState(true);
   const navigate = useNavigate();
   React.useEffect(() => {
+    if (!user) {
+      return;
+    }
     setCheckingRole(true);
-     if (user?.role !== "admin" || !user) {
+     if (user.role !== "admin") {
       navigate('/unauthorized');
     }
     setCheckingRole(false);

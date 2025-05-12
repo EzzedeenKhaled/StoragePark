@@ -20,6 +20,11 @@ export const useReviewStore = create((set, get) => ({
 
   addReview: async (reviewData) => {
     set({ loading: true, error: null });
+    if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
+      set({ loading: false, error: "Invalid rating" });
+      toast.error("Rating must be between 1 and 5");
+      return;
+    }
     try {
       const response = await axios.post('/reviews/addReviews', reviewData);
       set((state) => ({

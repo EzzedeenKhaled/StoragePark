@@ -43,7 +43,7 @@ function App() {
   // console.log("User:", user);
   // console.log("Checking Auth:", checkingAuth);
   useEffect(() => {
-    if (!user) return;
+    if (!user || !user.isVerified) return;
 
     getCartItems();
   }, [getCartItems, user]);
@@ -86,7 +86,6 @@ function App() {
         <Route path="/ecommerce" element={<Ecommerce />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/empty-cart" element={<EmptyCart />} />
-        <Route path="/product-form" element={<ProductForm />} />
         <Route path="/payment-form" element={<PaymentForm />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/category/:categoryName" element={<Category />} />

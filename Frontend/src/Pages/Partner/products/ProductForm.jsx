@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useUserStore } from "../../../stores/useUserStore";
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import axios from '../../../../lib/axios';
-import { LoadingSpinner } from '../../../../components/LoadingSpinner';
+
 const ProductForm = () => {
   const navigate = useNavigate();
-  const { productFormSubmit, user } = useUserStore();
-  const [checkingRole, setCheckingRole] = useState(true);
-  useEffect(() => {
-    setCheckingRole(true);
-    if(user?.role === "customer") {
-      navigate('/unauthorized');
-    }
-    setCheckingRole(false);
-  }, [user, navigate]);
-  if (checkingRole) return <LoadingSpinner />; 
+  const getCookie = (name) => {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+  };
+  
+  const accessToken = getCookie('accessToken');
+  console.log(accessToken);
+  const { productFormSubmit } = useUserStore();
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     category: '',
     productName: '',
@@ -35,7 +35,6 @@ const ProductForm = () => {
     imageProduct: "Upload Image",
   });
   const categories = ['Electronics', 'Toys', 'Beauty'];
-  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;

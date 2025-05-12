@@ -1,32 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Sidebar } from '../../components/Sidebar';
 import { useUserStore } from '../stores/useUserStore';
-import { WishlistItem } from "../../components/WishlistItem";
-import { LoadingSpinner } from '../../components/LoadingSpinner'
+import { WishlistItem } from '../../components/WishlistItem';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
+
 function Wishlist() {
   const { user, wishlist, loading, getWishlist } = useUserStore();
-  const [checkingRole, setCheckingRole] = React.useState(true);
   const navigate = useNavigate();
-  React.useEffect(() => {
-    setCheckingRole(true);
-    if (user?.role === "admin" || user?.role === "partner" || !user) {
-      navigate('/');
-    }
-    setCheckingRole(false);
-  }, [user, navigate]);
-  if (checkingRole) return <LoadingSpinner />;
-  React.useEffect(() => {
-    if (user) { 
-      getWishlist();
-    }
-  }, [user, getWishlist]);
 
-  if (loading) return <LoadingSpinner />;
+  // Redirect if not a customer
+  useEffect(() => {
+    if (!user || user.role === 'admin' || user.role === 'partner') {
+      navigate('/');
+    } else {
+      getWishlist(); // Only get wishlist if user is valid
+    }
+  }, [user, navigate, getWishlist]);
+
+  // Still loading user data or fetching wishlist
+  if (!user || loading) return <LoadingSpinner />;
 
   return (
     <div className="flex min-h-screen bg-white">
-      <Sidebar userName={user?.name || 'Guest'} />
+      <Sidebar userName={user.name || 'Guest'} />
       <main className="flex-1 p-8">
         <h1 className="text-2xl font-bold mb-6">My Wishlist</h1>
         {wishlist.length === 0 ? (
