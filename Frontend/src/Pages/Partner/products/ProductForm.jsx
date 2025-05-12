@@ -7,13 +7,6 @@ import axios from '../../../../lib/axios';
 
 const ProductForm = () => {
   const navigate = useNavigate();
-  const getCookie = (name) => {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? match[2] : null;
-  };
-  
-  const accessToken = getCookie('accessToken');
-  console.log(accessToken);
   const { productFormSubmit } = useUserStore();
   const [loading, setLoading] = useState(false);
 

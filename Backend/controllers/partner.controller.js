@@ -10,9 +10,20 @@ import mongoose from "mongoose";
 export const getPartnerProfile = async (req, res) => {
     try {
         const email = req.query.email || req.user.email;
-        console.log(req.query.email)
         const partner = await User.findOne({ email, role: "partner" });
-        res.status(200).json(partner);
+        const responseData = {
+            companyName: partner?.partner.companyName,
+            phoneNumber: partner?.phoneNumber,
+            address: partner?.partner.address,
+            email: partner?.email,
+            profileImage: partner?.partner.profileImage,
+            businessLicenseFile: partner?.partner.businessLicenseFile,
+            taxComplianceFile: partner?.partner.taxComplianceFile,
+            certificateFile: partner?.partner.certificateFile,
+            isVerified: partner?.isVerified,
+            role: partner?.role
+        };
+        res.status(200).json(responseData);
     } catch (error) {
         console.error("Error fetching partner profile:", error);
         res.status(500).json({ error: "Internal Server Error" });
@@ -354,7 +365,6 @@ export const getPartnerOrders = async (req, res) => {
             'orders.items.item': { $in: partnerItemIds }
         }).select('firstName lastName email orders');
         
-        console.log("items: ",users)
         // Process users to extract only relevant orders 
         const relevantOrders = [];
 
@@ -438,8 +448,20 @@ export const updatePartner = async (req, res) => {
         if (!updatedPartner) {
             return res.status(404).json({ message: "Partner not found with this email" });
         }
+        const responseData = {
+            profileImage: updatedPartner.partner.profileImage,
+            companyName: updatedPartner?.partner.companyName,
+            phoneNumber: updatedPartner?.phoneNumber,
+            address: updatedPartner?.partner.address,
+            email: updatedPartner?.email,
+            businessLicenseFile: updatedPartner?.partner.businessLicenseFile,
+            taxComplianceFile: updatedPartner?.partner.taxComplianceFile,
+            certificateFile: updatedPartner?.partner.certificateFile,
+            isVerified: updatedPartner?.isVerified,
+            role: updatedPartner?.role
+        };
 
-        res.status(200).json({ message: "Partner updated", data: updatedPartner });
+        res.status(200).json({ responseData });
     } catch (error) {
         console.error("Error updating Partner:", error.message);
         res.status(500).json({ message: "Internal server error" });
@@ -550,7 +572,6 @@ const UploadImage = async (base64Img, imgName) => {
             fileName: imgName,    // Required
             tags: ["tag1", "tag2"]
         });
-        console.log(result);
         return result;
     } catch (error) {
         console.error(error);

@@ -72,7 +72,6 @@ export const forgotPassword = async (req, res) => {
 
 
  export const signup = async (req, res) => {
-	console.log("backend")
 	const { email, password, firstName, lastName, role, phone: phoneNumber } = req.body;
 	try {
 		const userExists = await User.findOne({ email });
@@ -135,14 +134,12 @@ export const login = async (req, res) => {
 		const { email, password } = req.body;
 		const user = await User.findOne({ email });
 		if ((user?.role === "partner" || user?.role === "customer") && !user.isVerified) {
-			console.log("old: ",user.verificationToken)
 			user.verificationToken = undefined;
 			const buffer = crypto.randomBytes(3); // Generate 3 random bytes (24 bits)
 			const numericToken = parseInt(buffer.toString("hex"), 16) % 1000000; // Convert to a number and limit to 6 digits
 			const verificationToken = String(numericToken).padStart(6, "0");
 			user.verificationToken = verificationToken;
 			await user.save();
-			console.log("new: ",user.verificationToken)
 			await sendVerificationEmail(email, verificationToken, false, false);
 			return res.status(403).json({ message: "Account is not verified yet" });
 		}
@@ -221,13 +218,9 @@ export const refreshToken = async (req, res) => {
 
 // Verify email
 export const verifyEmail = async (req, res) => {
-	console.log("backend verify email")
 	const { token } = req.body; // Extract the 'token' property from the request body
 
 	try {
-		// Log the token for debugging
-		console.log("Received token:", token);
-
 		// Validate the token
 		if (!token) {
 			return res.status(400).json({ message: "Token is required." });

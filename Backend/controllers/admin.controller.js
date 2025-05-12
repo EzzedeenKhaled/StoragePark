@@ -228,13 +228,11 @@ export const getCustomers = async (req, res) => {
       };
     }
 
-    console.log('Fetching customers with query:', query);
 
     const customers = await User.find(query)
       .select('-password -resetPasswordCode -resetPasswordExpires -verificationToken')
       .sort({ createdAt: -1 });
 
-    console.log(`Found ${customers.length} customers`);
 
     if (!customers || customers.length === 0) {
       return res.status(200).json([]);

@@ -27,11 +27,11 @@ const ProductList = () => {
   }
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      {/* <Sidebar /> */}
       
       <div className="flex-1">
         {/* Header */}
-        <div className="bg-orange-500 text-white p-6 ml-[250px]">
+        <div className="bg-orange-500 text-white p-6">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold">Product List</h1>
@@ -61,7 +61,7 @@ const ProductList = () => {
                 </svg>
               </div>
               <button
-                className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-black/90"
+                className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-black/90 cursor-pointer"
                 onClick={() => navigate('/partner/products/productForm')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -74,7 +74,7 @@ const ProductList = () => {
         </div>
 
         {/* Tabs and Table */}
-        <div className="p-6 ml-[250px]">
+        <div className="p-6">
           {/* Table */}
           <div className="bg-white rounded-lg shadow">
             <table className="w-full">

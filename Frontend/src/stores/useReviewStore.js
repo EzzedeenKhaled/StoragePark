@@ -41,7 +41,6 @@ export const useReviewStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await axios.get(`/reviews/getCategoryRev/${categoryName}`);
-      console.log("Category reviews:", response.data);
       set({ reviews: response.data, loading: false });
     } catch (error) {
       set({ loading: false, error: "Error fetching reviews by Category" });

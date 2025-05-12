@@ -7,7 +7,6 @@ export const getWarehouseStructure = async (req, res) => {
   
   try {
      const warehouses = await Warehouse.find().sort({ aisleNumber: 1 });
-    console.log('Found warehouses:', warehouses);
      return res.status(200).json({
       statusCode: 200,
       data: warehouses,

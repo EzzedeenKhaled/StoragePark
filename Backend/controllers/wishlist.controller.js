@@ -2,7 +2,6 @@ import User from "../models/user.model.js";
 
 // Add an item to the user's wishlist
 export const addToWishlist = async (req, res) => {
-    console.log("Adding to wishlist:", req.body);
   const { itemId } = req.body;
   const userId = req.user._id; // assuming you get the user from auth middleware
 
@@ -42,7 +41,6 @@ export const removeFromWishlist = async (req, res) => {
       // Convert both IDs to string for consistent comparison
       const initialLength = user.wishlist.length;
       user.wishlist = user.wishlist.filter(id => id.toString() !== productId.toString());
-      // console.log("Removing from wishlist:", productId, user.wishlist);
       // Check if item was actually removed
       if (user.wishlist.length === initialLength) {
         return res.status(400).json({ message: "Item not found in wishlist" });

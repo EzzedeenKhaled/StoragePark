@@ -16,14 +16,13 @@ const Login = () => {
     const { addToCart } = useCartStore();
     useEffect(() => {
         if (user) {
-            console.log("Userr: ",user)
             if (product) {
                 addToCart(product);
                 navigate(`/product-page/${product._id}`);
             } else if(user.role === "customer") {
                 navigate('/ecommerce');
             } else if(user.role === "partner"){
-                navigate('/partner-dashboard');
+                navigate('/partner');
             } else {
                 navigate('/admin')
             }

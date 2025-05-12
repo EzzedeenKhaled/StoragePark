@@ -20,7 +20,7 @@ const Header = () => {
 
   const handleRoleNavigation = () => {
     if (user.role === 'partner') {
-      navigate('/partner-dashboard');
+      navigate('/partner');
     } else if (user.role === 'admin') {
       navigate('/admin');
     }

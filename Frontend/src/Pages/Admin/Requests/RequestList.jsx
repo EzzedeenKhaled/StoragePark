@@ -19,7 +19,6 @@ const RequestsList = () => {
       try {
         setLoading(true);
         const { data } = await axios.get("/admins/partners/unverified");
-        console.log(data)
         setPartners(data);
       } catch (err) {
         setError("Something went wrong");

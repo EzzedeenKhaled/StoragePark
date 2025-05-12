@@ -10,11 +10,10 @@ export const useUserStore = create((set, get) => ({
 	activeItems: [],
 	category: [],
 	wishlist: [],
-
+ 	setUser: (newUser) => set({ user: newUser }),
 	addToWishlist: async (itemId) => {
 		try {
 			const res = await axios.post("/wishlist/add-to-wishlist", { itemId });
-			console.log("addToWishlist response: ", res.data);
 			set({ wishlist: res.data.wishlist });
 			toast.success("Item added to wishlist");
 		} catch (error) {
@@ -194,7 +193,6 @@ export const useUserStore = create((set, get) => ({
 		}
 	},
 	productFormSubmit: async (data) => {
-		console.log("data: ",data)	
 		const formData = new FormData();
 		formData.append("imageProduct", data.imageProduct);
 		formData.append('category', data.category);

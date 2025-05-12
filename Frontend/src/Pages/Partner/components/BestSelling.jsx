@@ -25,7 +25,6 @@ const BestSelling = () => {
 
     fetchTopSelling();
   }, []); // Empty dependency array to fetch only once on component mount
-  console.log("oudhaoifa: ",products)
   return (
     <div className="bg-white rounded-lg shadow-sm">
       <div className="p-6 border-b border-gray-100">

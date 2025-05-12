@@ -34,14 +34,12 @@ export const useCartStore = create((set, get) => ({
 	},
 	updateQuantity: async (productId, quantity) => {
 		try{
-		console.log("Updating quantity for product:", productId, "to", quantity);
 		if (quantity === 0) {
 			get().removeFromCart(productId);
 			return;
 		}
 
 		const res = await axios.put(`/cart/${productId}`, { quantity });
-		console.log("ee: ",res)
 		set((prevState) => ({
 			cart: prevState.cart.map((item) => (item._id === productId ? { ...item, quantity } : item)),
 		}));

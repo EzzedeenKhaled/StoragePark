@@ -23,7 +23,6 @@ if (checkingRole) return <LoadingSpinner />;
 // Calculate discount if needed
 const discount = 0;
 const finalTotal = parseFloat(total) - discount;
-console.log('User location:', cartItems);
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -54,7 +53,6 @@ const handleSubmit = async (e) => {
       userLocation,
     };
     const res = await makeOrder(orderData);
-    console.log("f: ", res)
     navigate('/purchase-success', { state: { orderId: res.data.orderId } });
   } catch (err) {
     console.error('Order submission error:', err);

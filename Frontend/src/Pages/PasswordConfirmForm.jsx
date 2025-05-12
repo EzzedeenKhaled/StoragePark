@@ -36,7 +36,6 @@ const PasswordConfirmForm = ({email}) => {
             navigate("/login");
         }
         // Handle successful password confirmation
-        console.log("Passwords match!");
     };
     if (checkingRole) return <LoadingSpinner />;
     return (

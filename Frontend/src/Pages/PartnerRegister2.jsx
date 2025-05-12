@@ -52,7 +52,7 @@ const RegisterPartner2 = () => {
                 } else if (user.role === "admin") {
                     navigate("/admin");
                 } else if (user.role === "partner") {
-                    navigate("/partner-dashboard");
+                    navigate("/partner");
                 }
             }
         },[]);
@@ -64,7 +64,6 @@ const RegisterPartner2 = () => {
             return;
         }
 
-        console.log("Submitting Form Data:", formData);
 
         const res = await signup_Done(formData, email);
         navigate("/verify-email");

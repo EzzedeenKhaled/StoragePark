@@ -12,7 +12,6 @@ export const createProduct = async (req, res) => {
 	 	// Convert the image file to base64
 	 	const base64Img = req.file.buffer.toString('base64');
 	 	const imgName = req.file.originalname; // Use a timestamp to ensure unique filenames
-	 	//   console.log("Image name:", imgName);
 	 	// Upload image to ImageKit
 	  	const uploadResult = await UploadImage(base64Img, imgName);
  
@@ -59,7 +58,6 @@ const UploadImage = async (base64Img, imgName) => {
 			fileName: imgName,    // Required
 			tags: ["tag1", "tag2"]
 		});
-		console.log(result);
 		return result;
 	} catch (error) {
 		console.error(error);
@@ -75,7 +73,6 @@ export const getActiveItems = async (req, res) => {
         path: 'partner',
         select: 'firstName lastName email partner.companyName',
       });
-		console.log("Active items:", items);
 		res.json(items);
 	} catch (error) {
 		res.status(500).json({ message: 'Server error', error: error.message });
@@ -153,7 +150,6 @@ export const getItemsByCategory = async (req, res) => {
 export const getRelatedItems = async (req, res) => {
 	try {
 		const { category, itemId } = req.body.params;
-		console.log(req.body)
 		if (!category) {
 			return res.status(400).json({
 				success: false,

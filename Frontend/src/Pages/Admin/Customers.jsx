@@ -73,7 +73,6 @@ const Customers = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching customers with params:', { search, filter });
       
       const response = await axios.get(`/admins/customers`, {
         params: { 
@@ -83,7 +82,6 @@ const Customers = () => {
         withCredentials: true
       });
       
-      console.log('Customers response:', response.data);
       
       if (response.data && Array.isArray(response.data)) {
         setCustomers(response.data);

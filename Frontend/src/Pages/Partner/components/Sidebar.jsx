@@ -35,7 +35,8 @@ const Sidebar = () => {
       {/* Navigation */}
       <nav className="mt-8">
         <NavLink 
-          to="/partner-dashboard" 
+          to="/partner" 
+          end
           className={({ isActive }) =>
             `flex items-center py-3 px-4 ${
               isActive ? 'text-orange-500 bg-gray-800' : 'text-gray-400 hover:text-white'

@@ -8,7 +8,6 @@ import PartnerHome from "./Pages/PartnerHome";
 import { Toaster } from 'react-hot-toast';
 import EmailVer from "./Pages/EmailVer"
 import Ecommerce from "./Pages/Ecommerce";
-import ProductForm from "./Pages/Partner/products/ProductForm";
 import Profile from './Pages/Profile';
 import PurchaseSuccessPage from './Pages/PurchaseSuccessPage';
 import { useUserStore } from "./stores/useUserStore";
@@ -24,24 +23,20 @@ import { useCartStore } from "./stores/useCartStore";
 import PartnerDashboard from "./Pages/Partner/PartnerDashboard";
 import EmptyCart from "./Pages/EmptyCart";
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
-import PartnerAnalytics from "./Pages/Partner/Analytics/PartnerAnalytics";
-import Orders from "./Pages/Partner/Orders/orders";
-import ProductList from "./Pages/Partner/products/productList";
-import ProfilePartner from "./Pages/Partner/profile/ProfilePartner";
 import { ToastContainer } from 'react-toastify';
 import NotFound from './Pages/NotFound';
 import 'react-toastify/dist/ReactToastify.css';
 import OrderHistory from './Pages/OrderHistory';
 import OrderStatus from './Pages/OrderStatus';
 import Unauthorized from "./Pages/Unauthorized";
+
 function App() {
   const { checkAuth, checkingAuth, user } = useUserStore();
   const { getCartItems } = useCartStore();
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
-  // console.log("User:", user);
-  // console.log("Checking Auth:", checkingAuth);
+
   useEffect(() => {
     if (!user || !user.isVerified) return;
 
@@ -49,7 +44,6 @@ function App() {
   }, [getCartItems, user]);
 
   if (checkingAuth) return <LoadingSpinner />;
-  // Dashboard partner (verify email)
   return (
     <>
       <ToastContainer
@@ -76,8 +70,7 @@ function App() {
         <Route path="/order-status/:orderId" element={<OrderStatus />} />
         <Route path="/product-page/:productId" element={<ProductPage />} />
         <Route path="/register-customer" element={<Register />} />
-        <Route path="/partner" element={<PartnerHome />} />
-        <Route path="/partner-dashboard" element={<PartnerDashboard />} />
+        <Route path="/partner-info" element={<PartnerHome />} />
         <Route path="/purchase-success" element={<PurchaseSuccessPage />} />
         <Route path="/verify-email" element={<EmailVer />} />
         <Route path="/profile" element={<Profile />} />
@@ -91,13 +84,7 @@ function App() {
         <Route path="/category/:categoryName" element={<Category />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/admin/*" element={<AdminDashboard />} />
-        
-        <Route path="/partner-dashboard" element={<PartnerDashboard />} />
-        <Route path="/partner/analytics" element={(user?.role === 'partner' || user?.role === 'admin') ? <PartnerAnalytics /> : <Navigate to="/unauthorized" />} />
-        <Route path="/partner/orders" element={(user?.role === 'partner' || user?.role === 'admin') ? <Orders /> : <Navigate to="/unauthorized" />} />
-        <Route path="/partner/products" element={(user?.role === 'partner' || user?.role === 'admin') ? <ProductList /> : <Navigate to="/unauthorized" />} />
-        <Route path="/partner/products/productForm" element={(user?.role === 'partner' || user?.role === 'admin') ? <ProductForm /> : <Navigate to="/unauthorized" />} />
-        <Route path="/partner/profile" element={(user?.role === 'partner' || user?.role === 'admin') ? <ProfilePartner /> : <Navigate to="/unauthorized" />} />
+        <Route path="/partner/*" element={<PartnerDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 

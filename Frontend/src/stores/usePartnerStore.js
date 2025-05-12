@@ -36,7 +36,8 @@ export const usePartnerStore = create((set, get) => ({
 			const res = await axios.post("/partners/update", data, {
 				headers: { "Content-Type": "multipart/form-data" },
 			});
-      set({ partner: res.data,  loading: false });
+      set({ partner: res.data.responseData,  loading: false });
+      return res;
     } catch (error) {
       set({ loading: false });
       console.error('Error fetching partner data:', error);

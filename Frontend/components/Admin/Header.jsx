@@ -3,7 +3,6 @@ import "./header.css";
 import axios from '../../lib/axios';
 import { useUserStore } from '../../src/stores/useUserStore';
 import toast from 'react-hot-toast';
-
 const Header = () => {
   const { user, setUser } = useUserStore(); // Assuming setUser is available to update user data
   const [profileImage, setProfileImage] = useState(
@@ -26,12 +25,12 @@ const Header = () => {
           },
         });
         toast.success("Image Updated");
+        setUser({ ...user, profileImage: response.data.profileImage }); 
         // Update the profile image in the state and user store
         setProfileImage(response.data.profileImage);
-        setUser({ ...user, profileImage: response.data.profileImage });
       } catch (error) {
         console.error("Error updating profile image:", error);
-        // toast.error("Failed to update image",error);
+        toast.error("Failed to update image",error);
       } finally {
         setIsUpdating(false); // Hide the loading spinner
       }

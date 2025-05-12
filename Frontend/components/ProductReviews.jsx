@@ -32,7 +32,6 @@ const ProductReviews = ({ itemId }) => {
     setReviewText("");
   };
 
-  console.log("ree: ",reviews)
   return (
     <div className="py-8 border-t border-gray-200">
       <div className="flex items-center justify-between mb-6">

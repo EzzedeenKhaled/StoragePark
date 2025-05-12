@@ -28,7 +28,6 @@ const Partners = () => {
     fetchAcceptedPartners();
   }, []);
 
-  console.log("diajd: ",partners)
   const filteredPartners = partners.filter((partner) => {
     const query = searchQuery.trim().toLowerCase();
     return query === '' || partner.name.toLowerCase().startsWith(query);
@@ -38,7 +37,7 @@ const Partners = () => {
     localStorage.setItem('partnerId', partnerId);
     localStorage.setItem('email', email);
     localStorage.setItem('role', "admin");
-    navigate('/partner-dashboard', { state: { id: partnerId, email: email } });
+    navigate('/partner', { state: { id: partnerId, email: email } });
   };
 
   return (

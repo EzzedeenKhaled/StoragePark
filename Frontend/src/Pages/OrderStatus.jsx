@@ -52,7 +52,7 @@ function OrderStatus() {
 
   // Assign delivery route
   useEffect(() => {
-    if (!userLocation || !deliveryGuyLocation) return;
+    if (!userLocation || !deliveryGuyLocation  || !isLoaded) return;
 
     const directionsService = new window.google.maps.DirectionsService();
 

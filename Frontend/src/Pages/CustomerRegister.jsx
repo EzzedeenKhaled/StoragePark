@@ -26,7 +26,7 @@ const Register = () => {
             } else if (user.role === "admin") {
                 navigate("/admin");
             } else if (user.role === "partner") {
-                navigate("/partner-dashboard");
+                navigate("/partner");
             }
         }
     },[]);
@@ -37,7 +37,6 @@ const Register = () => {
             if (!validateInputs()) return;
 
             const res = await signup(formData);
-            console.log("res", res);
             if(res === 400){
                 toast.error("User already exists");
                 return;

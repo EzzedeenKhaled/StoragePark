@@ -29,7 +29,6 @@ export const addReview = async (req, res) => {
 
         review = await review.populate("user", "firstName");
 
-        console.log("Review added successfully:", review);
         res.status(201).json(review);
     } catch (error) {
         console.error("Error adding review:", error.message);

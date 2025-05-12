@@ -35,7 +35,7 @@ const Navbar = () => {
           </NavLink>
         )}
         {user?.role === 'partner' && (
-          <NavLink to='/partner-dashboard'>
+          <NavLink to='/partner'>
             <button>return to partner</button>
           </NavLink>
         )}

@@ -83,11 +83,11 @@ const Orders = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      {/* <Sidebar />s */}
       
       <div className="flex-1">
         {/* Header */}
-        <div className="bg-orange-500 text-white p-6 ml-[250px]">
+        <div className="bg-orange-500 text-white p-6">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold">Partner Orders</h1>
@@ -121,7 +121,7 @@ const Orders = () => {
         </div>
 
         {/* Tabs */}
-        <div className="p-6 ml-[250px]">
+        <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex space-x-1 border-b">
               {['All Orders', 'Pending', 'Delivered'].map((tab) => (

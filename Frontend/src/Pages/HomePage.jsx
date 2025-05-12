@@ -47,7 +47,7 @@ function HomePage() {
           <h1 className='h1Home' style={{ marginBottom: '20px' }}>Get Started</h1>
           <div style={{ display: 'flex', marginBottom: '20px' }}>
             <button className='btnHome'
-              onClick={() => navigate('/partner')}
+              onClick={() => navigate('/partner-info')}
               style={{ margin: '10px', background: '#FF8B13', color: 'white', borderRadius: '15px' }}
             >
               Become a Partner
