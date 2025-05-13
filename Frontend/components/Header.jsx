@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUserStore } from '../src/stores/useUserStore';
 import { ProfileMenu } from './ProfileMenu';
@@ -13,11 +13,12 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null); // Ref for the search container
 
   const handleSearch = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-    
+
     if (query.trim().length > 0) {
       try {
         const response = await axios.get(`/products/search?q=${encodeURIComponent(query)}`);
@@ -55,6 +56,20 @@ const Header = () => {
     }
   };
 
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <header className="bg-white shadow-sm">
       <div className="w-full mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -64,7 +79,7 @@ const Header = () => {
           </Link>
         </div>
 
-        <div className="relative flex-grow max-w-md">
+        <div className="relative flex-grow max-w-md" ref={searchRef}>
           <input
             type="text"
             placeholder="Search products..."
@@ -75,7 +90,7 @@ const Header = () => {
           <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
             <Search size={18} />
           </button>
-          
+
           {showResults && searchResults.length > 0 && (
             <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
               {searchResults.map((product) => (
@@ -84,9 +99,9 @@ const Header = () => {
                   onClick={() => handleProductClick(product._id)}
                   className="p-2 hover:bg-orange-50 cursor-pointer flex items-center gap-2"
                 >
-                  <img 
-                    src={product.imageProduct} 
-                    alt={product.productName} 
+                  <img
+                    src={product.imageProduct}
+                    alt={product.productName}
                     className="w-10 h-10 object-cover rounded"
                   />
                   <div>
