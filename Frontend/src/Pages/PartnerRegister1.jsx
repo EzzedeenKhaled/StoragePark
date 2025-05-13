@@ -20,7 +20,7 @@ const RegisterPartner = () => {
     const { user, signup_Next, loading } = useUserStore();
     const navigate = useNavigate();
     useEffect(() => {
-        if (user) {
+        if (user && user.isVerified) {
             if (user.role === "customer") {
                 navigate("/ecommerce");
             } else if (user.role === "admin") {

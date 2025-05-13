@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { sendCustomerCredentials, sendEmployeeCredentials,sendVerificationEmail } from "../lib/mail.js";
 import Item from "../models/item.model.js";
 import {imagekit} from "../lib/imageKit.js";
+import Warehouse from '../models/warehouse.model.js';
 
 export const getOrderSummary = async (req, res) => {
   try {
@@ -854,5 +855,44 @@ export const getFinancialOverview = async (req, res) => {
   } catch (error) {
     console.error("Error fetching financial overview:", error);
     res.status(500).json({ message: "Failed to fetch financial overview", error: error.message });
+  }
+};
+
+export const deletePartner = async (req, res) => {
+  try {
+    const { partnerId } = req.params;
+
+    // Find the partner
+    const partner = await User.findById(partnerId);
+    if (!partner) {
+      return res.status(404).json({ message: 'Partner not found' });
+    }
+
+    // Delete all items associated with the partner
+    const items = await Item.find({ partner: partnerId });
+    const itemIds = items.map(item => item._id);
+
+    // Update warehouse rows to remove references to these items
+    await Warehouse.updateMany(
+      { 'rows.reservedRowId': { $in: itemIds } },
+      { 
+        $set: { 
+          'rows.$[].isReserved': false,
+          'rows.$[].status': 'available',
+          'rows.$[].reservedRowId': null
+        }
+      }
+    );
+
+    // Delete all items
+    await Item.deleteMany({ partner: partnerId });
+
+    // Delete the partner user
+    await User.findByIdAndDelete(partnerId);
+
+    res.status(200).json({ message: 'Partner and associated data deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting partner:', error);
+    res.status(500).json({ message: 'Error deleting partner', error: error.message });
   }
 };

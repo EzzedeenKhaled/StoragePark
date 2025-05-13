@@ -13,7 +13,8 @@ import {
   getDataOrders,
   getFinancialOverview,
   getAllProducts,
-  UpdateImage
+  UpdateImage,
+  deletePartner
 } from "../controllers/admin.controller.js";
 import { protectRoute, adminRoute } from "../middleware/auth.middleware.js";
 import {
@@ -51,6 +52,7 @@ router.get("/getAllQuantity", protectRoute, adminRoute, getAllQuantity);
 router.get("/partnersAndCategories", protectRoute, adminRoute, getPartnersAndCategories);
 router.get("/highestSelling", protectRoute, adminRoute, getHighestSellingProducts);
 router.get("/lowQuantity", protectRoute, adminRoute, getLowQuantityStock);
+router.delete('/deletePartner/:partnerId', protectRoute, adminRoute, deletePartner);
 
 // Product routes
 router.get("/allProducts", protectRoute, adminRoute, getAllProducts);
