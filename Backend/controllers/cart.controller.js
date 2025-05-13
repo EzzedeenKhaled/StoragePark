@@ -79,7 +79,7 @@ export const updateQuantity = async (req, res) => {
 			await user.save();
 			
 			// Update the item's stock using the new method
-			await item.updateStock(item.quantity - quantity);
+			// await item.updateStock(item.quantity - quantity);
 			
 			res.json(user.cartItems);
 		} else {

@@ -57,7 +57,6 @@ const Dropdown = ({ label, options, selected, setSelected, placeholder }) => (
 );
 
 const ProductDetails = ({ product }) => {
-  console.log("djaL ;", product)
   const { user } = useUserStore();
   const { addToCart } = useCartStore();
   const navigate = useNavigate();
@@ -67,6 +66,12 @@ const ProductDetails = ({ product }) => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [showDescription, setShowDescription] = useState(false);
   const [showShipping, setShowShipping] = useState(false);
+
+  // Calculate the discounted price if a discount exists
+  const discountedPrice = product.discount
+    ? (product.price - (product.price * product.discount) / 100).toFixed(2)
+    : product.price;
+
   const handleAddToCart = () => {
     if (user) {
       // User is logged in, add item to the cart
@@ -76,16 +81,25 @@ const ProductDetails = ({ product }) => {
       navigate("/login", {
         state: {
           from: location.pathname, // current page
-          product: product     // product you're trying to interact with
-        }
+          product: product, // product you're trying to interact with
+        },
       });
     }
   };
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-        <p className="text-2xl">{product.price} $</p>
+        {product.discount ? (
+          <div className="flex items-center gap-2">
+            <p className="text-2xl text-red-500 font-bold">${discountedPrice}</p>
+            <p className="text-sm line-through text-gray-500">${product.price}</p>
+            <p className="text-sm text-red-500">-{product.discount}%</p>
+          </div>
+        ) : (
+          <p className="text-2xl">${product.price}</p>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -104,7 +118,10 @@ const ProductDetails = ({ product }) => {
           placeholder="Select a size"
         />
 
-        <button onClick={handleAddToCart} className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition cursor-pointer">
+        <button
+          onClick={handleAddToCart}
+          className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition cursor-pointer"
+        >
           Add to cart
         </button>
       </div>
@@ -116,7 +133,10 @@ const ProductDetails = ({ product }) => {
             className="flex items-center justify-between w-full py-2"
           >
             <span className="font-medium">Description</span>
-            <ChevronDown size={16} className={`${showDescription ? 'rotate-180' : ''} transition`} />
+            <ChevronDown
+              size={16}
+              className={`${showDescription ? "rotate-180" : ""} transition`}
+            />
           </button>
           {showDescription && (
             <div className="pt-2 space-y-2 text-gray-600 text-sm text-left">
@@ -131,7 +151,10 @@ const ProductDetails = ({ product }) => {
             className="flex items-center justify-between w-full py-2"
           >
             <span className="font-medium">Shipping and return policies</span>
-            <ChevronDown size={16} className={`${showShipping ? 'rotate-180' : ''} transition`} />
+            <ChevronDown
+              size={16}
+              className={`${showShipping ? "rotate-180" : ""} transition`}
+            />
           </button>
           {showShipping && (() => {
             const addBusinessDays = (date, daysToAdd) => {
@@ -140,7 +163,8 @@ const ProductDetails = ({ product }) => {
               while (addedDays < daysToAdd) {
                 result.setDate(result.getDate() + 1);
                 const day = result.getDay();
-                if (day !== 0 && day !== 6) { // 0 = Sunday, 6 = Saturday
+                if (day !== 0 && day !== 6) {
+                  // 0 = Sunday, 6 = Saturday
                   addedDays++;
                 }
               }
@@ -151,9 +175,9 @@ const ProductDetails = ({ product }) => {
             const startDate = addBusinessDays(today, 1); // start: next business day
             const endDate = addBusinessDays(startDate, 2); // end: 2 more business days
 
-            const options = { month: 'short', day: 'numeric' };
-            const startStr = startDate.toLocaleDateString('en-US', options);
-            const endStr = endDate.toLocaleDateString('en-US', options);
+            const options = { month: "short", day: "numeric" };
+            const startStr = startDate.toLocaleDateString("en-US", options);
+            const endStr = endDate.toLocaleDateString("en-US", options);
 
             return (
               <div className="pt-2 space-y-2 text-gray-600 text-sm text-left">

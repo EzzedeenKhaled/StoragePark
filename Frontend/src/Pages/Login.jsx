@@ -5,6 +5,7 @@ import { useUserStore } from "../stores/useUserStore";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCartStore } from "../stores/useCartStore";
+import { toast } from "react-hot-toast";
 const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
@@ -31,6 +32,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const res = await login(email, password);
+        if(res === 400) toast.error("Invalid email or password");
         if(res === 403) navigate("/verify-email", { state: { email, from: "login" } });
     };
     const [errorMessage] = useState("");

@@ -122,6 +122,7 @@ export const getProductById = async (req, res) => {
 			price: item.pricePerUnit,
 			description: item.description,
 			image: item.imageProduct,
+			discount: item.discount,
 			category: item.category
 		});
 	} catch (error) {
@@ -197,12 +198,18 @@ export const getRelatedItems = async (req, res) => {
 export const searchProducts = async (req, res) => {
 	try {
 		const { q } = req.query;
-		
+
 		if (!q) {
 			return res.status(400).json({ message: 'Search query is required' });
 		}
 
-		const searchRegex = new RegExp(q, 'i');
+		// Escape special characters to prevent RegExp errors
+		const escapeRegExp = (string) =>
+			string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+		const safeQuery = escapeRegExp(q);
+		const searchRegex = new RegExp(safeQuery, 'i');
+
 		const products = await Item.find({
 			productName: searchRegex,
 			isActive: true
