@@ -1,14 +1,43 @@
-import React from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUserStore } from '../src/stores/useUserStore';
 import { ProfileMenu } from './ProfileMenu';
 import { ShoppingCart, Search } from 'lucide-react';
 import { useCartStore } from '../src/stores/useCartStore';
+import axios from '../lib/axios';
 
 const Header = () => {
   const navigate = useNavigate();
   const { cart } = useCartStore();
-  const { user, logout } = useUserStore(); // Add logout function
+  const { user, logout } = useUserStore();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+
+  const handleSearch = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    if (query.trim().length > 0) {
+      try {
+        const response = await axios.get(`/products/search?q=${encodeURIComponent(query)}`);
+        setSearchResults(response.data);
+        setShowResults(true);
+      } catch (error) {
+        console.error('Search failed:', error);
+        setSearchResults([]);
+      }
+    } else {
+      setSearchResults([]);
+      setShowResults(false);
+    }
+  };
+
+  const handleProductClick = (productId) => {
+    setShowResults(false);
+    setSearchQuery('');
+    navigate(`/product-page/${productId}`);
+  };
 
   const handleCartClick = () => {
     if (cart.length === 0) {
@@ -38,12 +67,36 @@ const Header = () => {
         <div className="relative flex-grow max-w-md">
           <input
             type="text"
-            placeholder="Search"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={handleSearch}
             className="w-full pl-4 pr-10 py-2 border border-orange-500 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500"
           />
           <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
             <Search size={18} />
           </button>
+          
+          {showResults && searchResults.length > 0 && (
+            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+              {searchResults.map((product) => (
+                <div
+                  key={product._id}
+                  onClick={() => handleProductClick(product._id)}
+                  className="p-2 hover:bg-orange-50 cursor-pointer flex items-center gap-2"
+                >
+                  <img 
+                    src={product.imageProduct} 
+                    alt={product.productName} 
+                    className="w-10 h-10 object-cover rounded"
+                  />
+                  <div>
+                    <p className="font-medium">{product.productName}</p>
+                    <p className="text-sm text-gray-600">${product.pricePerUnit}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Header Actions */}

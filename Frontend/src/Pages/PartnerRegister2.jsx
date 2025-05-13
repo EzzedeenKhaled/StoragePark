@@ -66,13 +66,14 @@ const RegisterPartner2 = () => {
 
 
         const res = await signup_Done(formData, email);
+        console.log("res", res);
         navigate("/verify-email");
     };
 
     return (
         <div className='RegisterPage'>
             <div className='container'>
-                <img src='/logo.png' alt="Logo" className="top-left-logo" />
+                <img src='/portraitLogo.png' alt="Logo" className="top-left-logo" />
                 <form className='RegisterForm' onSubmit={handleSubmit}>
                     <h2>Legal Documents</h2>
 

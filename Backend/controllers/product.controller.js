@@ -182,3 +182,24 @@ export const getRelatedItems = async (req, res) => {
 		});
 	}
 };
+
+export const searchProducts = async (req, res) => {
+	try {
+		const { q } = req.query;
+		
+		if (!q) {
+			return res.status(400).json({ message: 'Search query is required' });
+		}
+
+		const searchRegex = new RegExp(q, 'i');
+		const products = await Item.find({
+			productName: searchRegex,
+			isActive: true
+		}).select('_id productName pricePerUnit imageProduct');
+
+		res.status(200).json(products);
+	} catch (error) {
+		console.error('Error searching products:', error);
+		res.status(500).json({ message: 'Server error' });
+	}
+};
