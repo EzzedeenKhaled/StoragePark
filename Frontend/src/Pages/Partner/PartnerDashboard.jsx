@@ -9,7 +9,7 @@ import ProfilePartner from './profile/ProfilePartner';
 import Sidebar from '../Partner/components/Sidebar';
 import { useUserStore } from '../../stores/useUserStore';
 import { LoadingSpinner } from '../../../components/LoadingSpinner';
-function AdminDashboard() {
+function PartnerDashboard() {
   const { user } = useUserStore();
   const [checkingRole, setCheckingRole] = React.useState(true);
   const navigate = useNavigate();
@@ -48,4 +48,4 @@ function AdminDashboard() {
   );
 }
 
-export default AdminDashboard;
+export default PartnerDashboard;

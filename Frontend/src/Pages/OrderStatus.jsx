@@ -189,16 +189,35 @@ useEffect(() => {
           ))}
         </ul>
         {showModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-              <h2 className="text-2xl font-bold mb-4">Order Delivered</h2>
-              <p className="text-gray-600 mb-6">Your order has been successfully delivered!</p>
-              <button
-                onClick={() => navigate('/')}
-                className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600"
-              >
-                OK
-              </button>
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-40">
+            <div className="relative w-full max-w-md mx-4">
+              {/* Blurred background layer */}
+              <div className="absolute inset-0 bg-white/40 backdrop-blur-xl rounded-lg"></div>
+              
+              {/* Content layer */}
+              <div className="relative">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-orange-50/90 to-orange-100/90 backdrop-blur-xl px-6 py-4 rounded-t-lg border-b border-orange-200/50">
+                  <div className="flex items-center justify-center">
+                    <h3 className="text-lg font-medium text-orange-800">Order Delivered</h3>
+                  </div>
+                </div>
+                
+                {/* Body */}
+                <div className="bg-white/80 backdrop-blur-xl px-6 py-6 rounded-b-lg">
+                  <p className="text-sm text-gray-600 mb-6 text-center">
+                    Your order has been successfully delivered!
+                  </p>
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => navigate('/')}
+                      className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                    >
+                      OK
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

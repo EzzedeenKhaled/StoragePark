@@ -123,7 +123,7 @@ const Register = () => {
         <div className='RegisterPage'>
             <div className='registerComponent'>
                 <div className='leftSide'>
-                    <Link to='/'><img src='/logo.png' alt="Logo" /></Link>
+                    <Link to='/'><img src='/portraitLogo.png' alt="Logo" /></Link>
                 </div>
                 <div className='rightSide'>
                     <div className="form_header">
