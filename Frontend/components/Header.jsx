@@ -134,7 +134,7 @@ const Header = () => {
             </>
           ) : (
             <>
-              <Link to="/partner" className="hover:text-orange-500 transition-colors">
+              <Link to="/partner-info" className="hover:text-orange-500 transition-colors">
                 Become A Partner
               </Link>
               <Link to="/login" className="hover:text-orange-500 transition-colors">

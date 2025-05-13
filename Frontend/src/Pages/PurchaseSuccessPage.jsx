@@ -5,7 +5,7 @@ import { useCartStore } from "../stores/useCartStore";
 import { useUserStore } from "../stores/useUserStore";
 import Confetti from "react-confetti";
 import { useLocation } from "react-router-dom";
-
+import {LoadingSpinner} from "../../components/LoadingSpinner"
 const PurchaseSuccessPage = () => {
 	const location = useLocation();
 	const orderId = location.state?.orderId || "N/A";
@@ -13,9 +13,6 @@ const PurchaseSuccessPage = () => {
 	const [checkingRole, setCheckingRole] = useState(true);
 	const { user } = useUserStore();
 	const navigate = useNavigate();
-	useEffect(() => {
-
-	}, []);
 	useEffect(() => {
 		if(user && orderId === "N/A") {
 			setCheckingRole(true);
@@ -55,9 +52,9 @@ const PurchaseSuccessPage = () => {
 					<p className='text-gray-300 text-center mb-2'>
 						Thank you for your order. {"We're"} processing it now.
 					</p>
-					<p className='text-[#FF8B13] text-center text-sm mb-6'>
+					{/* <p className='text-[#FF8B13] text-center text-sm mb-6'>
 						Check your email for order details and updates.
-					</p>
+					</p> */}
 					<div className='bg-[#1D2126] rounded-lg p-4 mb-6 border border-[#FF8B13]'>
 						<div className='flex items-center justify-between mb-2'>
 							<span className='text-sm text-gray-400'>Order number</span>
