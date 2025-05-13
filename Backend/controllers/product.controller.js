@@ -148,39 +148,50 @@ export const getItemsByCategory = async (req, res) => {
 };
 
 export const getRelatedItems = async (req, res) => {
-	try {
-		const { category, itemId } = req.body.params;
-		if (!category) {
-			return res.status(400).json({
-				success: false,
-				message: 'Category is required'
-			});
-		}
-		const query = { category };
-		if (itemId) {
-			if (!mongoose.Types.ObjectId.isValid(itemId)) {
-				return res.status(400).json({
-					success: false,
-					message: 'Invalid product ID1'
-				});
-			}
-			query._id = { $ne: new mongoose.Types.ObjectId(itemId) };
-		}
-		const relatedItems = await Item.find(query).limit(4);
+    try {
+        const { category, itemId } = req.body.params;
 
-		return res.status(200).json({
-			success: true,
-			count: relatedItems.length,
-			items: relatedItems
-		});
+        // Check if category is provided
+        if (!category) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category is required',
+            });
+        }
 
-	} catch (error) {
-		console.error('Error fetching related items:', error);
-		res.status(500).json({
-			success: false,
-			message: 'Server error'
-		});
-	}
+        // Build the query
+        const query = {
+            category,
+            isActive: true, // Ensure the item is active
+            quantity: { $gt: 0 }, // Ensure the quantity is greater than 0
+        };
+
+        // Exclude the current item from the results
+        if (itemId) {
+            if (!mongoose.Types.ObjectId.isValid(itemId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid product ID',
+                });
+            }
+            query._id = { $ne: new mongoose.Types.ObjectId(itemId) };
+        }
+
+        // Fetch related items
+        const relatedItems = await Item.find(query).limit(4);
+
+        return res.status(200).json({
+            success: true,
+            count: relatedItems.length,
+            items: relatedItems,
+        });
+    } catch (error) {
+        console.error('Error fetching related items:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error',
+        });
+    }
 };
 
 export const searchProducts = async (req, res) => {

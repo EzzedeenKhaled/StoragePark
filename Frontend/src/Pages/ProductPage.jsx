@@ -47,7 +47,7 @@ if (!product) return <div className="text-center py-10">Product not found.</div>
       <main className="flex-1 container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
           <ProductGallery 
-            mainImage={product.imageProduct} 
+            mainImage={product.image} 
             productId={productId}
           />
           <ProductDetails product={product}/>

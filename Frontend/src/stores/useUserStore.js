@@ -171,7 +171,8 @@ export const useUserStore = create((set, get) => ({
 		  return res.status;
 		} catch (error) {
 		  set({ loading: false });
-		  toast.error("An error occurred during login");
+		//   toast.error("An error occurred during login");
+		  console.error("Login error:", error);
 		  return error.response?.status;
 		}
 	  },

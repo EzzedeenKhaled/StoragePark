@@ -8,15 +8,18 @@ import PasswordConfirmForm from "./PasswordConfirmForm";
 import { useUserStore } from "../stores/useUserStore";
 
 const EmailVerification = () => {
+  const { setUser } = useUserStore();
   const location = useLocation();
   const email = location.state?.email || null;
   const from = location.state?.from || null;
+  console.log("Email:", from);
   const navigate = useNavigate();
   useEffect(() => {
     if (!email) {
       navigate("/");
     }
   }, [email, navigate]);
+  console.log("em: ",from)
   const [code, setCode] = useState(["", "", "", "", "", ""]); // State for storing the code
   const inputRefs = useRef([]); // Refs for managing focus between input fields
   const [isVerified, setIsVerified] = useState(false); // State to track verification status
@@ -65,14 +68,14 @@ const EmailVerification = () => {
       if (email && from === "customer-register") {
         response = await axios.post("/auth/verify-email", { token });
         toast.success(response.data.message);
-      } else if (email && (from === "forgot-password" || !from)) {
+      } else if (email && (from === "forgot-password" || from === "login")) {
         response = await axios.post("/auth/verify-code", { token, email });
         toast.success(response.data.message);
       }
-
-      if (response.data.data.role === "customer") {
+      console.log("Response:", response);
+      if (response?.data?.data.role === "customer" && from === "customer-register" || from === "login") {
         navigate("/ecommerce");
-      } else if (response.data.data.role === "partner") {
+      } else if (response?.data?.data.role === "partner") {
         setShowModal(true);
       }
 
@@ -143,7 +146,7 @@ const EmailVerification = () => {
             </button>
           </form>
         ) : (
-          <PasswordConfirmForm email={email} />
+          from === "forgot-password" && <PasswordConfirmForm email={email} />
         )}
       </div>
     </div>

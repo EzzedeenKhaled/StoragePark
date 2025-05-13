@@ -7,6 +7,7 @@ import '../../src/assets/Styles/ProductCard.css';
 import axios from '../../lib/axios';
 
 const ProductCard = ({ product }) => {
+  console.log("ProductCard product:", product);
   const { user, addToWishlist, removeFromWishlist } = useUserStore();
   const [liked, setLiked] = useState(false);
   const navigate = useNavigate();

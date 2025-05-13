@@ -31,7 +31,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const res = await login(email, password);
-        if(res === 403) navigate("/verify-email",  { state: { email } });
+        if(res === 403) navigate("/verify-email", { state: { email, from: "login" } });
     };
     const [errorMessage] = useState("");
 

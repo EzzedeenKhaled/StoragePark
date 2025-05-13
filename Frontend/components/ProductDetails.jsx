@@ -57,6 +57,7 @@ const Dropdown = ({ label, options, selected, setSelected, placeholder }) => (
 );
 
 const ProductDetails = ({ product }) => {
+  console.log("djaL ;", product)
   const { user } = useUserStore();
   const { addToCart } = useCartStore();
   const navigate = useNavigate();

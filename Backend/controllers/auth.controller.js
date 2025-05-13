@@ -6,7 +6,7 @@ import crypto from "crypto";
 
  const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
-		expiresIn: "15m",
+		expiresIn: "30m",
 	});
 
 	const refreshToken = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
@@ -25,7 +25,7 @@ const storeRefreshToken = async (userId, refreshToken) => {
 		httpOnly: true, // prevent XSS attacks, cross site scripting attack
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict", // prevents CSRF attack, cross-site request forgery attack
-		maxAge: 15 * 60 * 1000, // 15 minutes
+		maxAge: 30 * 60 * 1000, // 15 minutes
 	});
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true, // prevent XSS attacks, cross site scripting attack
@@ -219,7 +219,6 @@ export const refreshToken = async (req, res) => {
 // Verify email
 export const verifyEmail = async (req, res) => {
 	const { token } = req.body; // Extract the 'token' property from the request body
-
 	try {
 		// Validate the token
 		if (!token) {
@@ -232,7 +231,9 @@ export const verifyEmail = async (req, res) => {
 		if (!user) {
 			return res.status(400).json({ message: "Invalid or expired token." });
 		}
-
+		if(user.verificationToken !== token){
+			return res.status(400).json({ message: "Invalid verification token." });
+		}
 		// Mark the user as verified
 		if(user.role !== "partner")
 		user.isVerified = true;
@@ -250,7 +251,6 @@ export const verifyEmail = async (req, res) => {
 				email: user.email,
 				role: user.role,
 				isVerified: user.isVerified,
-				accessToken: accessToken,
 			}
 		});
 	} catch (error) {
@@ -261,7 +261,6 @@ export const verifyEmail = async (req, res) => {
 
 export const verifyCode = async (req, res) => {
 	const { token, email } = req.body;
-
 	try {
 		if (!token) {
 			return res.status(400).json({ message: "Token is required." });
@@ -277,8 +276,8 @@ export const verifyCode = async (req, res) => {
 		if (!user) {
 			return res.status(404).json({ message: "User not found." });
 		}
-
 		// Check if token matches
+		if(user.resetPasswordCode){
 		if (user.resetPasswordCode !== token) {
 			return res.status(400).json({ message: "Invalid verification code." });
 		}
@@ -291,6 +290,18 @@ export const verifyCode = async (req, res) => {
 		// Clear the token and expiration
 		user.resetPasswordCode = undefined;
 		user.resetPasswordExpires = undefined;
+	}else if(user.verificationToken){
+		if (user.verificationToken !== token) {
+			return res.status(400).json({ message: "Invalid verification code." });
+		}
+		user.verificationToken = undefined; // Clear the token after verification
+		user.isVerified = true;
+		const { accessToken, refreshToken } = generateTokens(user._id);
+		await storeRefreshToken(user._id, refreshToken);
+		setCookies(res, accessToken, refreshToken);
+		//--------------------
+ // Mark the user as verified
+	}
 		await user.save();
 
 		// Success response
@@ -298,9 +309,14 @@ export const verifyCode = async (req, res) => {
 			message: "Code verified successfully!",
 			data: {
 				_id: user._id,
-				name: user.firstName + " " + user.lastName,
-				email: user.email,
-				code: true,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			email: user.email,
+			role: user.role,
+			isVerified: user.isVerified,
+			phoneNumber: user.phoneNumber,
+			profileImage: user.profileImage,
+			code: true
 			},
 		});
 	} catch (error) {
