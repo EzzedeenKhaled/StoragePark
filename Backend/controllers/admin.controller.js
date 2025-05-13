@@ -768,7 +768,7 @@ export const getFinancialOverview = async (req, res) => {
           const itemTotal = item.price * item.quantity;
           ecommerceRevenue += itemTotal;
           // Calculate 50% profit from e-commerce sales
-          ecommerceProfit += itemTotal * 0.5;
+          ecommerceProfit += itemTotal * 0.3;
         });
       });
     });
