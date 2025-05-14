@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from '../../../../lib/axios';
 import {
   BarChart,
@@ -61,7 +61,9 @@ const SalesPurchaseChart = () => {
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />
         <YAxis />
-        <Tooltip />
+        <Tooltip
+          formatter={(value) => value.toFixed(2)} // Format values to 2 decimal places
+        />
         <Legend />
         <Bar dataKey="Purchase" fill="#60A5FA" radius={[5, 5, 0, 0]} />
         <Bar dataKey="Sales" fill="#4ADE80" radius={[5, 5, 0, 0]} />

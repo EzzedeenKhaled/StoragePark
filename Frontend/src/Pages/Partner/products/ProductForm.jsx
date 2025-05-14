@@ -7,6 +7,13 @@ import axios from '../../../../lib/axios';
 
 const ProductForm = () => {
   const navigate = useNavigate();
+  // const getCookie = (name) => {
+  //   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  //   return match ? match[2] : null;
+  // };
+  
+  // const accessToken = getCookie('accessToken');
+  // console.log(accessToken);
   const { productFormSubmit } = useUserStore();
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +34,7 @@ const ProductForm = () => {
   const [fileName, setFileName] = useState({
     imageProduct: "Upload Image",
   });
-  const categories = ['Electronics', 'Toys', 'Beauty'];
+  const categories = ['Electronics', 'Toys', 'Beauty','Health & Household'];
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -64,7 +71,7 @@ const ProductForm = () => {
     try {
       // 1. Calculate required area
       const requiredArea = calculateArea(formData.packageWidth, formData.packageHeight, formData.quantity);
-
+  
       // 2. Fetch all warehouses and their rows
       const warehouseRes = await axios.get('/warehouse/structure');
       const warehouses = warehouseRes.data.data || [];
@@ -78,60 +85,51 @@ const ProductForm = () => {
         setLoading(false);
         return;
       }
-
-      // 3. Check if the partner already has a reserved row with enough space
+  
+      // 3. Find an available row with enough space
       const user = useUserStore.getState().user;
       let selectedRow = null;
-      let found = false;
       const requiredAreaNum = Number(requiredArea);
+  
       for (const row of warehouse.rows) {
+        // Skip rows that are already reserved by the same partner
         if (row.isReserved && String(row.reservedBy) === String(user._id)) {
-          // Calculate row area
-          const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
-          // Calculate used space in this row
-          const usedSpace = (row.spaceUsage || []).reduce((sum, usage) => sum + (usage.usedSpace || 0), 0);
-          if ((rowArea - usedSpace) >= requiredAreaNum) {
-            selectedRow = row;
-            found = true;
-            break;
+          continue;
+        }
+  
+        // Calculate row area
+        const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
+  
+        // Check if the row has enough space
+        if (rowArea >= requiredAreaNum) {
+          selectedRow = row;
+  
+          // Reserve the row for the partner
+          const now = new Date();
+          const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${selectedRow._id}`, {
+            isReserved: true,
+            reservedBy: user._id,
+            startDate: now,
+            endDate: null,
+          });
+  
+          if (reserveRes.data.statusCode !== 200) {
+            toast.error('Failed to reserve the row.');
+            setLoading(false);
+            return;
           }
+  
+          break;
         }
       }
-
-      // 4. If not, find an available row with enough space
-      if (!found) {
-        for (const row of warehouse.rows) {
-          if (!row.isReserved) {
-            const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
-            if (rowArea >= requiredAreaNum) {
-              selectedRow = row;
-              found = true;
-              // Reserve the row for the partner
-              const now = new Date();
-              const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${selectedRow._id}`, {
-                isReserved: true,
-                reservedBy: user._id,
-                startDate: now,
-                endDate: null,
-              });
-              if (reserveRes.data.statusCode !== 200) {
-                toast.error('Failed to reserve the row.');
-                setLoading(false);
-                return;
-              }
-              break;
-            }
-          }
-        }
-      }
-
-      if (!found) {
+  
+      if (!selectedRow) {
         toast.error('No available row with enough space for your product.');
         setLoading(false);
         return;
       }
-
-      // 5. Submit the product and assign location info
+  
+      // 4. Submit the product and assign location info
       const productData = {
         ...formData,
         location: {
