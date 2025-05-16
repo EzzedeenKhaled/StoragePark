@@ -94,7 +94,7 @@ const ProductForm = () => {
     try {
       // 1. Calculate required area
       const requiredArea = calculateArea(formData.packageWidth, formData.packageHeight, formData.quantity);
-
+  
       // 2. Fetch all warehouses and their rows
       const warehouseRes = await axios.get('/warehouse/structure');
       const warehouses = warehouseRes.data.data || [];
@@ -108,7 +108,7 @@ const ProductForm = () => {
         setLoading(false);
         return;
       }
-
+  
       // 3. Find an available row with enough space
       const user = useUserStore.getState().user;
       let selectedRow = null;
@@ -120,38 +120,38 @@ const ProductForm = () => {
           continue;
         }
   
-          // Calculate row area
-          const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
+        // Calculate row area
+        const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
   
         // Check if the row has enough space
-            if (rowArea >= requiredAreaNum) {
-              selectedRow = row;
+        if (rowArea >= requiredAreaNum) {
+          selectedRow = row;
   
-              // Reserve the row for the partner
-              const now = new Date();
-              const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${selectedRow._id}`, {
-                isReserved: true,
-                reservedBy: user._id,
-                startDate: now,
-                endDate: null,
-              });
+          // Reserve the row for the partner
+          const now = new Date();
+          const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${selectedRow._id}`, {
+            isReserved: true,
+            reservedBy: user._id,
+            startDate: now,
+            endDate: null,
+          });
   
-              if (reserveRes.data.statusCode !== 200) {
-                toast.error('Failed to reserve the row.');
-                setLoading(false);
-                return;
-              }
-  
-              break;
-            }
+          if (reserveRes.data.statusCode !== 200) {
+            toast.error('Failed to reserve the row.');
+            setLoading(false);
+            return;
           }
-
+  
+          break;
+        }
+      }
+  
       if (!selectedRow) {
         toast.error('No available row with enough space for your product.');
         setLoading(false);
         return;
       }
-
+  
       // 4. Submit the product and assign location info
       const productData = {
         ...formData,
@@ -232,9 +232,9 @@ const ProductForm = () => {
   } catch (error) {
     toast.error(error.response?.data?.message || 'Failed to add product and reserve row.');
   } finally {
-      setLoading(false);
-    }
-  };
+    setLoading(false);
+  }
+};
   return (
     <div className="max-w-3xl mx-auto p-6 bg-gray-50 rounded-xl shadow-sm">
       <button
