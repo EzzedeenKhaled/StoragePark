@@ -46,7 +46,7 @@ const RegisterPartner2 = () => {
 
     const { user, signup_Done, loading } = useUserStore();
         useEffect(() => {
-            if (user) {
+            if (user && user.isVerified) {
                 if (user.role === "customer") {
                     navigate("/ecommerce");
                 } else if (user.role === "admin") {
@@ -67,7 +67,7 @@ const RegisterPartner2 = () => {
 
         const res = await signup_Done(formData, email);
         console.log("res", res);
-        navigate("/verify-email");
+        navigate("/verify-email", { state: { email: email, from: "partner" } });
     };
 
     return (

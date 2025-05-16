@@ -7,6 +7,13 @@ import axios from '../../../../lib/axios';
 
 const ProductForm = () => {
   const navigate = useNavigate();
+  // const getCookie = (name) => {
+  //   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  //   return match ? match[2] : null;
+  // };
+  
+  // const accessToken = getCookie('accessToken');
+  // console.log(accessToken);
   const { productFormSubmit } = useUserStore();
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +34,11 @@ const ProductForm = () => {
   const [fileName, setFileName] = useState({
     imageProduct: "Upload Image",
   });
+<<<<<<< HEAD
   const categories = ['Electronics', 'Toys', 'Beauty', 'Health & Household'];
+=======
+  const categories = ['Electronics', 'Toys', 'Beauty','Health & Household'];
+>>>>>>> 3f90d22144c179af2b7bdb663324b2f0e3556e05
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -58,6 +69,7 @@ const ProductForm = () => {
     return ((Number(width) * Number(height) * Number(quantity)) / 10000).toFixed(2);
   };
 
+<<<<<<< HEAD
  const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
@@ -75,6 +87,88 @@ const ProductForm = () => {
     const warehouse = warehouses.find(w => w.storageType === storageType);
     if (!warehouse) {
       toast.error('No warehouse found for the selected storage condition.');
+=======
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      // 1. Calculate required area
+      const requiredArea = calculateArea(formData.packageWidth, formData.packageHeight, formData.quantity);
+
+      // 2. Fetch all warehouses and their rows
+      const warehouseRes = await axios.get('/warehouse/structure');
+      const warehouses = warehouseRes.data.data || [];
+      // Map form storageCondition to warehouse storageType
+      let storageType = formData.storageCondition;
+      if (storageType === 'temperature-controlled') storageType = 'temperature';
+      // Find the warehouse matching the selected storage type
+      const warehouse = warehouses.find(w => w.storageType === storageType);
+      if (!warehouse) {
+        toast.error('No warehouse found for the selected storage condition.');
+        setLoading(false);
+        return;
+      }
+
+      // 3. Find an available row with enough space
+      const user = useUserStore.getState().user;
+      let selectedRow = null;
+      const requiredAreaNum = Number(requiredArea);
+  
+      for (const row of warehouse.rows) {
+        // Skip rows that are already reserved by the same partner
+        if (row.isReserved && String(row.reservedBy) === String(user._id)) {
+          continue;
+        }
+  
+          // Calculate row area
+          const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
+  
+        // Check if the row has enough space
+            if (rowArea >= requiredAreaNum) {
+              selectedRow = row;
+  
+              // Reserve the row for the partner
+              const now = new Date();
+              const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${selectedRow._id}`, {
+                isReserved: true,
+                reservedBy: user._id,
+                startDate: now,
+                endDate: null,
+              });
+  
+              if (reserveRes.data.statusCode !== 200) {
+                toast.error('Failed to reserve the row.');
+                setLoading(false);
+                return;
+              }
+  
+              break;
+            }
+          }
+
+      if (!selectedRow) {
+        toast.error('No available row with enough space for your product.');
+        setLoading(false);
+        return;
+      }
+
+      // 4. Submit the product and assign location info
+      const productData = {
+        ...formData,
+        location: {
+          aisleNumber: warehouse.aisleNumber,
+          rowNumber: selectedRow.rowNumber,
+          side: selectedRow.side,
+        },
+        reservedRowId: selectedRow._id,
+      };
+      await productFormSubmit(productData);
+      toast.success('Product added and reserved successfully!');
+      navigate('/partner/products');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to add product and reserve row.');
+    } finally {
+>>>>>>> 3f90d22144c179af2b7bdb663324b2f0e3556e05
       setLoading(false);
       return;
     }
@@ -138,9 +232,9 @@ const ProductForm = () => {
   } catch (error) {
     toast.error(error.response?.data?.message || 'Failed to add product and reserve row.');
   } finally {
-    setLoading(false);
-  }
-};
+      setLoading(false);
+    }
+  };
   return (
     <div className="max-w-3xl mx-auto p-6 bg-gray-50 rounded-xl shadow-sm">
       <button
