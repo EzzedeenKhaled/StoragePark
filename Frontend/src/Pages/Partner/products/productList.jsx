@@ -1,9 +1,54 @@
 import { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
 import { usePartnerStore } from '../../../stores/usePartnerStore';
 import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { toast } from 'react-hot-toast';
+import axios from '../../../../lib/axios'
 const ProductList = () => {
+
+
+const MySwal = withReactContent(Swal);
+
+const handleSetDiscount = async (productId) => {
+  const { value: discount } = await MySwal.fire({
+    title: 'Set Discount (%)',
+    input: 'number',
+    inputLabel: 'Discount percentage (0-100)',
+    inputAttributes: {
+      min: 0,
+      max: 100,
+      step: 1
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Apply',
+    confirmButtonColor: '#FF8B13',
+    cancelButtonText: 'Cancel',
+    inputValidator: (value) => {
+      if (!value && value !== "0") {
+        return 'Please enter a discount value';
+      }
+      if (value < 0 || value > 100) {
+        return 'Discount must be between 0 and 100';
+      }
+    }
+  });
+  if (discount !== undefined) {
+    try {
+      await axios.put('/products/discount', { itemId: productId, discount: Number(discount) });
+      usePartnerStore.setState((state) => ({
+  partnerItems: state.partnerItems.map((p) =>
+    p._id === productId ? { ...p, discount: Number(discount) } : p
+  )
+}));
+      toast.success("Discount updated!");
+    } catch (error) {
+      toast.error("Failed to update discount.");
+    }
+  }
+};
+
   const partnerId = localStorage.getItem('partnerId');
   const { partnerItems, getPartnerItems, toggleProductStatus,loading } = usePartnerStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,7 +56,7 @@ const ProductList = () => {
   
   useEffect(() => {
     const fetchData = async () => {
-      await getPartnerItems(partnerId);
+      await getPartnerItems(partnerId ?? null);
     };
     fetchData();
   }, []);
@@ -86,7 +131,7 @@ const ProductList = () => {
                   <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Units Sold</th>
                   <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Price</th>
                   <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Status</th>
-                  <th className="py-4 px-6 text-left text-sm font-medium text-gray-500"></th>
+                  <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Discount</th>
                 </tr>
               </thead>
               <tbody>
@@ -101,7 +146,19 @@ const ProductList = () => {
                     <td className="py-4 px-6 text-gray-500">{product.brand}</td>
                     <td className="py-4 px-6 text-gray-500">{product.quantity}</td>
                     <td className="py-4 px-6 text-gray-500">{product?.timesBought}</td>
-                    <td className="py-4 px-6 text-gray-500">${product.pricePerUnit.toFixed(2)}</td>
+<td className="py-4 px-6 text-gray-500">
+  {product.discount && product.discount > 0 ? (
+    <div>
+      <span className="line-through text-gray-400 mr-2">${product.pricePerUnit.toFixed(2)}</span>
+      <span className="text-green-600 font-bold">
+        ${(product.pricePerUnit * (1 - product.discount / 100)).toFixed(2)}
+      </span>
+      <span className="ml-2 text-xs text-orange-500">-{product.discount}%</span>
+    </div>
+  ) : (
+    <>${product.pricePerUnit.toFixed(2)}</>
+  )}
+</td>
                     <td className="py-4 px-6">
                       <button
                         onClick={() => toggleProductStatus(product._id)}
@@ -126,13 +183,15 @@ const ProductList = () => {
                         />
                       </button>
                     </td>
-                    <td className="py-4 px-6">
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                        </svg>
-                      </button>
-                    </td>
+<td className="py-4 px-6">
+  <button
+    onClick={() => handleSetDiscount(product._id)}
+    className="text-blue-500 hover:text-blue-700 cursor-pointer"
+    title="Set Discount"
+  >
+    %
+  </button>
+</td>
                   </tr>
                 ))}
               </tbody>

@@ -215,7 +215,9 @@ export const useUserStore = create((set, get) => ({
 			formData.append('reservedRowId', data.reservedRowId);
 		}
 		// Get partnerId from localStorage
-		const partnerId = localStorage.getItem('partnerId');
+		const user = get().user;
+		const partnerId = localStorage.getItem('partnerId') || user?._id;
+		console.log("Product data:", data);
 		if (partnerId) {
 			formData.append('partner', partnerId);
 		}

@@ -200,7 +200,7 @@ const Store = () => {
                                         onClick={() => setDeleteRow({ aisle, row })}
                                         className="text-red-500 hover:text-red-600"
                                       >
-                                        <TrashIcon className="h-5 w-5" />
+                                        <TrashIcon className="h-5 w-5 cursor-pointer" />
                                       </button>
                                       <button
                                         onClick={() => handleViewDetails(row)}

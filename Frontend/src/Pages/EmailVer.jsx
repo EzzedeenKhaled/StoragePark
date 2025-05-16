@@ -67,7 +67,8 @@ const EmailVerification = () => {
       let response = null;
       if (email && (from === "customer-register" || from === "partner")) {
         response = await axios.post("/auth/verify-email", { token });
-        setUser(response.data.data);
+        if(from === "customer-register") 
+          setUser(response.data.data);
         toast.success(response.data.message);
       } else if (email && (from === "forgot-password" || from === "login")) {
         response = await axios.post("/auth/verify-code", { token, email });

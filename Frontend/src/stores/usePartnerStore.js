@@ -44,21 +44,23 @@ export const usePartnerStore = create((set, get) => ({
       throw error;
     }
   },
-  getPartnerItems: async (partnerId) => {
-    try {
-      set({ loading: true });
-      const response = await axios.get('/partners/items', {
-        params: { partnerId }
-      });
-      set({ partnerItems: response.data, loading: false });
-      return response.data;
-    } catch (error) {
-      set({ loading: false });
-      console.error("Error fetching partner items:", error);
-      toast.error("Could not fetch items");
-      throw error;
-    }
-  },
+getPartnerItems: async (partnerId) => {
+  try {
+    set({ loading: true });
+
+    const response = await axios.get('/partners/items', 
+      partnerId ? { params: { partnerId } } : undefined
+    );
+
+    set({ partnerItems: response.data, loading: false });
+    return response.data;
+  } catch (error) {
+    set({ loading: false });
+    console.error("Error fetching partner items:", error);
+    toast.error("Could not fetch items");
+    throw error;
+  }
+},
   toggleProductStatus: async (productId) => {
     try {
       set({ loading: true });
