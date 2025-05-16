@@ -1,6 +1,18 @@
 import Item from "../models/item.model.js";
 import { imagekit } from "../lib/imageKit.js";
 import mongoose from "mongoose";
+
+export const setDiscount = async (req, res) => {
+  try {
+    const { itemId, discount } = req.body;
+    const item = await Item.findByIdAndUpdate(itemId, { discount }, { new: true });
+    if (!item) return res.status(404).json({ message: "Item not found" });
+res.status(200).json({ message: "Discount updated" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update discount" });
+  }
+};
+
 export const createProduct = async (req, res) => {
 	try {
 		 // Extract the product data from the request

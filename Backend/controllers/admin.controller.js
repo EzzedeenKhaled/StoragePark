@@ -4,6 +4,7 @@ import { sendCustomerCredentials, sendEmployeeCredentials,sendVerificationEmail 
 import Item from "../models/item.model.js";
 import {imagekit} from "../lib/imageKit.js";
 import Warehouse from '../models/warehouse.model.js';
+import { deletePartnerWarehouse } from '../lib/deletePartnerWarehouse.js';
 
 export const deleteItem = async (req, res) => {
   try {
@@ -889,6 +890,7 @@ export const getFinancialOverview = async (req, res) => {
   }
 };
 
+
 export const deletePartner = async (req, res) => {
   try {
     const { partnerId } = req.params;
@@ -899,23 +901,10 @@ export const deletePartner = async (req, res) => {
       return res.status(404).json({ message: 'Partner not found' });
     }
 
+    // Clear warehouse rows reserved by partner
+    await deletePartnerWarehouse(partnerId);
+
     // Delete all items associated with the partner
-    const items = await Item.find({ partner: partnerId });
-    const itemIds = items.map(item => item._id);
-
-    // Update warehouse rows to remove references to these items
-    await Warehouse.updateMany(
-      { 'rows.reservedRowId': { $in: itemIds } },
-      { 
-        $set: { 
-          'rows.$[].isReserved': false,
-          'rows.$[].status': 'available',
-          'rows.$[].reservedRowId': null
-        }
-      }
-    );
-
-    // Delete all items
     await Item.deleteMany({ partner: partnerId });
 
     // Delete the partner user
