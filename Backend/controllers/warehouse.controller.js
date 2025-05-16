@@ -3,6 +3,24 @@ import Item from "../models/item.model.js";
 import User from "../models/user.model.js";
 import { sendNotificationEmail } from "../lib/mail.js";
 
+import seedWarehouses from '../seed/warehouse.seed.js';
+
+export const resetWarehouse = async (req, res) => {
+  try {
+    await seedWarehouses(); // This clears and reseeds the warehouse collection
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Warehouse reset successfully"
+    });
+  } catch (error) {
+    console.error('Error resetting warehouse:', error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: error.message || "Failed to reset warehouse"
+    });
+  }
+};
+
 export const getWarehouseStructure = async (req, res) => {
   
   try {

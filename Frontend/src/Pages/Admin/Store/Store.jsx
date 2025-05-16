@@ -122,7 +122,7 @@ const Store = () => {
               <h1 className="text-2xl font-bold text-gray-900">Warehouse Management</h1>
               <button
                 onClick={handleReset}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 cursor-pointer"
               >
                 Reset All Storage
               </button>
@@ -204,7 +204,7 @@ const Store = () => {
                                       </button>
                                       <button
                                         onClick={() => handleViewDetails(row)}
-                                        className="text-orange-500 hover:text-orange-600"
+                                        className="text-orange-500 hover:text-orange-600 cursor-pointer"
                                       >
                                         View Details
                                       </button>

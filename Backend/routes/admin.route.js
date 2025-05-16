@@ -14,7 +14,8 @@ import {
   getFinancialOverview,
   getAllProducts,
   UpdateImage,
-  deletePartner
+  deletePartner,
+  deleteItem
 } from "../controllers/admin.controller.js";
 import { protectRoute, adminRoute } from "../middleware/auth.middleware.js";
 import {
@@ -56,7 +57,7 @@ router.delete('/deletePartner/:partnerId', protectRoute, adminRoute, deletePartn
 
 // Product routes
 router.get("/allProducts", protectRoute, adminRoute, getAllProducts);
-
+router.delete("/deleteItem", protectRoute, adminRoute, deleteItem);
 router.get("/orderSummary", protectRoute, adminRoute, getOrderSummary);
 
 // Order and financial routes

@@ -29,7 +29,7 @@ const Register = () => {
                 navigate("/partner");
             }
         }
-    },[]);
+    }, []);
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -37,16 +37,16 @@ const Register = () => {
             if (!validateInputs()) return;
 
             const res = await signup(formData);
-            if(res === 400){
+            if (res === 400) {
                 toast.error("User already exists");
                 return;
             }
-            navigate("/verify-email", { 
-                state: { 
-                  email: formData.email, 
-                  from: "customer-register" 
-                } 
-              });
+            navigate("/verify-email", {
+                state: {
+                    email: formData.email,
+                    from: "customer-register"
+                }
+            });
         } catch (error) {
             console.error("Error during signup:", error);
             toast.error("Something went wrong. Please try again.");
@@ -82,7 +82,8 @@ const Register = () => {
         }
 
         // Validate password (minimum 8 characters, at least one letter, one number, and one special character)
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\\|/@$!%*#?&~^()_\-+=\[\]{};:'",<>])[A-Za-z\d\\|/@$!%*#?&~^()_\-+=\[\]{};:'",<>]{8,}$/;
+
         if (!passwordRegex.test(password.trim())) {
             toast.error("Password must be at least 8 characters long, include letters, numbers, and one special character.");
             return false;

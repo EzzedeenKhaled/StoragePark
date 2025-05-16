@@ -4,7 +4,7 @@ import axios from "../../lib/axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import PasswordConfirmForm from "./PasswordConfirmForm"; 
+import PasswordConfirmForm from "./PasswordConfirmForm";
 import { useUserStore } from "../stores/useUserStore";
 
 const EmailVerification = () => {
@@ -19,12 +19,12 @@ const EmailVerification = () => {
       navigate("/");
     }
   }, [email, navigate]);
-  console.log("em: ",from)
+  console.log("em: ", from)
   const [code, setCode] = useState(["", "", "", "", "", ""]); // State for storing the code
   const inputRefs = useRef([]); // Refs for managing focus between input fields
   const [isVerified, setIsVerified] = useState(false); // State to track verification status
   const [showModal, setShowModal] = useState(false);
- // Hook for navigation
+  // Hook for navigation
 
   // Handle input changes
   const handleChange = (index, value) => {
@@ -67,9 +67,13 @@ const EmailVerification = () => {
       let response = null;
       if (email && (from === "customer-register" || from === "partner")) {
         response = await axios.post("/auth/verify-email", { token });
+        setUser(response.data.data);
         toast.success(response.data.message);
       } else if (email && (from === "forgot-password" || from === "login")) {
         response = await axios.post("/auth/verify-code", { token, email });
+        if (from === "login") {
+          setUser(response.data.data);
+        }
         toast.success(response.data.message);
       }
       console.log("Response:", response);

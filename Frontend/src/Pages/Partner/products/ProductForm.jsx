@@ -34,11 +34,7 @@ const ProductForm = () => {
   const [fileName, setFileName] = useState({
     imageProduct: "Upload Image",
   });
-<<<<<<< HEAD
-  const categories = ['Electronics', 'Toys', 'Beauty', 'Health & Household'];
-=======
   const categories = ['Electronics', 'Toys', 'Beauty','Health & Household'];
->>>>>>> 3f90d22144c179af2b7bdb663324b2f0e3556e05
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -69,8 +65,7 @@ const ProductForm = () => {
     return ((Number(width) * Number(height) * Number(quantity)) / 10000).toFixed(2);
   };
 
-<<<<<<< HEAD
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
   try {
@@ -80,142 +75,62 @@ const ProductForm = () => {
     // 2. Fetch all warehouses and their rows
     const warehouseRes = await axios.get('/warehouse/structure');
     const warehouses = warehouseRes.data.data || [];
-    // Map form storageCondition to warehouse storageType
     let storageType = formData.storageCondition;
     if (storageType === 'temperature-controlled') storageType = 'temperature';
-    // Find the warehouse matching the selected storage type
     const warehouse = warehouses.find(w => w.storageType === storageType);
     if (!warehouse) {
       toast.error('No warehouse found for the selected storage condition.');
-=======
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      // 1. Calculate required area
-      const requiredArea = calculateArea(formData.packageWidth, formData.packageHeight, formData.quantity);
-  
-      // 2. Fetch all warehouses and their rows
-      const warehouseRes = await axios.get('/warehouse/structure');
-      const warehouses = warehouseRes.data.data || [];
-      // Map form storageCondition to warehouse storageType
-      let storageType = formData.storageCondition;
-      if (storageType === 'temperature-controlled') storageType = 'temperature';
-      // Find the warehouse matching the selected storage type
-      const warehouse = warehouses.find(w => w.storageType === storageType);
-      if (!warehouse) {
-        toast.error('No warehouse found for the selected storage condition.');
-        setLoading(false);
-        return;
-      }
-  
-      // 3. Find an available row with enough space
-      const user = useUserStore.getState().user;
-      let selectedRow = null;
-      const requiredAreaNum = Number(requiredArea);
-  
-      for (const row of warehouse.rows) {
-        // Skip rows that are already reserved by the same partner
-        if (row.isReserved && String(row.reservedBy) === String(user._id)) {
-          continue;
-        }
-  
-        // Calculate row area
-        const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
-  
-        // Check if the row has enough space
-        if (rowArea >= requiredAreaNum) {
-          selectedRow = row;
-  
-          // Reserve the row for the partner
-          const now = new Date();
-          const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${selectedRow._id}`, {
-            isReserved: true,
-            reservedBy: user._id,
-            startDate: now,
-            endDate: null,
-          });
-  
-          if (reserveRes.data.statusCode !== 200) {
-            toast.error('Failed to reserve the row.');
-            setLoading(false);
-            return;
-          }
-  
-          break;
-        }
-      }
-  
-      if (!selectedRow) {
-        toast.error('No available row with enough space for your product.');
-        setLoading(false);
-        return;
-      }
-  
-      // 4. Submit the product and assign location info
-      const productData = {
-        ...formData,
-        location: {
-          aisleNumber: warehouse.aisleNumber,
-          rowNumber: selectedRow.rowNumber,
-          side: selectedRow.side,
-        },
-        reservedRowId: selectedRow._id,
-      };
-      await productFormSubmit(productData);
-      toast.success('Product added and reserved successfully!');
-      navigate('/partner/products');
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to add product and reserve row.');
-    } finally {
->>>>>>> 3f90d22144c179af2b7bdb663324b2f0e3556e05
       setLoading(false);
       return;
     }
 
-    // 3. Find an available row with enough space
-    const user = useUserStore.getState().user;
-    let selectedRow = null;
+const partnerId = localStorage.getItem('partnerId') || useUserStore.getState().user?._id;    let selectedRow = null;
     const requiredAreaNum = Number(requiredArea);
 
-    for (const row of warehouse.rows) {
-      // Skip rows that are already reserved by the same partner
-      if (row.isReserved && String(row.reservedBy) === String(user._id)) {
-        continue;
-      }
+    // 3. Try to find a row that is either:
+    //    - Not reserved (empty)
+    //    - Reserved by this partner
+    //    AND has enough space
+// Helper function to check if a row has enough space
+const hasEnoughSpace = (row) => {
+  const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
+  const usedSpace = (row.spaceUsage || []).reduce((sum, usage) => sum + (usage.usedSpace || 0), 0);
+  return (rowArea - usedSpace) >= requiredAreaNum;
+};
 
-      // Calculate row area
-      const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
+const userId = String(partnerId);
 
-      // Check if the row has enough space
-      if (rowArea >= requiredAreaNum) {
+// Step 1: Prefer already reserved rows by this partner
+for (const row of warehouse.rows) {
+  if (row.isReserved && String(row.reservedBy) === userId && hasEnoughSpace(row)) {
+    selectedRow = row;
+    break;
+  }
+}
+
+if (!selectedRow) {
+  for (const row of warehouse.rows) {
+    if (!row.isReserved && hasEnoughSpace(row)) {
+      // Try to reserve it
+      const now = new Date();
+      const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${row._id}`, {
+        isReserved: true,
+        reservedBy: userId,
+        startDate: now,
+        endDate: null,
+      });
+      if (reserveRes.data.statusCode === 200) {
         selectedRow = row;
-
-        // Reserve the row for the partner
-        const now = new Date();
-        const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${selectedRow._id}`, {
-          isReserved: true,
-          reservedBy: user._id,
-          startDate: now,
-          endDate: null,
-        });
-
-        if (reserveRes.data.statusCode !== 200) {
-          toast.error('Failed to reserve the row.');
-          setLoading(false);
-          return;
-        }
-
         break;
+      } else {
+        toast.error('Failed to reserve a new row.');
+        setLoading(false);
+        return;
       }
     }
-
-    if (!selectedRow) {
-      toast.error('No available row with enough space for your product.');
-      setLoading(false);
-      return;
-    }
-
+  }
+}
+    console.log('Selected Row:', selectedRow);
     // 4. Submit the product and assign location info
     const productData = {
       ...formData,
@@ -281,7 +196,7 @@ const ProductForm = () => {
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">Weight (kg)</label>
             <input
-              type="text"
+              type="number"
               name="weight"
               placeholder="Enter weight"
               value={formData.weight}
@@ -343,7 +258,7 @@ const ProductForm = () => {
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">Package Width (cm)</label>
             <input
-              type="text"
+              type="number"
               name="packageWidth"
               value={formData.packageWidth}
               onChange={handleInputChange}
@@ -354,7 +269,7 @@ const ProductForm = () => {
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">Package Height (cm)</label>
             <input
-              type="text"
+              type="number"
               name="packageHeight"
               value={formData.packageHeight}
               onChange={handleInputChange}

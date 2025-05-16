@@ -3,6 +3,10 @@ import axios from "../../../lib/axios";
 import { usePartnerStore } from "../../stores/usePartnerStore";
 import Header from "../../../components/Admin/Header";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { TrashIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -25,6 +29,33 @@ const AdminProducts = () => {
 
     fetchProducts();
   }, []);
+
+const MySwal = withReactContent(Swal);
+
+const handleDeleteProduct = async (productId) => {
+  const result = await MySwal.fire({
+    title: 'Delete Product?',
+    text: "Are you sure you want to delete this product? This action cannot be undone.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`/admins/deleteItem`, { data: { itemId: productId } });
+      setProducts((prev) => prev.filter((p) => p._id !== productId));
+      toast.success("Product deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete product.");
+      console.error(error);
+    }
+  }
+};
+
 
   const handleToggleProductStatus = async (productId) => {
     try {
@@ -93,6 +124,7 @@ const AdminProducts = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b">
+                        <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Image</th>
                         <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Product Name</th>
                         <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Brand</th>
                         <th className="py-4 px-6 text-left text-sm font-medium text-gray-500">Stock</th>
@@ -104,6 +136,17 @@ const AdminProducts = () => {
                     <tbody>
                       {filteredProducts.map((product) => (
                         <tr key={product._id} className="border-b last:border-b-0 hover:bg-gray-50">
+                          <td className="py-4 px-6">
+                            {product.imageProduct ? (
+                              <img
+                                src={product.imageProduct}
+                                alt={product.productName}
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                            ) : (
+                              <span className="text-gray-400">No Image</span>
+                            )}
+                          </td>
                           <td className="py-4 px-6">{product.productName}</td>
                           <td className="py-4 px-6">{product.brand}</td>
                           <td className="py-4 px-6">{product.quantity}</td>
@@ -111,34 +154,41 @@ const AdminProducts = () => {
                           <td className="py-4 px-6">
                             {product.partner
                               ? (product.partner.companyName
-                                  ? `${product.partner.companyName} (${product.partner.firstName} ${product.partner.lastName})`
-                                  : `${product.partner.firstName} ${product.partner.lastName}`)
+                                ? `${product.partner.companyName} (${product.partner.firstName} ${product.partner.lastName})`
+                                : `${product.partner.firstName} ${product.partner.lastName}`)
                               : "No Partner"}
                           </td>
-                          <td className="py-4 px-6">
-                            <button
-                              onClick={() => handleToggleProductStatus(product._id)}
-                              disabled={product.quantity === 0}
-                              className={`w-12 h-6 rounded-full ${
-                                product.quantity === 0 
-                                  ? 'bg-gray-300 cursor-not-allowed' 
-                                  : product.isActive 
-                                    ? 'bg-orange-500' 
-                                    : 'bg-gray-200'
-                              } relative transition-colors duration-300 ${product.quantity === 0 ? '' : 'cursor-pointer'}`}
-                              title={product.quantity === 0 
-                                ? "Cannot toggle: Product is out of stock" 
-                                : product.isActive 
-                                  ? "Click to deactivate" 
-                                  : "Click to activate"}
-                            >
-                              <div
-                                className={`absolute w-5 h-5 rounded-full bg-white top-0.5 transition-all duration-300 shadow-sm ${
-                                  product.isActive ? 'left-6' : 'left-0.5'
-                                }`}
-                              />
-                            </button>
-                          </td>
+                        <td className="py-4 px-6">
+  <div className="flex items-center gap-2">
+    <button
+      onClick={() => handleToggleProductStatus(product._id)}
+      disabled={product.quantity === 0}
+      className={`w-12 h-6 rounded-full ${product.quantity === 0
+        ? 'bg-gray-300 cursor-not-allowed'
+        : product.isActive
+          ? 'bg-orange-500'
+          : 'bg-gray-200'
+        } relative transition-colors duration-300 ${product.quantity === 0 ? '' : 'cursor-pointer'}`}
+      title={product.quantity === 0
+        ? "Cannot toggle: Product is out of stock"
+        : product.isActive
+          ? "Click to deactivate"
+          : "Click to activate"}
+    >
+      <div
+        className={`absolute w-5 h-5 rounded-full bg-white top-0.5 transition-all duration-300 shadow-sm ${product.isActive ? 'left-6' : 'left-0.5'
+          }`}
+      />
+    </button>
+    <button
+      onClick={() => handleDeleteProduct(product._id)}
+      className="text-red-500 hover:text-red-700 cursor-pointer"
+      title="Delete Product"
+    >
+      <TrashIcon className="w-5 h-5" />
+    </button>
+  </div>
+</td>
                         </tr>
                       ))}
                     </tbody>

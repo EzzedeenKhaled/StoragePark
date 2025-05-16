@@ -1,10 +1,10 @@
 import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import {sendVerificationEmail} from "../lib/mail.js";
+import { sendVerificationEmail } from "../lib/mail.js";
 import crypto from "crypto";
 
- const generateTokens = (userId) => {
+const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
 		expiresIn: "30m",
 	});
@@ -14,14 +14,14 @@ import crypto from "crypto";
 	});
 
 	return { accessToken, refreshToken };
- };
+};
 
 const storeRefreshToken = async (userId, refreshToken) => {
 	await redis.set(`refresh_token:${userId}`, refreshToken, "EX", 7 * 24 * 60 * 60); // 7days
 };
 
- const setCookies = (res, accessToken, refreshToken) => {
- 	res.cookie("accessToken", accessToken, {
+const setCookies = (res, accessToken, refreshToken) => {
+	res.cookie("accessToken", accessToken, {
 		httpOnly: true, // prevent XSS attacks, cross site scripting attack
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict", // prevents CSRF attack, cross-site request forgery attack
@@ -41,7 +41,7 @@ export const forgotPassword = async (req, res) => {
 	try {
 		const user = await User.findOne({ email: email });
 
-	 	if (!user) {
+		if (!user) {
 			return res.status(404).json({ message: "Email not found." });
 		}
 
@@ -51,14 +51,14 @@ export const forgotPassword = async (req, res) => {
 		// Alternatively, if you want something even more secure (optional):
 		const resetCode = crypto.randomBytes(3).toString('hex').toUpperCase(); // 6-char hex string
 
-	 	// Save the code to the user document
+		// Save the code to the user document
 		user.resetPasswordCode = resetCode;
 		user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // Code valid for 10 minutes
 		await user.save();
-		await sendVerificationEmail(email, resetCode, true,false);
-	 	// TODO: Send the code via email to the user here
+		await sendVerificationEmail(email, resetCode, true, false);
+		// TODO: Send the code via email to the user here
 		// For now, just send it back in the response for testing
-	 	return res.status(200).json({
+		return res.status(200).json({
 			message: "Reset code generated.",
 			success: true,
 			code: resetCode // (only for testing; don't send codes in production responses)
@@ -71,7 +71,7 @@ export const forgotPassword = async (req, res) => {
 };
 
 
- export const signup = async (req, res) => {
+export const signup = async (req, res) => {
 	const { email, password, firstName, lastName, role, phone: phoneNumber } = req.body;
 	try {
 		const userExists = await User.findOne({ email });
@@ -134,6 +134,9 @@ export const login = async (req, res) => {
 		const { email, password } = req.body;
 		const user = await User.findOne({ email });
 		if ((user?.role === "partner" || user?.role === "customer") && !user.isVerified) {
+			if (await user.comparePassword(password) === false) {
+				return res.status(400).json({ message: "Invalid email or password" });
+			}
 			user.verificationToken = undefined;
 			const buffer = crypto.randomBytes(3); // Generate 3 random bytes (24 bits)
 			const numericToken = parseInt(buffer.toString("hex"), 16) % 1000000; // Convert to a number and limit to 6 digits
@@ -231,26 +234,30 @@ export const verifyEmail = async (req, res) => {
 		if (!user) {
 			return res.status(400).json({ message: "Invalid or expired token." });
 		}
-		if(user.verificationToken !== token){
+		if (user.verificationToken !== token) {
 			return res.status(400).json({ message: "Invalid verification token." });
 		}
 		// Mark the user as verified
-		if(user.role !== "partner")
-		user.isVerified = true;
+		if (user.role !== "partner")
+			user.isVerified = true;
 		user.verificationToken = undefined; // Clear the token after verification
 		await user.save();
+		if(user.role !== "partner") {
 		const { accessToken, refreshToken } = generateTokens(user._id);
 		await storeRefreshToken(user._id, refreshToken);
 		setCookies(res, accessToken, refreshToken);
+		}
 		// Respond with success
 		res.status(200).json({
 			message: "Email verified successfully!",
 			data: {
-				_id: user._id,
 				name: user.firstName + " " + user.lastName,
+				_id: user._id,
 				email: user.email,
 				role: user.role,
 				isVerified: user.isVerified,
+				profileImage: user.profileImage,
+				phoneNumber: user.phoneNumber,
 			}
 		});
 	} catch (error) {
@@ -277,31 +284,31 @@ export const verifyCode = async (req, res) => {
 			return res.status(404).json({ message: "User not found." });
 		}
 		// Check if token matches
-		if(user.resetPasswordCode){
-		if (user.resetPasswordCode !== token) {
-			return res.status(400).json({ message: "Invalid verification code." });
-		}
+		if (user.resetPasswordCode) {
+			if (user.resetPasswordCode !== token) {
+				return res.status(400).json({ message: "Invalid verification code." });
+			}
 
-		// Check if token has expired
-		if (user.resetPasswordExpires && user.resetPasswordExpires < Date.now()) {
-			return res.status(400).json({ message: "Verification code has expired." });
-		}
+			// Check if token has expired
+			if (user.resetPasswordExpires && user.resetPasswordExpires < Date.now()) {
+				return res.status(400).json({ message: "Verification code has expired." });
+			}
 
-		// Clear the token and expiration
-		user.resetPasswordCode = undefined;
-		user.resetPasswordExpires = undefined;
-	}else if(user.verificationToken){
-		if (user.verificationToken !== token) {
-			return res.status(400).json({ message: "Invalid verification code." });
+			// Clear the token and expiration
+			user.resetPasswordCode = undefined;
+			user.resetPasswordExpires = undefined;
+		} else if (user.verificationToken) {
+			if (user.verificationToken !== token) {
+				return res.status(400).json({ message: "Invalid verification code." });
+			}
+			user.verificationToken = undefined; // Clear the token after verification
+			user.isVerified = true;
+			const { accessToken, refreshToken } = generateTokens(user._id);
+			await storeRefreshToken(user._id, refreshToken);
+			setCookies(res, accessToken, refreshToken);
+			//--------------------
+			// Mark the user as verified
 		}
-		user.verificationToken = undefined; // Clear the token after verification
-		user.isVerified = true;
-		const { accessToken, refreshToken } = generateTokens(user._id);
-		await storeRefreshToken(user._id, refreshToken);
-		setCookies(res, accessToken, refreshToken);
-		//--------------------
- // Mark the user as verified
-	}
 		await user.save();
 
 		// Success response
@@ -309,14 +316,14 @@ export const verifyCode = async (req, res) => {
 			message: "Code verified successfully!",
 			data: {
 				_id: user._id,
-			firstName: user.firstName,
-			lastName: user.lastName,
-			email: user.email,
-			role: user.role,
-			isVerified: user.isVerified,
-			phoneNumber: user.phoneNumber,
-			profileImage: user.profileImage,
-			code: true
+				firstName: user.firstName,
+				lastName: user.lastName,
+				email: user.email,
+				role: user.role,
+				isVerified: user.isVerified,
+				phoneNumber: user.phoneNumber,
+				profileImage: user.profileImage,
+				code: true
 			},
 		});
 	} catch (error) {

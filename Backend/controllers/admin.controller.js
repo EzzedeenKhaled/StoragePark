@@ -5,6 +5,37 @@ import Item from "../models/item.model.js";
 import {imagekit} from "../lib/imageKit.js";
 import Warehouse from '../models/warehouse.model.js';
 
+export const deleteItem = async (req, res) => {
+  try {
+    const { itemId } = req.body;
+    const item = await Item.findById(itemId);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+
+    // If the item is linked to a reserved row, reset that row
+    if (item.reservedRowId) {
+      await Warehouse.updateOne(
+        { "rows._id": item.reservedRowId },
+        {
+          $set: {
+            "rows.$.isReserved": false,
+            "rows.$.reservedBy": null,
+            "rows.$.reservationStartDate": null,
+            "rows.$.reservationEndDate": null,
+            "rows.$.status": "available",
+            "rows.$.spaceUsage": []
+          }
+        }
+      );
+    }
+
+    await Item.deleteOne({ _id: itemId });
+    return res.json({ message: "Item deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to delete item" });
+  }
+};
+
 export const getOrderSummary = async (req, res) => {
   try {
     const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // First day of the current month
