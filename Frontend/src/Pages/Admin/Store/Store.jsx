@@ -8,8 +8,9 @@ import {
   TrashIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
-
+import { useUserStore } from '../../../stores/useUserStore';
 const Store = () => {
+  const {user} = useUserStore();
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editRow, setEditRow] = useState(null);
@@ -38,16 +39,22 @@ const Store = () => {
       setLoading(false);
     }
   };
-
-  const handleReset = async () => {
-    try {
-      await axios.post('/warehouse/reset');
-      toast.success('Warehouse reset!');
-      fetchWarehouses();
-    } catch {
-      toast.error('Failed to reset warehouse');
-    }
-  };
+const handleReset = async () => {
+  try {
+    await axios.post('/warehouse/reset');
+    toast.success('Warehouse reset!');
+    // Log the reset action
+    await axios.post('/admins/logs', {
+      action: "Reset Warehouse",
+      user: user?._id,
+      role: "admin",
+      details: "All warehouse storage has been reset"
+    });
+    fetchWarehouses();
+  } catch {
+    toast.error('Failed to reset warehouse');
+  }
+};
 
   const handleViewDetails = async (row) => {
     try {
@@ -69,35 +76,41 @@ const Store = () => {
     }
   };
 
-  const handleDeleteRow = async () => {
-    try {
-      const response = await axios.delete(`/warehouse/${deleteRow.aisle.aisleNumber}/rows/${deleteRow.row._id}`);
-      
-      if (response.data.statusCode === 200) {
-        toast.success('Reservation removed successfully');
-        setDeleteRow(null);
-        fetchWarehouses();
-      }
-    } catch (error) {
-      if (error.response?.data?.statusCode === 400) {
-        // Show items in the row that prevent removal
-        const items = error.response.data.items;
-        toast.error(
-          <div>
-            <p className="font-semibold mb-2">Cannot remove reservation with active items:</p>
-            <ul className="list-disc pl-4">
-              {items.map(item => (
-                <li key={item._id}>{item.productName} (Qty: {item.quantity})</li>
-              ))}
-            </ul>
-          </div>,
-          { duration: 5000 }
-        );
-      } else {
-        toast.error(error.response?.data?.message || 'Failed to remove reservation');
-      }
+const handleDeleteRow = async () => {
+  try {
+    const response = await axios.delete(`/warehouse/${deleteRow.aisle.aisleNumber}/rows/${deleteRow.row._id}`);
+    if (response.data.statusCode === 200) {
+      toast.success('Reservation removed successfully');
+      // Log the reservation removal
+      await axios.post('/admins/logs', {
+        action: "Remove Reservation",
+        user: user?._id,
+        role: "admin",
+        details: `Removed reservation for row ${deleteRow.row.rowNumber} in aisle ${deleteRow.aisle.aisleNumber}`
+      });
+      setDeleteRow(null);
+      fetchWarehouses();
     }
-  };
+  } catch (error) {
+    if (error.response?.data?.statusCode === 400) {
+      // Show items in the row that prevent removal
+      const items = error.response.data.items;
+      toast.error(
+        <div>
+          <p className="font-semibold mb-2">Cannot remove reservation with active items:</p>
+          <ul className="list-disc pl-4">
+            {items.map(item => (
+              <li key={item._id}>{item.productName} (Qty: {item.quantity})</li>
+            ))}
+          </ul>
+        </div>,
+        { duration: 5000 }
+      );
+    } else {
+      toast.error(error.response?.data?.message || 'Failed to remove reservation');
+    }
+  }
+};
 
   if (loading) {
     return (
@@ -200,7 +213,7 @@ const Store = () => {
                                         onClick={() => setDeleteRow({ aisle, row })}
                                         className="text-red-500 hover:text-red-600"
                                       >
-                                        <TrashIcon className="h-5 w-5" />
+                                        <TrashIcon className="h-5 w-5 cursor-pointer" />
                                       </button>
                                       <button
                                         onClick={() => handleViewDetails(row)}

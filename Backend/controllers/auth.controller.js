@@ -44,7 +44,9 @@ export const forgotPassword = async (req, res) => {
 		if (!user) {
 			return res.status(404).json({ message: "Email not found." });
 		}
-
+		if(!user.isVerified) {
+			return res.status(403).json({ message: "Account is not verified yet login again to send code." });
+		}
 		// Generate a random 6-digit code
 		// const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
 

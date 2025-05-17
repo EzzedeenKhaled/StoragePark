@@ -4,6 +4,8 @@ import { sendCustomerCredentials, sendEmployeeCredentials,sendVerificationEmail 
 import Item from "../models/item.model.js";
 import {imagekit} from "../lib/imageKit.js";
 import Warehouse from '../models/warehouse.model.js';
+import { deletePartnerWarehouse } from '../lib/deletePartnerWarehouse.js';
+import Log from "../models/log.model.js";
 
 export const deleteItem = async (req, res) => {
   try {
@@ -889,6 +891,47 @@ export const getFinancialOverview = async (req, res) => {
   }
 };
 
+
+export const getLogs = async (req, res) => {
+  try {
+    const adminLogs = await Log.find({ role: "admin" }).populate('user', 'email firstName lastName').lean();
+    const customerLogs = await Log.find({ role: "customer" }).populate('user', 'email firstName lastName').lean();
+    const partnerLogs = await Log.find({ role: "partner" }).populate('user', 'email firstName lastName').lean();
+
+    res.json({
+      admin: adminLogs,
+      customer: customerLogs,
+      partner: partnerLogs,
+    });
+  } catch (error) {
+    console.error("Error fetching logs:", error);
+    res.status(500).json({ error: "Failed to fetch logs" });
+  }
+};
+
+export const createLog = async (req, res) => {
+  try {
+    const { action, user, role, details } = req.body;
+    console.log("Creating log:", { action, user, role, details });
+    if (!action || !user || !role) {
+      return res.status(400).json({ error: "action, user, and role are required" });
+    }
+
+    const log = await Log.create({
+      action,
+      user,
+      role,
+      details: details || '',
+      date: new Date(),
+    });
+
+    res.status(201).json({ message: "Log created", log });
+  } catch (error) {
+    console.error("Error creating log:", error);
+    res.status(500).json({ error: "Failed to create log" });
+  }
+};
+
 export const deletePartner = async (req, res) => {
   try {
     const { partnerId } = req.params;
@@ -899,23 +942,10 @@ export const deletePartner = async (req, res) => {
       return res.status(404).json({ message: 'Partner not found' });
     }
 
+    // Clear warehouse rows reserved by partner
+    await deletePartnerWarehouse(partnerId);
+
     // Delete all items associated with the partner
-    const items = await Item.find({ partner: partnerId });
-    const itemIds = items.map(item => item._id);
-
-    // Update warehouse rows to remove references to these items
-    await Warehouse.updateMany(
-      { 'rows.reservedRowId': { $in: itemIds } },
-      { 
-        $set: { 
-          'rows.$[].isReserved': false,
-          'rows.$[].status': 'available',
-          'rows.$[].reservedRowId': null
-        }
-      }
-    );
-
-    // Delete all items
     await Item.deleteMany({ partner: partnerId });
 
     // Delete the partner user

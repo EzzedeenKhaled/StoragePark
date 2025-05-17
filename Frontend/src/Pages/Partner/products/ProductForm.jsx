@@ -11,7 +11,7 @@ const ProductForm = () => {
   //   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
   //   return match ? match[2] : null;
   // };
-  
+
   // const accessToken = getCookie('accessToken');
   // console.log(accessToken);
   const { productFormSubmit } = useUserStore();
@@ -34,7 +34,7 @@ const ProductForm = () => {
   const [fileName, setFileName] = useState({
     imageProduct: "Upload Image",
   });
-  const categories = ['Electronics', 'Toys', 'Beauty','Health & Household'];
+  const categories = ['Electronics', 'Toys', 'Beauty', 'Health & Household'];
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -65,91 +65,98 @@ const ProductForm = () => {
     return ((Number(width) * Number(height) * Number(quantity)) / 10000).toFixed(2);
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    // 1. Calculate required area
-    const requiredArea = calculateArea(formData.packageWidth, formData.packageHeight, formData.quantity);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      // 1. Calculate required area
+      const requiredArea = calculateArea(formData.packageWidth, formData.packageHeight, formData.quantity);
 
-    // 2. Fetch all warehouses and their rows
-    const warehouseRes = await axios.get('/warehouse/structure');
-    const warehouses = warehouseRes.data.data || [];
-    let storageType = formData.storageCondition;
-    if (storageType === 'temperature-controlled') storageType = 'temperature';
-    const warehouse = warehouses.find(w => w.storageType === storageType);
-    if (!warehouse) {
-      toast.error('No warehouse found for the selected storage condition.');
-      setLoading(false);
-      return;
-    }
-
-const partnerId = localStorage.getItem('partnerId') || useUserStore.getState().user?._id;    let selectedRow = null;
-    const requiredAreaNum = Number(requiredArea);
-
-    // 3. Try to find a row that is either:
-    //    - Not reserved (empty)
-    //    - Reserved by this partner
-    //    AND has enough space
-// Helper function to check if a row has enough space
-const hasEnoughSpace = (row) => {
-  const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
-  const usedSpace = (row.spaceUsage || []).reduce((sum, usage) => sum + (usage.usedSpace || 0), 0);
-  return (rowArea - usedSpace) >= requiredAreaNum;
-};
-
-const userId = String(partnerId);
-
-// Step 1: Prefer already reserved rows by this partner
-for (const row of warehouse.rows) {
-  if (row.isReserved && String(row.reservedBy) === userId && hasEnoughSpace(row)) {
-    selectedRow = row;
-    break;
-  }
-}
-
-if (!selectedRow) {
-  for (const row of warehouse.rows) {
-    if (!row.isReserved && hasEnoughSpace(row)) {
-      // Try to reserve it
-      const now = new Date();
-      const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${row._id}`, {
-        isReserved: true,
-        reservedBy: userId,
-        startDate: now,
-        endDate: null,
-      });
-      if (reserveRes.data.statusCode === 200) {
-        selectedRow = row;
-        break;
-      } else {
-        toast.error('Failed to reserve a new row.');
+      // 2. Fetch all warehouses and their rows
+      const warehouseRes = await axios.get('/warehouse/structure');
+      const warehouses = warehouseRes.data.data || [];
+      let storageType = formData.storageCondition;
+      if (storageType === 'temperature-controlled') storageType = 'temperature';
+      const warehouse = warehouses.find(w => w.storageType === storageType);
+      if (!warehouse) {
+        toast.error('No warehouse found for the selected storage condition.');
         setLoading(false);
         return;
       }
+
+      const partnerId = localStorage.getItem('partnerId') || useUserStore.getState().user?._id;
+      let selectedRow = null;
+      const requiredAreaNum = Number(requiredArea);
+
+      // 3. Try to find a row that is either:
+      //    - Not reserved (empty)
+      //    - Reserved by this partner
+      //    AND has enough space
+      // Helper function to check if a row has enough space
+      const hasEnoughSpace = (row) => {
+        const rowArea = ((row.dimensions.width * row.dimensions.depth) / 10000);
+        const usedSpace = (row.spaceUsage || []).reduce((sum, usage) => sum + (usage.usedSpace || 0), 0);
+        return (rowArea - usedSpace) >= requiredAreaNum;
+      };
+
+      const userId = String(partnerId);
+
+      // Step 1: Prefer already reserved rows by this partner
+      for (const row of warehouse.rows) {
+        if (row.isReserved && String(row.reservedBy) === userId && hasEnoughSpace(row)) {
+          selectedRow = row;
+          break;
+        }
+      }
+
+      if (!selectedRow) {
+        for (const row of warehouse.rows) {
+          if (!row.isReserved && hasEnoughSpace(row)) {
+            // Try to reserve it
+            const now = new Date();
+            const reserveRes = await axios.post(`/warehouse/${warehouse.aisleNumber}/rows/${row._id}`, {
+              isReserved: true,
+              reservedBy: userId,
+              startDate: now,
+              endDate: null,
+            });
+            if (reserveRes.data.statusCode === 200) {
+              selectedRow = row;
+              break;
+            } else {
+              toast.error('Failed to reserve a new row.');
+              setLoading(false);
+              return;
+            }
+          }
+        }
+      }
+      // 4. Submit the product and assign location info
+      const productData = {
+        ...formData,
+        location: {
+          aisleNumber: warehouse.aisleNumber,
+          rowNumber: selectedRow.rowNumber,
+          side: selectedRow.side,
+        },
+        reservedRowId: selectedRow._id,
+      };
+      await productFormSubmit(productData);
+          const user = useUserStore.getState().user;
+    await axios.post('/admins/logs', {
+      action: "New Product",
+      user: user?._id,
+      role: user?.role,
+      details: `Product: ${formData.productName}, Quantity: ${formData.quantity}, Category: ${formData.category}`
+    });
+      toast.success('Product added and reserved successfully!');
+      navigate('/partner/products');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to add product and reserve row.');
+    } finally {
+      setLoading(false);
     }
-  }
-}
-    console.log('Selected Row:', selectedRow);
-    // 4. Submit the product and assign location info
-    const productData = {
-      ...formData,
-      location: {
-        aisleNumber: warehouse.aisleNumber,
-        rowNumber: selectedRow.rowNumber,
-        side: selectedRow.side,
-      },
-      reservedRowId: selectedRow._id,
-    };
-    await productFormSubmit(productData);
-    toast.success('Product added and reserved successfully!');
-    navigate('/partner/products');
-  } catch (error) {
-    toast.error(error.response?.data?.message || 'Failed to add product and reserve row.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   return (
     <div className="max-w-3xl mx-auto p-6 bg-gray-50 rounded-xl shadow-sm">
       <button
@@ -170,6 +177,7 @@ if (!selectedRow) {
             <label className="block text-sm font-medium text-gray-700">Product Category</label>
             <select
               name="category"
+              required
               value={formData.category}
               onChange={handleInputChange}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-0 focus:border-orange-500 focus:outline-none transition-all"
@@ -186,6 +194,7 @@ if (!selectedRow) {
             <input
               type="text"
               name="productName"
+              required
               placeholder="Enter product name"
               value={formData.productName}
               onChange={handleInputChange}
@@ -198,6 +207,7 @@ if (!selectedRow) {
             <input
               type="number"
               name="weight"
+              required
               placeholder="Enter weight"
               value={formData.weight}
               onChange={handleInputChange}
@@ -211,6 +221,7 @@ if (!selectedRow) {
               type="number"
               min="1"
               name="quantity"
+              required
               value={formData.quantity}
               onChange={handleInputChange}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-0 focus:border-orange-500 focus:outline-none transition-all"
@@ -225,6 +236,7 @@ if (!selectedRow) {
               min="0.01"
               step="0.01"
               value={formData.pricePerUnit}
+              required
               onChange={handleInputChange}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-0 focus:border-orange-500 focus:outline-none transition-all"
             />
@@ -247,6 +259,7 @@ if (!selectedRow) {
           <label className="block text-sm font-medium text-gray-700">Description</label>
           <textarea
             name="description"
+            required
             placeholder="Enter product description"
             value={formData.description}
             onChange={handleInputChange}
@@ -261,6 +274,7 @@ if (!selectedRow) {
               type="number"
               name="packageWidth"
               value={formData.packageWidth}
+              required
               onChange={handleInputChange}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-0 focus:border-orange-500 focus:outline-none transition-all"
             />
@@ -272,6 +286,7 @@ if (!selectedRow) {
               type="number"
               name="packageHeight"
               value={formData.packageHeight}
+              required
               onChange={handleInputChange}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-0 focus:border-orange-500 focus:outline-none transition-all"
             />
@@ -280,8 +295,8 @@ if (!selectedRow) {
 
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700">Product Image</label>
-          <label 
-            htmlFor="image" 
+          <label
+            htmlFor="image"
             className="flex flex-col items-center justify-center w-full p-8 border-2 border-dashed border-gray-300 rounded-lg bg-white hover:bg-gray-50 cursor-pointer focus:ring-0 focus:border-orange-500 focus:outline-none transition-all group"
           >
             <input
@@ -289,21 +304,22 @@ if (!selectedRow) {
               type="file"
               name="imageProduct"
               accept="image/jpeg, image/png"
+              required
               onChange={handleInputChange}
               className="hidden"
             />
             <div className="flex flex-col items-center justify-center text-center">
-              <svg 
-                className="w-10 h-10 mb-3 text-gray-400 group-hover:text-orange-500 transition-colors" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24" 
+              <svg
+                className="w-10 h-10 mb-3 text-gray-400 group-hover:text-orange-500 transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth="2" 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
@@ -321,6 +337,7 @@ if (!selectedRow) {
                 type="radio"
                 name="storageCondition"
                 value="standard"
+                required
                 checked={formData.storageCondition === 'standard'}
                 onChange={handleInputChange}
                 className="appearance-none w-5 h-5 border-2 border-gray-300 rounded-full checked:border-orange-500 checked:bg-white checked:ring-2 checked:ring-orange-500 focus:outline-none transition-all"

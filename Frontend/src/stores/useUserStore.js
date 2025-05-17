@@ -21,20 +21,37 @@ export const useUserStore = create((set, get) => ({
 			toast.error("Failed to add item to wishlist");
 		}
 	},
-	makeOrder: async (orderData) => {
-		set({ loading: true });
-		try {
-			const res = await axios.post("/orders/make-order", orderData);
-			set({ loading: false });
-			toast.success("Order placed successfully!");
+makeOrder: async (orderData) => {
+    set({ loading: true });
+    try {
+        const res = await axios.post("/orders/make-order", orderData);
+        console.log("Order response:", res);
+        const user = get().user;
 
-			return res;
-		} catch (error) {
-			console.error("Error placing order:", error);
-			toast.error("Failed to place order");
-			set({ loading: false });
-		}
-	},
+        // Extract details for the log
+        const order = res.data.order;
+        const orderId = order?.orderId;
+        const firstItem = order?.items?.[0];
+        const itemName = firstItem?.name || '';
+        const itemQty = firstItem?.quantity || '';
+        const details = `OrderId: ${orderId}, Item: ${itemName}, Qty: ${itemQty}`;
+
+        await axios.post("/admins/logs", {
+            action: "Placed Order",
+            user: user?._id,
+            role: user?.role,
+            details
+        });
+
+        set({ loading: false });
+        toast.success("Order placed successfully!");
+        return res;
+    } catch (error) {
+        console.error("Error placing order:", error);
+        toast.error("Failed to place order");
+        set({ loading: false });
+    }
+},
 	removeFromWishlist: async (itemId) => {
 		set({ loading: true });
 		try {
@@ -168,6 +185,13 @@ export const useUserStore = create((set, get) => ({
 		try {
 		  const res = await axios.post("/auth/login", { email, password });
 		  set({ user: res.data, loading: false });
+		  const user = get().user;
+		  await axios.post("/admins/logs", {
+                action: "Login",
+                user: user?._id, // Adjust based on your login response
+                role: user?.role,
+                details: "User logged in"
+            });
 		  return res.status;
 		} catch (error) {
 		  set({ loading: false });
@@ -215,7 +239,9 @@ export const useUserStore = create((set, get) => ({
 			formData.append('reservedRowId', data.reservedRowId);
 		}
 		// Get partnerId from localStorage
-		const partnerId = localStorage.getItem('partnerId');
+		const user = get().user;
+		const partnerId = localStorage.getItem('partnerId') || user?._id;
+		console.log("Product data:", data);
 		if (partnerId) {
 			formData.append('partner', partnerId);
 		}
@@ -260,6 +286,13 @@ export const useUserStore = create((set, get) => ({
 	},
 	logout: async () => {
 		try {
+			const user = get().user;
+			await axios.post("/admins/logs", {
+				  action: "Logout",
+				  user: user?._id, // Adjust based on your login response
+				  role: user?.role,
+				  details: "User logged out"
+			  });
 			await axios.post("/auth/logout");
 
 			// const user = useUserStore.getState().user;	
@@ -268,7 +301,6 @@ export const useUserStore = create((set, get) => ({
 			// 	// Optional: you can also clear temporary in-memory wishlist if you have one
 			// 	localStorage.removeItem(`wishlist_temp_${user._id}`);
 			//   }
-
 			set({ user: null });
 		} catch (error) {
 			console.log(error)

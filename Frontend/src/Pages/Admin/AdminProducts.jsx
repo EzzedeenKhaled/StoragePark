@@ -7,8 +7,9 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-
+import { useUserStore } from "../../stores/useUserStore";
 const AdminProducts = () => {
+  const { user } = useUserStore();
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -57,20 +58,67 @@ const handleDeleteProduct = async (productId) => {
 };
 
 
-  const handleToggleProductStatus = async (productId) => {
+const handleSetDiscount = async (productId) => {
+  const { value: discount } = await MySwal.fire({
+    title: 'Set Discount (%)',
+    input: 'number',
+    inputLabel: 'Discount percentage (0-100)',
+    inputAttributes: {
+      min: 0,
+      max: 100,
+      step: 1
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Apply',
+    confirmButtonColor: '#FF8B13',
+    cancelButtonText: 'Cancel',
+    inputValidator: (value) => {
+      if (!value && value !== "0") {
+        return 'Please enter a discount value';
+      }
+      if (value < 0 || value > 100) {
+        return 'Discount must be between 0 and 100';
+      }
+    }
+  });
+
+  if (discount !== undefined) {
     try {
-      await toggleProductStatus(productId);
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === productId
-            ? { ...product, isActive: !product.isActive }
-            : product
+      await axios.put('/products/discount', { itemId: productId, discount: Number(discount) });
+      setProducts((prev) =>
+        prev.map((p) =>
+          p._id === productId ? { ...p, discount: Number(discount) } : p
         )
       );
+      toast.success("Discount updated!");
     } catch (error) {
-      console.error("Error toggling product status:", error);
+      toast.error("Failed to update discount.");
     }
-  };
+  }
+};
+
+const handleToggleProductStatus = async (productId, name, isActive) => {
+  try {
+    await toggleProductStatus(productId);
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product._id === productId
+          ? { ...product, isActive: !product.isActive }
+          : product
+      )
+    );
+
+    // Log the toggle action
+    await axios.post('/admins/logs', {
+      action: isActive ? "Toggle Off" : "Toggle On",
+      user: user?._id,
+      role: "admin",
+      details: `Product: ${name} is now ${isActive ? "Inactive" : "Active"} (toggled by admin)`
+    });
+  } catch (error) {
+    console.error("Error toggling product status:", error);
+  }
+};
 
   const filteredProducts = products.filter((product) =>
     product.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -150,7 +198,19 @@ const handleDeleteProduct = async (productId) => {
                           <td className="py-4 px-6">{product.productName}</td>
                           <td className="py-4 px-6">{product.brand}</td>
                           <td className="py-4 px-6">{product.quantity}</td>
-                          <td className="py-4 px-6">${product.pricePerUnit.toFixed(2)}</td>
+                          <td className="py-4 px-6">
+  {product.discount && product.discount > 0 ? (
+    <div>
+      <span className="line-through text-gray-400 mr-2">${product.pricePerUnit.toFixed(2)}</span>
+      <span className="text-green-600 font-bold">
+        ${(product.pricePerUnit * (1 - product.discount / 100)).toFixed(2)}
+      </span>
+      <span className="ml-2 text-xs text-orange-500">-{product.discount}%</span>
+    </div>
+  ) : (
+    <>${product.pricePerUnit.toFixed(2)}</>
+  )}
+</td>
                           <td className="py-4 px-6">
                             {product.partner
                               ? (product.partner.companyName
@@ -161,7 +221,7 @@ const handleDeleteProduct = async (productId) => {
                         <td className="py-4 px-6">
   <div className="flex items-center gap-2">
     <button
-      onClick={() => handleToggleProductStatus(product._id)}
+      onClick={() => handleToggleProductStatus(product._id, product.productName, product.isActive)}
       disabled={product.quantity === 0}
       className={`w-12 h-6 rounded-full ${product.quantity === 0
         ? 'bg-gray-300 cursor-not-allowed'
@@ -187,6 +247,13 @@ const handleDeleteProduct = async (productId) => {
     >
       <TrashIcon className="w-5 h-5" />
     </button>
+    <button
+  onClick={() => handleSetDiscount(product._id)}
+  className="text-blue-500 hover:text-blue-700 cursor-pointer"
+  title="Set Discount"
+>
+  %
+</button>
   </div>
 </td>
                         </tr>

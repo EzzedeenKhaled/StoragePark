@@ -291,7 +291,7 @@ const Customers = () => {
               <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
               <button
                 onClick={() => setShowAddModal(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 cursor-pointer"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 Add Customer
@@ -320,7 +320,7 @@ const Customers = () => {
                 <select
                   value={verificationFilter}
                   onChange={handleFilterChange}
-                  className="block w-40 pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 rounded-md"
+                  className="block w-40 pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 rounded-md cursor-pointer"
                 >
                   <option value="all">All Status</option>
                   <option value="verified">Verified</option>
@@ -375,13 +375,13 @@ const Customers = () => {
                             }}
                             className="text-blue-500 hover:text-blue-600"
                           >
-                            <PencilIcon className="h-5 w-5" />
+                            <PencilIcon className="h-5 w-5 cursor-pointer" />
                           </button>
                           <button
                             onClick={() => handleDeleteCustomer(customer._id)}
                             className="text-red-500 hover:text-red-600"
                           >
-                            <TrashIcon className="h-5 w-5" />
+                            <TrashIcon className="h-5 w-5 cursor-pointer" />
                           </button>
                         </div>
                       </div>
@@ -459,7 +459,7 @@ const Customers = () => {
                           <button
                             type="button"
                             onClick={handleGeneratePassword}
-                            className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                            className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 cursor-pointer"
                           >
                             <KeyIcon className="h-5 w-5" />
                           </button>
@@ -482,13 +482,13 @@ const Customers = () => {
                       <button
                         type="button"
                         onClick={() => setShowAddModal(false)}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600"
+                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 cursor-pointer"
                       >
                         Add Customer
                       </button>
@@ -621,14 +621,14 @@ const Customers = () => {
                         setShowDeleteModal(false);
                         setCustomerToDelete(null);
                       }}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
                       onClick={confirmDelete}
-                      className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                      className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 cursor-pointer"
                     >
                       Delete
                     </button>

@@ -15,7 +15,9 @@ import {
   getAllProducts,
   UpdateImage,
   deletePartner,
-  deleteItem
+  deleteItem,
+  getLogs,
+  createLog
 } from "../controllers/admin.controller.js";
 import { protectRoute, adminRoute } from "../middleware/auth.middleware.js";
 import {
@@ -69,4 +71,7 @@ router.get("/financial-overview", protectRoute, adminRoute, getFinancialOverview
 const upload = multer({ storage: multer.memoryStorage() });
 router.post("/updateImage", protectRoute, adminRoute, upload.single("profileImage"), UpdateImage);
 
+// Logs
+router.get("/logs", protectRoute, adminRoute, getLogs);
+router.post("/logs", protectRoute, createLog);
 export default router;

@@ -29,8 +29,8 @@ const Sidebar = () => {
       setActiveItem("Store");
     } else if (location.pathname === "/admin/outgoing-orders") {
       setActiveItem("Outgoing Orders");
-    } else if (location.pathname === "/reports") {
-      setActiveItem("Reports");
+    } else if (location.pathname === "/admin/logs") {
+      setActiveItem("Logs");
     } else if (location.pathname === "/admin/requests") {
       setActiveItem("Requests");
       setExpandedMenu("Users");
@@ -212,18 +212,18 @@ const Sidebar = () => {
           <li
             onClick={() => {
               setExpandedMenu(null);
-              setActiveItem("Reports");
-              navigate("/reports");
+              setActiveItem("Logs");
+              navigate("/admin/logs");
             }}
-            className={`sidebar-item ${activeItem === "Reports" ? "active-component" : ""}`}
+            className={`sidebar-item ${activeItem === "Logs" ? "active-component" : ""}`}
           >
             <div className="menu-item-content">
               <img
                 src={reports}
-                alt="Reports"
-                className={`icon ${activeItem === "Reports" ? "active-icon" : ""}`}
+                alt="Logs"
+                className={`icon ${activeItem === "Logs" ? "active-icon" : ""}`}
               />
-              <span>Reports</span>
+              <span>Logs</span>
             </div>
           </li>
         </ul>
