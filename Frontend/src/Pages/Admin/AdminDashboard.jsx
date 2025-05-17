@@ -11,6 +11,7 @@ import Outgoing from './outgoing/OutgoingOrders';
 import AdminProducts from './AdminProducts';
 import { useUserStore } from '../../stores/useUserStore';
 import { LoadingSpinner } from '../../../components/LoadingSpinner';
+import LogPage from './LogPage';
 function AdminDashboard() {
   const { user } = useUserStore();
   const [checkingRole, setCheckingRole] = React.useState(true);
@@ -45,6 +46,7 @@ function AdminDashboard() {
             <Route path="/employees" element={<Employees />} />
             <Route path="/outgoing-orders" element={<Outgoing />} />
             <Route path="/products" element={<AdminProducts />} />
+            <Route path='/logs' element={<LogPage />} />
           </Routes>
         </div>
       </main>

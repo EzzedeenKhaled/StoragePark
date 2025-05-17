@@ -142,6 +142,13 @@ const ProductForm = () => {
         reservedRowId: selectedRow._id,
       };
       await productFormSubmit(productData);
+          const user = useUserStore.getState().user;
+    await axios.post('/admins/logs', {
+      action: "New Product",
+      user: user?._id,
+      role: user?.role,
+      details: `Product: ${formData.productName}, Quantity: ${formData.quantity}, Category: ${formData.category}`
+    });
       toast.success('Product added and reserved successfully!');
       navigate('/partner/products');
     } catch (error) {

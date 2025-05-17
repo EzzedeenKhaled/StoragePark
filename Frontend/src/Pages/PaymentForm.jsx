@@ -10,7 +10,7 @@ import usePlacesAutocomplete, { getGeocode, getLatLng } from "use-places-autocom
 
 const libraries = ['places'];
 const mapContainerStyle = { width: '100%', height: '300px' };
-const defaultCenter = { lat: 40.7128, lng: -74.0060 };
+const defaultCenter = { lat: 33.8547, lng: 35.8623 }; // Coordinates for Lebanon
 
 const PaymentForm = () => {
   const [address, setAddress] = useState('');

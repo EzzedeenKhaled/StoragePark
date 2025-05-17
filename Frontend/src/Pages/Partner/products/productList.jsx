@@ -6,8 +6,9 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { toast } from 'react-hot-toast';
 import axios from '../../../../lib/axios'
+import { useUserStore } from '../../../stores/useUserStore';
 const ProductList = () => {
-
+const { user } = useUserStore();
 
 const MySwal = withReactContent(Swal);
 
@@ -42,6 +43,13 @@ const handleSetDiscount = async (productId) => {
     p._id === productId ? { ...p, discount: Number(discount) } : p
   )
 }));
+    const product = usePartnerStore.getState().partnerItems.find(p => p._id === productId);
+    await axios.post('/admins/logs', {
+        action: "Set Discount",
+        user: user?._id,
+        role: user?.role,
+        details: `Product: ${product?.productName}, Discount: ${discount}%`
+      });
       toast.success("Discount updated!");
     } catch (error) {
       toast.error("Failed to update discount.");

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "../../lib/axios";
 import { toast } from "react-hot-toast";
-
+import { useUserStore } from "./useUserStore";
 
 export const usePartnerStore = create((set, get) => ({
   partner: null,
@@ -61,27 +61,39 @@ getPartnerItems: async (partnerId) => {
     throw error;
   }
 },
-  toggleProductStatus: async (productId) => {
-    try {
-      set({ loading: true });
-      // Find the current product status to toggle it
-      const currentItems = get().partnerItems;
-      await axios.put('/partners/toggle-active', {productId});
-      
-      // Update the local state to reflect the change
-      const updatedItems = currentItems.map(item => 
-        item._id === productId ? { ...item, isActive: !item.isActive } : item
-      );
-      
-      set({ partnerItems: updatedItems, loading: false });
-      toast.success("Product status updated successfully");
-      
-      // return response.data;
-    } catch (error) {
-      set({ loading: false });
-      console.error("Error updating product status:", error);
-      toast.error("Failed to update product status");
-      throw error;
-    }
-  },
+toggleProductStatus: async (productId) => {
+  try {
+    set({ loading: true });
+    const useR = useUserStore.getState().user;
+    // Find the current product and its status
+    const currentItems = get().partnerItems;
+    const product = currentItems.find(item => item._id === productId);
+    const wasActive = product?.isActive;
+    await axios.put('/partners/toggle-active', { productId });
+
+    // Update the local state to reflect the change
+    const updatedItems = currentItems.map(item =>
+      item._id === productId ? { ...item, isActive: !item.isActive } : item
+    );
+
+    set({ partnerItems: updatedItems, loading: false });
+    toast.success("Product status updated successfully");
+
+    // Log the toggle action
+
+    await axios.post('/admins/logs', {
+      action: wasActive ? "Toggle Off" : "Toggle On",
+      user: useR?._id,
+      role: useR?.role,
+      details: `Product: ${product?.productName} is now ${wasActive ? "Inactive" : "Active"}`
+    });
+
+    // return response.data;
+  } catch (error) {
+    set({ loading: false });
+    console.error("Error updating product status:", error);
+    toast.error("Failed to update product status");
+    throw error;
+  }
+}
 }));

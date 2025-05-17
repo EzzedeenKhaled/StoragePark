@@ -7,8 +7,9 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-
+import { useUserStore } from "../../stores/useUserStore";
 const AdminProducts = () => {
+  const { user } = useUserStore();
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -96,20 +97,28 @@ const handleSetDiscount = async (productId) => {
   }
 };
 
-  const handleToggleProductStatus = async (productId) => {
-    try {
-      await toggleProductStatus(productId);
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === productId
-            ? { ...product, isActive: !product.isActive }
-            : product
-        )
-      );
-    } catch (error) {
-      console.error("Error toggling product status:", error);
-    }
-  };
+const handleToggleProductStatus = async (productId, name, isActive) => {
+  try {
+    await toggleProductStatus(productId);
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product._id === productId
+          ? { ...product, isActive: !product.isActive }
+          : product
+      )
+    );
+
+    // Log the toggle action
+    await axios.post('/admins/logs', {
+      action: isActive ? "Toggle Off" : "Toggle On",
+      user: user?._id,
+      role: "admin",
+      details: `Product: ${name} is now ${isActive ? "Inactive" : "Active"} (toggled by admin)`
+    });
+  } catch (error) {
+    console.error("Error toggling product status:", error);
+  }
+};
 
   const filteredProducts = products.filter((product) =>
     product.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -212,7 +221,7 @@ const handleSetDiscount = async (productId) => {
                         <td className="py-4 px-6">
   <div className="flex items-center gap-2">
     <button
-      onClick={() => handleToggleProductStatus(product._id)}
+      onClick={() => handleToggleProductStatus(product._id, product.productName, product.isActive)}
       disabled={product.quantity === 0}
       className={`w-12 h-6 rounded-full ${product.quantity === 0
         ? 'bg-gray-300 cursor-not-allowed'

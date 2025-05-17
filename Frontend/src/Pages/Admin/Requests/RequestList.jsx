@@ -5,8 +5,9 @@ import "./request.css";
 import axios from '../../../../lib/axios';
 import toast from 'react-hot-toast';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-
+import { useUserStore } from '../../../stores/useUserStore';
 const RequestsList = () => {
+  const { user } = useUserStore();
   const [partners, setPartners] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -42,29 +43,45 @@ const RequestsList = () => {
   };
 
   // Confirm Request (✓ Button)
-  const confirmRequest = async () => {
-    try {
-      await axios.post('/admins/confirm-request', { email: selectedRequest.email });
-      toast.success('Request confirmed successfully!');
-      setPartners((prevPartners) => prevPartners.filter((partner) => partner.email !== selectedRequest.email));
-      closeModal();
-    } catch {
-      toast.error('An error occurred while confirming the request.');
-    }
-  };
-
-  // Cancel Request (✘ Button)
-  const cancelRequest = async () => {
-    try {
-      await axios.post('/admins/cancel-request', { email: selectedRequest.email });
-      toast.success('Request canceled successfully!');
-      // Remove the canceled request from the partners list
+  // Confirm Request (✓ Button)
+const confirmRequest = async () => {
+  try {
+    await axios.post('/admins/confirm-request', { email: selectedRequest.email });
+    toast.success('Request confirmed successfully!');
     setPartners((prevPartners) => prevPartners.filter((partner) => partner.email !== selectedRequest.email));
-      closeModal();
-    } catch {
-      toast.success('An error occurred while canceling the request.');
-    }
-  };
+    closeModal();
+
+    // Log the accept action
+    await axios.post('/admins/logs', {
+      action: "Accept",
+      user: user?._id,
+      role: "admin",
+      details: `Accepted partner: ${selectedRequest?.authorizedRepresentative || selectedRequest?.email}`
+    });
+  } catch {
+    toast.error('An error occurred while confirming the request.');
+  }
+};
+
+// Cancel Request (✘ Button)
+const cancelRequest = async () => {
+  try {
+    await axios.post('/admins/cancel-request', { email: selectedRequest.email });
+    toast.success('Request canceled successfully!');
+    setPartners((prevPartners) => prevPartners.filter((partner) => partner.email !== selectedRequest.email));
+    closeModal();
+
+    // Log the reject action
+    await axios.post('/admins/logs', {
+      action: "Reject",
+      user: user?._id,
+      role: "admin",
+      details: `Rejected partner: ${selectedRequest?.authorizedRepresentative || selectedRequest?.email}`
+    });
+  } catch {
+    toast.success('An error occurred while canceling the request.');
+  }
+};
 
   // Filter requests based on search query
   const filteredRequests = partners.filter((request) => {
