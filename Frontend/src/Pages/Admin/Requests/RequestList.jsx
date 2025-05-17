@@ -44,44 +44,44 @@ const RequestsList = () => {
 
   // Confirm Request (✓ Button)
   // Confirm Request (✓ Button)
-const confirmRequest = async () => {
-  try {
-    await axios.post('/admins/confirm-request', { email: selectedRequest.email });
-    toast.success('Request confirmed successfully!');
-    setPartners((prevPartners) => prevPartners.filter((partner) => partner.email !== selectedRequest.email));
-    closeModal();
+  const confirmRequest = async () => {
+    try {
+      await axios.post('/admins/confirm-request', { email: selectedRequest.email });
+      toast.success('Request confirmed successfully!');
+      setPartners((prevPartners) => prevPartners.filter((partner) => partner.email !== selectedRequest.email));
+      closeModal();
 
-    // Log the accept action
-    await axios.post('/admins/logs', {
-      action: "Accept",
-      user: user?._id,
-      role: "admin",
-      details: `Accepted partner: ${selectedRequest?.authorizedRepresentative || selectedRequest?.email}`
-    });
-  } catch {
-    toast.error('An error occurred while confirming the request.');
-  }
-};
+      // Log the accept action
+      await axios.post('/admins/logs', {
+        action: "Accept",
+        user: user?._id,
+        role: "admin",
+        details: `Accepted partner: ${selectedRequest?.authorizedRepresentative || selectedRequest?.email}`
+      });
+    } catch {
+      toast.error('An error occurred while confirming the request.');
+    }
+  };
 
-// Cancel Request (✘ Button)
-const cancelRequest = async () => {
-  try {
-    await axios.post('/admins/cancel-request', { email: selectedRequest.email });
-    toast.success('Request canceled successfully!');
-    setPartners((prevPartners) => prevPartners.filter((partner) => partner.email !== selectedRequest.email));
-    closeModal();
+  // Cancel Request (✘ Button)
+  const cancelRequest = async () => {
+    try {
+      await axios.post('/admins/cancel-request', { email: selectedRequest.email });
+      toast.success('Request canceled successfully!');
+      setPartners((prevPartners) => prevPartners.filter((partner) => partner.email !== selectedRequest.email));
+      closeModal();
 
-    // Log the reject action
-    await axios.post('/admins/logs', {
-      action: "Reject",
-      user: user?._id,
-      role: "admin",
-      details: `Rejected partner: ${selectedRequest?.authorizedRepresentative || selectedRequest?.email}`
-    });
-  } catch {
-    toast.success('An error occurred while canceling the request.');
-  }
-};
+      // Log the reject action
+      await axios.post('/admins/logs', {
+        action: "Reject",
+        user: user?._id,
+        role: "admin",
+        details: `Rejected partner: ${selectedRequest?.authorizedRepresentative || selectedRequest?.email}`
+      });
+    } catch {
+      toast.success('An error occurred while canceling the request.');
+    }
+  };
 
   // Filter requests based on search query
   const filteredRequests = partners.filter((request) => {
@@ -140,7 +140,9 @@ const cancelRequest = async () => {
           {/* Render filtered request cards */}
           <div className="requests-list">
             {loading ? (
-              <p>Loading...</p>
+              <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+              </div>
             ) : error ? (
               <p>{error}</p>
             ) : filteredRequests.length > 0 ? (
@@ -164,7 +166,7 @@ const cancelRequest = async () => {
           <div className="relative w-full max-w-2xl mx-4">
             {/* Blurred background layer */}
             <div className="absolute inset-0 bg-white/40 backdrop-blur-xl rounded-lg"></div>
-            
+
             {/* Content layer */}
             <div className="relative">
               {/* Header */}
@@ -173,15 +175,15 @@ const cancelRequest = async () => {
                   <h3 className="text-xl font-semibold text-orange-800">
                     {selectedRequest?.authorizedRepresentative || "N/A"}
                   </h3>
-                  <button 
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                  <button
+                    className="text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                     onClick={closeModal}
                   >
                     ×
                   </button>
                 </div>
               </div>
-              
+
               {/* Body */}
               <div className="bg-white/80 backdrop-blur-xl px-6 py-6 rounded-b-lg">
                 <div className="space-y-4">
@@ -195,7 +197,7 @@ const cancelRequest = async () => {
                       <p className="text-gray-900">{selectedRequest?.phoneNumber || "Not Provided"}</p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-gray-500">Address</p>
                     <p className="text-gray-900">{selectedRequest?.address}</p>
@@ -208,17 +210,17 @@ const cancelRequest = async () => {
                       <div className="space-y-2">
                         <p className="text-sm font-medium text-gray-500">Certificate of Incorporation</p>
                         {selectedRequest?.certificateFileURL ? (
-                          <a 
-                            href={selectedRequest?.certificateFileURL} 
-                            target="_blank" 
+                          <a
+                            href={selectedRequest?.certificateFileURL}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="block group"
                           >
                             <div className="relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                              <img 
-                                src={selectedRequest?.certificateFileURL} 
-                                alt="Certificate of Incorporation" 
-                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200" 
+                              <img
+                                src={selectedRequest?.certificateFileURL}
+                                alt="Certificate of Incorporation"
+                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
                               />
                             </div>
                           </a>
@@ -226,21 +228,21 @@ const cancelRequest = async () => {
                           <p className="text-sm text-gray-500">Not Provided</p>
                         )}
                       </div>
-                      
+
                       <div className="space-y-2">
                         <p className="text-sm font-medium text-gray-500">Business License</p>
                         {selectedRequest?.businessLicenseFileURL ? (
-                          <a 
-                            href={selectedRequest?.businessLicenseFileURL} 
-                            target="_blank" 
+                          <a
+                            href={selectedRequest?.businessLicenseFileURL}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="block group"
                           >
                             <div className="relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                              <img 
-                                src={selectedRequest?.businessLicenseFileURL} 
-                                alt="Business License" 
-                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200" 
+                              <img
+                                src={selectedRequest?.businessLicenseFileURL}
+                                alt="Business License"
+                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
                               />
                             </div>
                           </a>
@@ -248,21 +250,21 @@ const cancelRequest = async () => {
                           <p className="text-sm text-gray-500">Not Provided</p>
                         )}
                       </div>
-                      
+
                       <div className="space-y-2">
                         <p className="text-sm font-medium text-gray-500">Tax Compliance Certificate</p>
                         {selectedRequest?.taxComplianceFileURL ? (
-                          <a 
-                            href={selectedRequest?.taxComplianceFileURL} 
-                            target="_blank" 
+                          <a
+                            href={selectedRequest?.taxComplianceFileURL}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="block group"
                           >
                             <div className="relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                              <img 
-                                src={selectedRequest?.taxComplianceFileURL} 
-                                alt="Tax Compliance Certificate" 
-                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200" 
+                              <img
+                                src={selectedRequest?.taxComplianceFileURL}
+                                alt="Tax Compliance Certificate"
+                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
                               />
                             </div>
                           </a>
@@ -278,13 +280,13 @@ const cancelRequest = async () => {
                 <div className="mt-8 flex justify-end space-x-4">
                   <button
                     onClick={cancelRequest}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors cursor-pointer"
                   >
                     Reject
                   </button>
                   <button
                     onClick={confirmRequest}
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors cursor-pointer"
                   >
                     Approve
                   </button>

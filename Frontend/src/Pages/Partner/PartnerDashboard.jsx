@@ -9,6 +9,7 @@ import ProfilePartner from './profile/ProfilePartner';
 import Sidebar from '../Partner/components/Sidebar';
 import { useUserStore } from '../../stores/useUserStore';
 import { LoadingSpinner } from '../../../components/LoadingSpinner';
+import axios from '../../../lib/axios';
 function PartnerDashboard() {
   const { user } = useUserStore();
   const [checkingRole, setCheckingRole] = React.useState(true);
@@ -19,6 +20,12 @@ function PartnerDashboard() {
     }
     setCheckingRole(true);
      if (user.role === "customer") {
+       axios.post('/admins/logs', {
+      action: "Unauthorized Access",
+      user: user?._id,
+      role: user?.role,
+      details: "Attempted to access partner dashboard"
+    });
       navigate('/unauthorized');
     }
     setCheckingRole(false);

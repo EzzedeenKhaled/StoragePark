@@ -15,34 +15,36 @@ const formatDate = (dateString) => {
 
 const LogItem = ({ log }) => {
   // Custom color palette: orange, dark, blue
-  const getBgColor = (action) => {
-    if (
-      [
-        "Placed Order",
-        "Set Discount",
-        "Toggle On",
-        "Toggle Off",
-        "New Product"
-      ].includes(action)
-    ) return 'bg-[#FF8B13]/20'; // Orange (light)
+const getBgColor = (action) => {
+  if (
+    [
+      "Placed Order",
+      "Set Discount",
+      "Toggle On",
+      "Toggle Off",
+      "New Product"
+    ].includes(action)
+  ) return 'bg-[#FF8B13]/20'; // Orange (light)
 
-    if (
-      [
-        "Accept",
-        "Reject",
-        "Reset Warehouse",
-        "Remove Reservation"
-      ].includes(action)
-    ) return 'bg-[#1D2126]/20'; // Dark (light)
+  if (
+    [
+      "Accept",
+      "Reject",
+      "Reset Warehouse",
+      "Remove Reservation"
+    ].includes(action)
+  ) return 'bg-[#1D2126]/20'; // Dark (light)
 
-    // Default: blue
-    return 'bg-[#1479FF]/20'; // Blue (light)
-  };
+  if (action === "Unauthorized Access") return 'bg-red-100'; // Light red
+
+  // Default: blue
+  return 'bg-[#1479FF]/20'; // Blue (light)
+};
 
   // Show user email or name if available (after populate)
   const userDisplay =
     typeof log.user === 'object'
-      ? log.user.email || log.user.firstName || log.user.lastName || log.user._id
+      ? log.user?.email || log.user?.firstName || log.user?.lastName || log.user?._id
       : log.user;
 
   return (
@@ -60,7 +62,8 @@ const LogItem = ({ log }) => {
           "Accept",
           "Reject",
           "Reset Warehouse",
-          "Remove Reservation"
+          "Remove Reservation",
+          "Unauthorized Access"
         ].includes(log.action) && log.details && (
           <p className="text-xs text-gray-500 mt-1">{log.details}</p>
         )}
@@ -77,7 +80,7 @@ const LogSection = ({ title, logs, filterText }) => {
   const filteredLogs = logs.filter(log =>
     log.action.toLowerCase().includes(filterText.toLowerCase()) ||
     (typeof log.user === 'object'
-      ? (log.user.email || log.user.firstName || log.user.lastName || '').toLowerCase().includes(filterText.toLowerCase())
+      ? (log.user?.email || log.user?.firstName || log.user?.lastName || '').toLowerCase().includes(filterText.toLowerCase())
       : (log.user || '').toLowerCase().includes(filterText.toLowerCase()))
   );
 
@@ -154,7 +157,7 @@ export default function LogPage() {
           {['customer', 'partner', 'admin'].map(tab => (
             <button
               key={tab}
-              className={`py-2 px-4 font-medium ${activeTab === tab
+              className={`py-2 px-4 cursor-pointer font-medium ${activeTab === tab
                 ? 'text-[#FF8B13] border-b-2 border-[#FF8B13]'
                 : 'text-gray-500 hover:text-gray-700'}`}
               onClick={() => setActiveTab(tab)}

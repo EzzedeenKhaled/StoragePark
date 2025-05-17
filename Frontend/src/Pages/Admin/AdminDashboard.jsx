@@ -11,6 +11,7 @@ import Outgoing from './outgoing/OutgoingOrders';
 import AdminProducts from './AdminProducts';
 import { useUserStore } from '../../stores/useUserStore';
 import { LoadingSpinner } from '../../../components/LoadingSpinner';
+import axios from '../../../lib/axios';
 import LogPage from './LogPage';
 function AdminDashboard() {
   const { user } = useUserStore();
@@ -22,6 +23,12 @@ function AdminDashboard() {
     }
     setCheckingRole(true);
      if (user.role !== "admin") {
+       axios.post('/admins/logs', {
+      action: "Unauthorized Access",
+      user: user?._id,
+      role: user?.role,
+      details: "Attempted to access admin dashboard"
+    });
       navigate('/unauthorized');
     }
     setCheckingRole(false);

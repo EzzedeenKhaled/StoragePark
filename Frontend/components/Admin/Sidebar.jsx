@@ -29,7 +29,7 @@ const Sidebar = () => {
       setActiveItem("Store");
     } else if (location.pathname === "/admin/outgoing-orders") {
       setActiveItem("Outgoing Orders");
-    } else if (location.pathname === "/logs") {
+    } else if (location.pathname === "/admin/logs") {
       setActiveItem("Logs");
     } else if (location.pathname === "/admin/requests") {
       setActiveItem("Requests");
