@@ -74,4 +74,5 @@ router.post("/updateImage", protectRoute, adminRoute, upload.single("profileImag
 // Logs
 router.get("/logs", protectRoute, adminRoute, getLogs);
 router.post("/logs", protectRoute, createLog);
+
 export default router;

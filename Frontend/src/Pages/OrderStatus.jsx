@@ -184,7 +184,19 @@ useEffect(() => {
                 <p className="font-medium text-gray-800">{item.name}</p>
                 <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
               </div>
-              <p className="font-medium text-gray-800">${item.price.toFixed(2)}</p>
+              <p className="font-medium text-gray-800">
+                {item.item.discount && item.item.discount > 0 ? (
+                  <div className="flex items-center gap-2">
+                    <span className="line-through text-gray-400">${item.price.toFixed(2)}</span>
+                    <span className="text-green-600 font-bold">
+                      ${(item.price * (1 - item.item.discount / 100)).toFixed(2)}
+                    </span>
+                    <span className="text-xs text-orange-500">-{item.item.discount}%</span>
+                  </div>
+                ) : (
+                  `$${item.price.toFixed(2)}`
+                )}
+              </p>
             </li>
           ))}
         </ul>

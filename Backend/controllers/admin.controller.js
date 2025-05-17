@@ -189,7 +189,7 @@ export const getHighestSellingProducts = async (req, res) => {
     // Fetch the top 5 highest-selling products based on `timesBought`
     const highestSellingProducts = await Item.find({ timesBought: { $gt: 0 } })
       .sort({ timesBought: -1 }) // Sort by timesBought in descending order
-      .limit(4) // Limit to top 5 products
+      .limit(4) // Limit to top 4 products
       .select("productName timesBought quantity pricePerUnit imageProduct"); // Select relevant fields
 
     res.status(200).json(highestSellingProducts);

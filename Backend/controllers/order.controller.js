@@ -155,7 +155,7 @@ export const getOrderStatus = async (req, res) => {
 
   try {
     const user = await User.findOne({ 'orders.orderId': orderId })
-      .populate('orders.items.item', 'name imageProduct price') // populate specific fields
+      .populate('orders.items.item', 'name imageProduct price discount') // populate specific fields
       .lean();
 
     if (!user) {

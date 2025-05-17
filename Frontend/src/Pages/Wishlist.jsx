@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Sidebar } from '../../components/Sidebar';
 import { useUserStore } from '../stores/useUserStore';
 import { WishlistItem } from '../../components/WishlistItem';
