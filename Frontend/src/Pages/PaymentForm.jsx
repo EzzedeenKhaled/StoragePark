@@ -27,21 +27,29 @@ const PaymentForm = () => {
     setValue,
     suggestions: { status, data },
     clearSuggestions,
-  } = usePlacesAutocomplete();
+  } = usePlacesAutocomplete({
+    debounce: 300,
+    cache: 24 * 60 * 60,
+    defaultValue: '',
+  });
 
   const handleSelect = async (address) => {
     setValue(address, false);
     setAddress(address);
     clearSuggestions();
-    const results = await getGeocode({ address });
-    const { lat, lng } = await getLatLng(results[0]);
-    setSelected({ lat, lng });
-    setUserLocation({ latitude: lat, longitude: lng });
+    try {
+      const results = await getGeocode({ address });
+      const { lat, lng } = await getLatLng(results[0]);
+      setSelected({ lat, lng });
+      setUserLocation({ latitude: lat, longitude: lng });
+    } catch (error) {
+      console.error('Error getting coordinates:', error);
+      toast.error('Could not get location coordinates. Please try again.');
+    }
   };
 
   const handleInput = (e) => {
     setValue(e.target.value);
-    // Do NOT setAddress here, only setValue controls the input
   };
 
   const navigate = useNavigate();
@@ -116,9 +124,8 @@ const PaymentForm = () => {
                   <input
                     value={value}
                     onChange={handleInput}
-                    disabled={!ready}
                     placeholder="Type your address"
-                    className="w-full p-3 border border-gray-300 rounded-lg mb-2"
+                    className="w-full p-3 border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   />
                   {status === "OK" && (
                     <ul className="bg-white border rounded shadow max-h-40 overflow-y-auto mb-2">
