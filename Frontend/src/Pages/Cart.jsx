@@ -8,23 +8,22 @@ import { LoadingSpinner } from "../../components/LoadingSpinner";
 import axios from "../../lib/axios";
 
 const Cart = () => {
-  const { cart, total, subtotal, removeFromCart, updateQuantity, getCartItems, loading } = useCartStore();
-  const [onSaleItems, setOnSaleItems] = useState([]); // State for on-sale items
+  const { cart, subtotal, removeFromCart, updateQuantity, getCartItems, loading } = useCartStore();
+  const [onSaleItems, setOnSaleItems] = useState([]);
 
   useEffect(() => {
     async function fetchCart() {
       await getCartItems();
     }
-
     fetchCart();
   }, [getCartItems]);
 
   useEffect(() => {
     const fetchOnSaleItems = async () => {
       try {
-        const cartItemIds = cart.map((item) => item._id); // Get IDs of items in the cart
-        const response = await axios.post("/products/onSale", { cartItemIds }); // Fetch on-sale items
-        setOnSaleItems(response.data); // Set on-sale items
+        const cartItemIds = cart.map((item) => item._id);
+        const response = await axios.post("/products/onSale", { cartItemIds });
+        setOnSaleItems(response.data);
       } catch (error) {
         console.error("Error fetching on-sale items:", error);
       }
@@ -37,6 +36,15 @@ const Cart = () => {
 
   if (loading) return <LoadingSpinner />;
 
+  // Calculate discounts
+  const calculateItemDiscount = (item) => {
+    if (!item.discount || item.discount <= 0) return 0;
+    return (item.pricePerUnit * item.quantity * (item.discount / 100));
+  };
+
+  const totalDiscount = cart.reduce((sum, item) => sum + calculateItemDiscount(item), 0);
+  const finalTotal = parseFloat(subtotal) + 3 - totalDiscount;
+
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -47,7 +55,7 @@ const Cart = () => {
         <div className="bg-orange-50 p-4 rounded-lg flex items-start gap-3 mb-6">
           <img src="handshake.png" alt="handshake" height={15} />
           <p className="text-sm">
-            Storage Park Purchase Protection: Shop confidently on Storage Park knowing if something goes wrong with an order, we've got your back.
+            Storage Park Purchase Protection: Shop confidently on Storage Park knowing if something goes wrong with an order, we&apos;ve got your back.
             <a href="#" className="text-orange-600 hover:underline ml-1">See program terms</a>
           </p>
         </div>
@@ -63,7 +71,17 @@ const Cart = () => {
                 />
                 <div className="flex-1">
                   <h3 className="font-medium text-lg">{item.productName}</h3>
-                  <p className="text-orange-500 font-bold">${item.pricePerUnit}</p>
+                  {item.discount && item.discount > 0 ? (
+                    <div className="flex items-center gap-2">
+                      <span className="line-through text-gray-400">${item.pricePerUnit?.toFixed(2)}</span>
+                      <span className="text-green-600 font-bold">
+                        ${(item.pricePerUnit * (1 - item.discount / 100))?.toFixed(2)}
+                      </span>
+                      <span className="text-xs text-orange-500">-{item.discount}%</span>
+                    </div>
+                  ) : (
+                    <p className="text-orange-500 font-bold">${item?.pricePerUnit?.toFixed(2)}</p>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -96,11 +114,17 @@ const Cart = () => {
               </div>
               <div className="flex justify-between py-2 border-b">
                 <span>Shipping</span>
-                <span>$3</span>
+                <span>$3.00</span>
               </div>
+              {totalDiscount > 0 && (
+                <div className="flex justify-between py-2 border-b">
+                  <span>Discount</span>
+                  <span className="text-red-500">-${totalDiscount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between py-2 mt-2">
                 <span className="font-bold">Total</span>
-                <span className="font-bold">${(parseFloat(subtotal) + 3).toFixed(2)}</span>
+                <span className="font-bold">${finalTotal.toFixed(2)}</span>
               </div>
             </div>
             <Link
@@ -113,9 +137,10 @@ const Cart = () => {
                   price: item.pricePerUnit,
                   quantity: item.quantity,
                   image: item.imageProduct,
+                  discount: item.discount || 0,
                 })),
                 subtotal: subtotal,
-                total: (parseFloat(subtotal) + 3).toFixed(2),
+                total: finalTotal,
               }}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 w-full transition-colors"
             >
@@ -126,7 +151,7 @@ const Cart = () => {
         ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow-md mb-8">
             <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-            <p className="mb-6 text-gray-600">Looks like you haven't added anything to your cart yet.</p>
+            <p className="mb-6 text-gray-600">Looks like you haven&apos;t added anything to your cart yet.</p>
             <Link
               to="/ecommerce"
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg inline-flex items-center gap-2 transition-colors"

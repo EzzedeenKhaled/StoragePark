@@ -68,9 +68,15 @@ const PaymentForm = () => {
   }, [user, navigate]);
 
   if (checkingRole) return <LoadingSpinner />;
-  // Calculate discount if needed
-  const discount = 0;
-  const finalTotal = parseFloat(total) - discount;
+
+  // Calculate discounts
+  const calculateItemDiscount = (item) => {
+    if (!item.discount || item.discount <= 0) return 0;
+    return (item.price * item.quantity * (item.discount / 100));
+  };
+
+  const totalDiscount = cartItems.reduce((sum, item) => sum + calculateItemDiscount(item), 0);
+  const finalTotal = parseFloat(subtotal) + 3 - totalDiscount;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,6 +87,7 @@ const PaymentForm = () => {
           name: item.name || item.productName,
           quantity: item.quantity,
           price: item.price || item.pricePerUnit,
+          discount: item.discount || 0,
         })),
         totalAmount: finalTotal,
         deliveryAddress: address,
@@ -199,7 +206,17 @@ const PaymentForm = () => {
                       <p className="text-sm text-gray-500">{product.category || 'No category'}</p>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium">${(product.price || 0).toFixed(2)}</div>
+                      {product.discount && product.discount > 0 ? (
+                        <div>
+                          <span className="line-through text-gray-400 mr-2">${(product.price * product.quantity).toFixed(2)}</span>
+                          <span className="text-green-600 font-bold">
+                            ${((product.price * product.quantity) * (1 - product.discount / 100)).toFixed(2)}
+                          </span>
+                          <span className="ml-2 text-xs text-orange-500">-{product.discount}%</span>
+                        </div>
+                      ) : (
+                        <div className="font-medium">${(product.price * product.quantity).toFixed(2)}</div>
+                      )}
                       <div className="flex items-center gap-2">
                         <span>Qty: {product.quantity || 1}</span>
                       </div>
@@ -216,15 +233,15 @@ const PaymentForm = () => {
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-medium">$3.00</span>
                   </div>
-                  {discount > 0 && (
+                  {totalDiscount > 0 && (
                     <div className="flex justify-between mb-2">
                       <span className="text-gray-600">Discount</span>
-                      <span className="text-red-500">-${discount.toFixed(2)}</span>
+                      <span className="text-red-500">-${totalDiscount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between border-t pt-4 text-lg font-semibold">
                     <span>Total</span>
-                    <span className="text-orange-500">${(finalTotal || 0).toFixed(2)}</span>
+                    <span className="text-orange-500">${finalTotal.toFixed(2)}</span>
                   </div>
                 </div>
 
